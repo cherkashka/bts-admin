@@ -1,0 +1,84 @@
+<!--
+  Страница «Экспорт» — Alpine.js компонент.
+  Логика в export.js (Alpine.data('exportPage', ...)).
+-->
+<div x-data="exportPage" x-init="init()">
+
+  <div class="export-container">
+    <div class="export-options">
+
+      <div class="export-section">
+        <h3>Выберите тип данных для экспорта</h3>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" class="checkbox-input" x-model="types.assets">
+            Активы
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="checkbox-input" x-model="types.users">
+            Пользователи
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" class="checkbox-input" x-model="types.tasks">
+            Задачи
+          </label>
+        </div>
+      </div>
+
+      <div class="export-section">
+        <h3>Выберите формат экспорта</h3>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="export-format" value="csv" class="radio-input" x-model="format">
+            CSV
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="export-format" value="xlsx" class="radio-input" x-model="format">
+            Excel (XLSX)
+          </label>
+        </div>
+      </div>
+
+      <div class="export-section">
+        <h3>Диапазон дат</h3>
+        <div class="date-range">
+          <div class="form-group">
+            <label class="form-label">С:</label>
+            <input type="date" class="form-input" x-model="dateFrom">
+          </div>
+          <div class="form-group">
+            <label class="form-label">По:</label>
+            <input type="date" class="form-input" x-model="dateTo">
+          </div>
+        </div>
+      </div>
+
+      <div class="export-error" x-show="errorMsg" x-text="errorMsg"></div>
+
+      <button class="btn btn-primary"
+              :disabled="busy"
+              @click="doExport()"
+              x-text="busy ? 'Экспорт…' : 'Экспортировать'"></button>
+    </div>
+
+    <div class="export-preview">
+      <h3>Предварительный просмотр</h3>
+      <p>Выберите параметры экспорта и нажмите «Экспортировать»</p>
+      <div class="export-stats">
+        <div class="stat-item">
+          <span class="stat-label">Активы:</span>
+          <span class="stat-value" x-text="stats.assets"></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Пользователи:</span>
+          <span class="stat-value" x-text="stats.users"></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Задачи:</span>
+          <span class="stat-value" x-text="stats.tasks"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

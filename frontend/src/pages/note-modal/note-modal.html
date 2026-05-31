@@ -1,0 +1,48 @@
+<!--
+  Шаблон формы заметки. Заполнение values и опций — в note-modal.js.
+-->
+<div class="form-row">
+  <div class="form-group">
+    <label class="form-label">Заголовок <span class="req">*</span></label>
+    <input type="text" name="title" class="form-input" placeholder="Название события">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Категория <span class="req">*</span></label>
+    <select name="category_id" class="form-input"></select>
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="form-label">Описание</label>
+  <textarea name="content" class="form-input" rows="3"
+            placeholder="Дополнительная информация..."></textarea>
+</div>
+
+<div class="form-group">
+  <label class="checkbox-label">
+    <input type="checkbox" name="is_single" class="checkbox-input">
+    <span>Разовое событие (без времени окончания)</span>
+  </label>
+</div>
+
+<div class="form-row">
+  <div class="form-group">
+    <label class="form-label">Дата и время начала <span class="req">*</span></label>
+    <input type="datetime-local" name="event_start" class="form-input">
+  </div>
+  <div class="form-group nm-end-group">
+    <label class="form-label">Дата и время окончания</label>
+    <input type="datetime-local" name="event_end" class="form-input">
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="form-group">
+    <label class="form-label">Привязать актив</label>
+    <select name="related_asset_id" class="form-input"></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Привязать пользователя</label>
+    <select name="related_user_id" class="form-input"></select>
+  </div>
+</div>

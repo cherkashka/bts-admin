@@ -1,0 +1,11 @@
+<!--
+  Шаблон одного тоста. Клонируется в Toast.js через DOM API.
+  Контейнер создаётся в JS (createElement), сюда вынесена только разметка
+  карточки — по правилу «никакого HTML в JS».
+-->
+<template id="toast-item">
+  <div class="toast" role="status" aria-live="polite">
+    <span class="toast-icon" aria-hidden="true"></span>
+    <span class="toast-message"></span>
+  </div>
+</template>

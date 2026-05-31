@@ -1,0 +1,107 @@
+<!--
+  Страница «Аудит-лог» — Alpine.js компонент (только admin).
+  Логика в audit.js (Alpine.data('auditPage', ...)).
+  Источник данных — единая коллекция audit_log (GET /api/v1/audit).
+-->
+<div x-data="auditPage" x-init="init()">
+
+  <div class="table-toolbar">
+    <div class="table-toolbar-filters">
+      <select class="form-input" x-model="entityType" @change="applyFilters()">
+        <option value="">Все сущности</option>
+        <option value="asset">Активы</option>
+        <option value="task">Задачи</option>
+        <option value="user">Сотрудники</option>
+        <option value="note">Заметки</option>
+        <option value="category">Категории</option>
+      </select>
+      <select class="form-input" x-model="action" @change="applyFilters()">
+        <option value="">Все действия</option>
+        <option value="create">Создание</option>
+        <option value="update">Изменение</option>
+        <option value="delete">Удаление</option>
+      </select>
+      <select class="form-input" x-model="days" @change="applyFilters()">
+        <option value="">За всё время</option>
+        <option value="1">За сутки</option>
+        <option value="7">За неделю</option>
+        <option value="30">За месяц</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th>Кто</th>
+          <th>Действие</th>
+          <th>Тип</th>
+          <th>Объект</th>
+          <th class="th-actions">Изменения</th>
+        </tr>
+      </thead>
+      <template x-for="entry in entries" :key="entry.id">
+        <tbody>
+          <tr class="row-clickable" @click="toggle(entry.id)">
+            <td x-text="fmtDateTime(entry.timestamp)"></td>
+            <td x-text="entry.actor_name"></td>
+            <td><span class="cell-status" x-text="actionLabel(entry.action)"></span></td>
+            <td x-text="entityLabel(entry.entity_type)"></td>
+            <td><strong x-text="entry.entity_label || '—'"></strong></td>
+            <td class="action-cell">
+              <span class="audit-toggle-indicator" x-text="isOpen(entry.id) ? '▲' : '▼'"></span>
+            </td>
+          </tr>
+          <tr x-show="isOpen(entry.id)" class="audit-detail-row">
+            <td colspan="6">
+              <div class="audit-changes" x-show="changeRows(entry).length > 0">
+                <div class="audit-change" x-text="changeHint(entry.action)"></div>
+                <table class="audit-diff">
+                  <thead>
+                    <tr>
+                      <th>Поле</th>
+                      <th>Было</th>
+                      <th>Стало</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="row in changeRows(entry)" :key="row.field">
+                      <tr>
+                        <td x-text="row.field"></td>
+                        <td class="text-muted" x-text="row.from"></td>
+                        <td x-text="row.to"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-muted" x-show="changeRows(entry).length === 0">
+                Нет деталей по изменению.
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </template>
+    </table>
+
+    <div class="empty-state" x-show="!loading && entries.length === 0">
+      <div class="empty-state-text">Записей нет</div>
+      <div class="empty-state-hint">Действия появятся здесь по мере работы в системе</div>
+    </div>
+  </div>
+
+  <div class="pagination" x-show="pages > 1">
+    <span class="pagination-info"
+          x-text="`${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} из ${total}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page === 1"
+            @click="prevPage()">← Назад</button>
+    <span class="pagination-page" x-text="`${page} / ${pages}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page >= pages"
+            @click="nextPage()">Вперёд →</button>
+  </div>
+
+</div>

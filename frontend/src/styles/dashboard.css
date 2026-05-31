@@ -1,0 +1,496 @@
+/* ====================================================
+   Dashboard — точная копия структуры из референса
+   ==================================================== */
+
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ===== Метрики (4 в ряд) ===== */
+.dash-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .dash-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1280px) {
+  .dash-metrics { grid-template-columns: repeat(4, 1fr); }
+}
+
+.metric-card {
+  position: relative;
+  height: 9rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background-color: var(--bg);
+  box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: all 0.2s var(--ease);
+}
+.metric-card:hover {
+  box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+}
+
+.metric-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+.metric-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-600);
+  background-color: var(--bg);
+  box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+}
+.metric-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin-top: 0.5rem;
+}
+
+.metric-body { position: relative; z-index: 1; }
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.metric-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.metric-delta.up   { color: var(--success); }
+.metric-delta.down { color: var(--danger); }
+.metric-delta.warn { color: var(--warning); }
+
+.metric-spark {
+  position: absolute;
+  right: 0;
+  top: 1rem;
+  width: 6rem;
+  height: 4rem;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.metric-spark svg { width: 100%; height: 100%; display: block; }
+
+/* ===== Сетка: широкая + узкая колонки ===== */
+.dash-grid-2-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .dash-grid-2-1 { grid-template-columns: 1.3fr 0.9fr; }
+}
+
+/* ===== Карточка-секция ===== */
+.section-card {
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--bg);
+  box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.section-head-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gray-800);
+}
+.section-head-title svg { color: var(--gray-500); }
+.section-head-title h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  letter-spacing: -0.025em;
+}
+.section-head-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Пилюли (Date picker, View dropdown и т.п.) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  background-color: var(--bg);
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.pill:hover { transform: translateY(-1px); }
+.pill-icon  { padding: 0.375rem; }
+.pill svg   { color: var(--gray-500); }
+
+/* ===== Chart (Campaigns/Активность) ===== */
+.chart-box {
+  width: 100%;
+  min-height: 16rem;
+  height: 16rem;
+  position: relative;
+  margin-top: 1rem;
+}
+.chart-y {
+  position: absolute;
+  left: 0; top: 0; bottom: 2rem;
+  width: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-400);
+}
+.chart-area {
+  position: absolute;
+  left: 2.5rem; right: 0; top: 0.5rem; bottom: 2rem;
+}
+.chart-grid {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.chart-grid > div { width: 100%; border-top: 1px solid var(--border-divider); }
+.chart-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+.chart-x {
+  position: absolute;
+  left: 2.5rem; right: 0; bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gray-400);
+  padding: 0 0.5rem;
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-500);
+}
+.chart-legend-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+}
+.chart-legend-dot.legend-dot-primary { background: var(--primary); }
+.chart-legend-dot.legend-dot-muted   { background: var(--gray-400); }
+
+/* ===== Schedule & Events ===== */
+.schedule-week {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+.schedule-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.schedule-day-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+.schedule-day-num {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  transition: all 0.2s var(--ease);
+  cursor: default;
+}
+.schedule-day-num.is-other { color: var(--gray-400); }
+.schedule-day-num.is-today {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
+}
+.schedule-day-num.is-clickable {
+  color: var(--gray-600);
+  cursor: pointer;
+}
+.schedule-day-num.is-clickable:hover {
+  background-color: var(--bg);
+  box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+
+/* События — timeline с точками */
+.schedule-events {
+  flex: 1;
+  position: relative;
+  padding-left: 1.5rem;
+}
+.schedule-events::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 3px;
+  width: 2px;
+  background-color: var(--gray-200);
+}
+.schedule-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.schedule-event {
+  position: relative;
+  padding-left: 0;
+}
+.schedule-event-dot {
+  position: absolute;
+  left: -1.5rem;
+  top: 0.375rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.schedule-event-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+.schedule-event-time {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.125rem;
+}
+
+/* ===== Timeline / Gantt ===== */
+.timeline-card {
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--bg);
+  box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+  overflow-x: auto;
+}
+.timeline-head { min-width: 800px; }
+.timeline-table { min-width: 800px; }
+
+.timeline-row-head {
+  display: flex;
+  border-bottom: 1px solid var(--border-divider);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.timeline-row-head .tl-label-col {
+  width: 12rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+.timeline-row-head .tl-weeks {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.timeline-week {
+  display: flex;
+  flex-direction: column;
+}
+.timeline-week-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  margin-bottom: 0.5rem;
+}
+.timeline-week-days {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.25rem;
+  font-size: 10px;
+  color: var(--gray-400);
+}
+
+.timeline-body {
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+.timeline-grid {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 12rem; right: 0;
+  display: flex;
+}
+.timeline-grid > div {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-left: 1px solid var(--border-divider-strong);
+}
+.timeline-grid > div > div {
+  border-right: 1px solid var(--border-divider-strong);
+  height: 100%;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.tl-label-col {
+  width: 12rem;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+.tl-track {
+  flex: 1;
+  position: relative;
+  height: 1.5rem;
+}
+.tl-bar {
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.25rem;
+}
+.tl-bar.is-primary-light { background: var(--primary-light); }
+.tl-bar.is-striped {
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.3) 5px, rgba(255,255,255,0.3) 10px);
+}
+.tl-bar-cap {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: var(--gray-800);
+  border: 1px solid #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ===== Empty states ===== */
+.dash-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  background-color: var(--bg);
+  border-radius: 0.75rem;
+  box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+}
+.dash-empty-text {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+/* ===== Адаптив (доп. правила) ===== */
+@media (max-width: 640px) {
+  .timeline-row-head .tl-label-col,
+  .tl-label-col { width: 8rem; }
+}
+
+/* ===== Этап D: интерактив дашборда ===== */
+.metric-card-clickable { cursor: pointer; }
+.metric-card-clickable:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* pill как кнопка (сброс UA-стилей) */
+.pill-btn {
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+.pill-active {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.pill-active svg { color: var(--primary); }
+
+/* Зум графика активности — расширение по высоте */
+.chart-box-zoom { height: 28rem; min-height: 28rem; }
+
+/* Зум графика работ — увеличиваем окно по высоте (как у активности) */
+.timeline-body-zoom {
+  min-height: 22rem;
+  gap: 2rem;
+  justify-content: space-around;
+}
+.timeline-body-zoom .tl-bar { height: 1.6rem; }
+
+/* ===== Цвета линий и градиентов графиков (через CSS-переменные темы) ===== */
+.chart-line-accent { stroke: var(--chart-accent); }
+.chart-line-muted  { stroke: var(--chart-muted); }
+.chart-grad-stop-top { stop-color: var(--chart-accent); stop-opacity: 0.25; }
+.chart-grad-stop-bot { stop-color: var(--chart-accent); stop-opacity: 0; }

@@ -1,0 +1,118 @@
+/* ===== Адаптивность ===== */
+
+/* Планшеты */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 14rem;
+  }
+  .main-content { padding: 1.5rem; }
+  .topbar { padding: 0 1.5rem; }
+}
+
+/* Мобильные */
+@media (max-width: 768px) {
+  /* Сайдбар — off-canvas (выезжает по бургеру), навигация остаётся вертикальной */
+  .side {
+    transform: translateX(-100%);
+    transition: transform 0.25s var(--ease);
+    width: 15rem;
+    z-index: 40;
+  }
+  .side.side-open { transform: translateX(0); }
+  .side-brand { margin-bottom: 1.5rem; }
+  .side-overlay { display: block; }
+
+  .container { margin-left: 0; }
+
+  /* Хедер: бургер + логотип слева, кнопки справа, поиск во всю ширину снизу */
+  .topbar {
+    height: auto;
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .topbar-burger,
+  .topbar-brand { display: flex; }
+  /* На мобильном значок логотипа выглядит как кнопка (фон + рамка) и сбивает —
+     оставляем только текст бренда. */
+  .topbar-brand-mark { display: none; }
+  .topbar-brand-name { display: inline; }
+  .topbar-left { flex: 1; min-width: 0; }
+  /* На мобильном хлебная крошка съедает место и не помещается целиком —
+     убираем, текущая страница и так понятна по подсветке в сайдбаре. */
+  .topbar-crumb { display: none; }
+  .topbar-right { display: contents; }
+  .topbar-search { order: 5; flex: 1 1 100%; width: auto; }
+  .topbar-bell, .topbar-avatar { order: 4; }
+
+  .main-content { padding: 1rem; }
+
+  /* Формы */
+  .container-form-page { padding: 1rem; }
+  .form-wrapper { padding: 1.25rem; }
+  .form-row { flex-direction: column; gap: 0; }
+
+  /* Контент */
+  .content-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .content-header .btn { align-self: flex-start; }
+
+  /* Stats (flex) — переносим по 2 в ряд */
+  .stats-row { flex-wrap: wrap; }
+  .stats-row .stat-card { flex: 1 1 calc(50% - 0.5rem); }
+  .user-details-grid { gap: 0.5rem 1.5rem; }
+
+  /* Тулбар категорий: описание сверху, кнопка отдельной строкой
+     над списком, чтобы текст не плыл из-за широкой кнопки. */
+  .categories-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .categories-toolbar .table-add-btn { width: 100%; }
+
+  /* Table toolbar */
+  .table-toolbar { flex-direction: column; align-items: stretch; }
+  .table-toolbar-filters { margin-left: 0; }
+  .table-toolbar-filters .form-input { flex: 1; min-width: 0; }
+  .table-search-input { max-width: none; }
+
+  /* Calendar / export — .calendar-filters стилизуется внутри calendar.css
+     при mobileFiltersOpen, тут только формы экспорта */
+  .filter-group { min-width: auto; }
+  .export-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  .export-options {
+    padding-right: 0;
+    border-right: none;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-divider);
+  }
+  .export-preview { padding-left: 0; padding-top: 0.5rem; }
+  .date-range { flex-direction: column; gap: 0.5rem; }
+
+  /* Tables */
+  .table { font-size: 0.8125rem; }
+  .table th, .table td { padding: 0.625rem 0.75rem; }
+  .user-details-grid { grid-template-columns: 1fr; }
+
+  /* Auth */
+  .auth-container { padding: 1rem; }
+  .auth-card { padding: 1.5rem 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  /* Стат-панели на всех страницах (кроме главной — там .dash-metrics) — по 2 в ряд.
+     На совсем узких экранах не схлопываем в один столбец, иначе колонка занимает
+     всю высоту экрана и над таблицей много пустоты. */
+  .stats-row .stat-card { flex: 1 1 calc(50% - 0.25rem); min-width: 0; }
+  .stats-row { gap: 0.5rem; }
+  .dash-metrics { grid-template-columns: 1fr; }
+}

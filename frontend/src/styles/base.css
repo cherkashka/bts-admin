@@ -1,0 +1,253 @@
+/* ===== Дизайн-токены (точные из референса) ===== */
+:root {
+  /* Основные цвета */
+  --bg:            #f0f2f5;
+  --text-main:     #2d3748;
+  --text-muted:    #a0aec0;
+  --primary:       #008080;
+  --primary-light: #20b2aa;
+  --primary-dark:  #006666;
+  --accent:        #d97706;
+  --shadow-light:  #ffffff;
+  --shadow-dark:   #d1d9e6;
+
+  /* Серая шкала */
+  --gray-200: #e5e7eb;
+  --gray-400: #99a1af;
+  --gray-500: #6a7282;
+  --gray-600: #4a5565;
+  --gray-700: #364153;
+  --gray-800: #1e2939;
+
+  /* Семантика */
+  --success: #16A34A;
+  --success-bg: #ecfdf5;
+  --warning: #d97706;
+  --danger:  #DC2626;
+  --info:    #20b2aa;
+
+  /* Скругление */
+  --radius-sm: 0.25rem;
+  --radius:    0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Раскладка */
+  --sidebar-width: 16rem;   /* 256px */
+  --header-height: 6rem;    /* 96px */
+
+  /* Границы и подложки (для адаптации к тёмной теме).
+     Используются вместо хардкод-rgba повсюду; в themes.css переопределяются. */
+  --border-soft:           rgba(255, 255, 255, 0.4); /* «glassy»-обводка карточек */
+  --border-divider:        rgba(229, 231, 235, 0.6); /* разделители строк, низ ячеек */
+  --border-divider-strong: rgba(229, 231, 235, 0.4);
+  --row-tint:              rgba(0, 0, 0, 0.02);      /* подложка раскрытой строки */
+  --row-tint-strong:       rgba(0, 0, 0, 0.04);
+
+  /* Шрифты */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Анимация */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 0.2s;
+
+  /* Совместимость со старым кодом */
+  --primary-color:   var(--primary);
+  --primary-hover:   var(--primary-dark);
+  --danger-color:    var(--danger);
+  --danger-hover:    #b91c1c;
+  --danger-light:    rgba(220,38,38,0.10);
+  --success-color:   var(--success);
+  --success-hover:   #15803d;
+  --success-light:   var(--success-bg);
+  --warning-color:   var(--warning);
+  --warning-hover:   #b45309;
+  --warning-light:   rgba(217,119,6,0.10);
+  --info-color:      var(--info);
+  --info-light:      rgba(32,178,170,0.10);
+  --secondary-color: var(--gray-500);
+  --secondary-hover: var(--gray-700);
+  --text:            var(--text-main);
+  --text-body:       var(--gray-700);
+  --text-dark:       var(--text-main);
+  --text-light:      #fff;
+  --text-on-primary: #fff;
+  --surface:         var(--bg);
+  --surface-raised:  var(--bg);
+  --bg-light:        var(--bg);
+  --bg-lighter:      var(--bg);
+  --bg-gray:         var(--row-tint-strong);
+  --bg-page:         var(--bg);
+  --bg-muted:        var(--row-tint-strong);
+  --border-color:    rgba(0,0,0,0.07);
+  --border-strong:   rgba(0,0,0,0.13);
+  --primary-tint:    rgba(0,128,128,0.10);
+  --primary-glow:    rgba(0,128,128,0.30);
+  --chart-accent:    #008080;
+  --chart-muted:     #C4C9D4;
+  --chart-grid:      rgba(0,0,0,0.06);
+  --success-tint:    rgba(22,163,74,0.10);
+  --warning-tint:    rgba(217,119,6,0.10);
+  --danger-tint:     rgba(220,38,38,0.10);
+  --info-tint:       rgba(32,178,170,0.10);
+  --font-family-base: var(--font-sans);
+  --font-family-mono: var(--font-mono);
+  --transition: all var(--duration) var(--ease);
+  --dark-color: var(--gray-800);
+
+  /* Размер отступа */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --container-padding: 24px;
+
+  /* Тени (тех. совместимость) */
+  --nm-xs:    3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+  --nm-sm:    5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  --nm-md:    8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  --nm-lg:   10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+  --nm-inset-xs:  inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --nm-inset-sm:  inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  --nm-inset-md:  inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+  --focus-ring:   0 0 0 3px var(--primary-glow);
+  --shadow-sm:    var(--nm-xs);
+  --shadow:       var(--nm-sm);
+  --shadow-md:    var(--nm-md);
+  --shadow-lg:    var(--nm-lg);
+  --shadow-xl:    var(--nm-lg);
+}
+
+/* ===== Сброс ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+#app { min-height: 100vh; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--gray-800);
+  letter-spacing: -0.025em;
+}
+
+h1 { font-size: 1.875rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.125rem; }
+h4 { font-size: 1rem; }
+h5 { font-size: 0.875rem; }
+h6 { font-size: 0.8125rem; }
+
+p { margin: 0; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+img, svg, video {
+  display: block;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+ul, ol { list-style: none; }
+
+/* ===== Утилиты neumorphism ===== */
+.neu-flat {
+  background-color: var(--bg);
+  box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+}
+.neu-flat-sm {
+  background-color: var(--bg);
+  box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+}
+.neu-pressed {
+  background-color: var(--bg);
+  box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+}
+.neu-pressed-sm {
+  background-color: var(--bg);
+  box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+.neu-btn {
+  background-color: var(--bg);
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+  transition: var(--duration) var(--ease);
+}
+.neu-btn:hover {
+  box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  transform: translateY(-1px);
+}
+.neu-btn:active {
+  box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  transform: translateY(1px);
+}
+
+/* ===== Утилиты ===== */
+.text-muted     { color: var(--text-muted); }
+.text-gray-400  { color: var(--gray-400); }
+.text-gray-500  { color: var(--gray-500); }
+.text-gray-600  { color: var(--gray-600); }
+.text-gray-700  { color: var(--gray-700); }
+.text-gray-800  { color: var(--gray-800); }
+.text-primary   { color: var(--primary); }
+.text-success   { color: var(--success); }
+.text-danger    { color: var(--danger); }
+.font-bold      { font-weight: 700; }
+.font-semibold  { font-weight: 600; }
+.font-medium    { font-weight: 500; }
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.uppercase      { text-transform: uppercase; }
+.text-center    { text-align: center; }
+.mb-4 { margin-bottom: 1rem; }
+.mono { font-family: var(--font-mono); }

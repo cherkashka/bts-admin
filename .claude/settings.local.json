@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://127.0.0.1:8000/openapi.json)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in d.get\\('paths',{}\\).keys\\(\\)]\")",
+      "Bash(curl -s http://127.0.0.1:8000/docs)",
+      "Bash(.venv/bin/python -c \"from backend.routers.categories import router; print\\('OK, routes:', [r.path for r in router.routes]\\)\")",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:neumorphism-one.vercel.app)"
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+<!--
+  Страница «Заметки» — Alpine.js компонент.
+  Логика в notes.js (Alpine.data('notesPage', ...)).
+-->
+<div x-data="notesPage" x-init="init()">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Всего</div>
+      <div class="stat-card-value" x-text="total"></div>
+    </div>
+    <div class="stat-card stat-card-success">
+      <div class="stat-card-label">С привязкой к активу</div>
+      <div class="stat-card-value" x-text="withAssetCount"></div>
+    </div>
+    <div class="stat-card stat-card-warning">
+      <div class="stat-card-label">С привязкой к сотруднику</div>
+      <div class="stat-card-value" x-text="withUserCount"></div>
+    </div>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search"
+           class="form-input table-search-input"
+           placeholder="Поиск по заголовку или описанию…"
+           autocomplete="off"
+           x-model="search">
+    <div class="table-toolbar-filters">
+      <select class="form-input" x-model="categoryFilter">
+        <option value="">Все категории</option>
+        <option value="__none__">Без категории</option>
+        <template x-for="cat in categoryOptions" :key="cat.id">
+          <option :value="cat.id" x-text="cat.name"></option>
+        </template>
+      </select>
+    </div>
+    <button class="btn btn-primary table-add-btn"
+            x-show="canCreate"
+            @click="openCreate()">+&nbsp;Новая заметка</button>
+  </div>
+
+  <div class="table-container">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="th-sortable" @click="setSort('title')">
+            Заголовок <span class="sort-arrow" x-text="sortArrow('title')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('event_start')">
+            Дата события <span class="sort-arrow" x-text="sortArrow('event_start')"></span>
+          </th>
+          <th>Категория</th>
+          <th>Описание</th>
+          <th class="th-sortable" @click="setSort('created_at')">
+            Создано <span class="sort-arrow" x-text="sortArrow('created_at')"></span>
+          </th>
+          <th class="th-actions">Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="note in visibleNotes" :key="note.id">
+          <tr>
+            <td><strong x-text="note.title"></strong></td>
+            <td x-text="fmtDateTime(note.event_start)"></td>
+            <td><span class="cell-status" x-text="categoryLabel(note.category_id)"></span></td>
+            <td class="text-muted text-clip" x-text="note.content || '—'"></td>
+            <td x-text="fmtDate(note.created_at)"></td>
+            <td class="action-cell">
+              <button class="btn btn-sm btn-secondary"
+                      x-show="canEdit(note)"
+                      @click="openEdit(note)"
+                      title="Изменить">✎</button>
+              <button class="btn btn-sm btn-secondary"
+                      x-show="canDelete(note)"
+                      @click="remove(note)"
+                      title="Удалить">✕</button>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <div class="empty-state" x-show="!loading && visibleNotes.length === 0">
+      <div class="empty-state-text">Ничего не найдено</div>
+      <div class="empty-state-hint">Попробуйте изменить поисковый запрос</div>
+    </div>
+  </div>
+
+  <div class="pagination" x-show="pages > 1">
+    <span class="pagination-info"
+          x-text="`${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} из ${total}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page === 1"
+            @click="prevPage()">← Назад</button>
+    <span class="pagination-page" x-text="`${page} / ${pages}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page >= pages"
+            @click="nextPage()">Вперёд →</button>
+  </div>
+
+</div>

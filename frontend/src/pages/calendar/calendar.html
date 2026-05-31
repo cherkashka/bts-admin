@@ -1,0 +1,207 @@
+<!--
+  Страница «Календарь» — Alpine.js компонент.
+  Логика в calendar.js (Alpine.data('calendarPage', ...)).
+-->
+<div x-data="calendarPage" x-init="init()">
+
+  <div class="content-header" style="justify-content: flex-end;">
+    <button class="btn"
+            :class="onlyMine ? 'btn-primary' : 'btn-secondary'"
+            type="button"
+            title="Показать только события, относящиеся ко мне"
+            @click="toggleOnlyMine()">
+      <span x-html="Icons.users(14)"></span>
+      <span x-text="onlyMine ? 'Только мои' : 'Все события'"></span>
+    </button>
+  </div>
+
+  <div class="stats-row calendar-stats-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Событий в месяце</div>
+      <div class="stat-card-value" x-text="allEvents.length"></div>
+    </div>
+    <div class="stat-card stat-card-success">
+      <div class="stat-card-label">Задач</div>
+      <div class="stat-card-value" x-text="taskCount"></div>
+    </div>
+    <div class="stat-card stat-card-warning">
+      <div class="stat-card-label">Событий по активам</div>
+      <div class="stat-card-value" x-text="assetCount"></div>
+    </div>
+    <div class="stat-card stat-card-info">
+      <div class="stat-card-label">Записей</div>
+      <div class="stat-card-value" x-text="noteCount"></div>
+    </div>
+  </div>
+
+  <!-- Кнопка-тоггл фильтров (видна только на мобильном) -->
+  <button type="button"
+          class="btn btn-secondary calendar-filters-toggle"
+          @click="mobileFiltersOpen = !mobileFiltersOpen">
+    <span x-text="mobileFiltersOpen ? 'Скрыть фильтры' : 'Фильтры'"></span>
+  </button>
+
+  <!-- Фильтры -->
+  <div class="calendar-filters-container" :class="mobileFiltersOpen ? 'is-open' : ''">
+    <div class="calendar-filters-group">
+      <div class="filter-group-label">Администрирование</div>
+      <div class="calendar-filters">
+        <button class="cal-filter-btn cal-filter-master"
+                :class="adminMasterActive ? 'active' : ''"
+                @click="toggleMaster('admin')">
+          <span class="cal-filter-dot cal-filter-dot-task"></span>
+          Все админ-события
+        </button>
+        <template x-for="f in systemFilters" :key="f.key">
+          <button class="cal-filter-btn"
+                  :class="filters[f.key] ? 'active' : ''"
+                  @click="toggleFilter(f.key)">
+            <span class="cal-filter-dot" :style="`background:${f.color}`"></span>
+            <span x-text="f.label"></span>
+          </button>
+        </template>
+      </div>
+    </div>
+    <div class="calendar-filters-group">
+      <div class="filter-group-label">Пользовательские события</div>
+      <div class="calendar-filters">
+        <template x-if="categoryList.length > 0">
+          <button class="cal-filter-btn cal-filter-master"
+                  :class="notesMasterActive ? 'active' : ''"
+                  @click="toggleMaster('notes')">
+            <span class="cal-filter-dot cal-filter-dot-note"></span>
+            Все записи
+          </button>
+        </template>
+        <template x-if="categoryList.length === 0">
+          <button class="cal-filter-btn cal-filter-master cal-filter-master-disabled" disabled>
+            <span class="cal-filter-dot cal-filter-dot-note"></span>
+            Все записи (нет категорий)
+          </button>
+        </template>
+        <template x-for="cat in categoryList" :key="cat.id">
+          <button class="cal-filter-btn"
+                  :class="filters[`category-${cat.id}`] ? 'active' : ''"
+                  @click="toggleFilter(`category-${cat.id}`)">
+            <span class="cal-filter-dot" :style="`background:${cat.color}`"></span>
+            <span x-text="cat.label"></span>
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Сетка месяца + список -->
+  <div class="calendar-container">
+    <div class="calendar-grid-wrapper">
+
+      <div class="calendar-nav-wrapper">
+        <button class="btn btn-secondary btn-sm" title="Предыдущий месяц" @click="prevMonth()">←</button>
+        <div class="cal-month-selector">
+          <span class="cal-title" x-text="monthYearLabel" @click.stop="toggleMonthDropdown()"></span>
+          <div class="cal-month-dropdown" :class="monthDropdownOpen ? 'show' : ''" @click.stop>
+            <template x-for="y in dropdownYears" :key="y">
+              <div class="cal-month-dropdown-year">
+                <div class="cal-month-dropdown-year-label" x-text="y"></div>
+                <div class="cal-month-dropdown-months">
+                  <template x-for="(month, idx) in monthNames" :key="month">
+                    <button class="cal-month-dropdown-item"
+                            :class="`${isSelectedMonth(y, idx) ? 'selected' : ''} ${isRealCurrentMonth(y, idx) ? 'current' : ''}`"
+                            @click="selectMonth(y, idx)"
+                            x-text="month"></button>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="cal-nav-right">
+          <button class="btn btn-primary btn-sm" @click="jumpToday()">Сегодня</button>
+          <button class="btn btn-secondary btn-sm" @click="nextMonth()">→</button>
+        </div>
+      </div>
+
+      <div class="cal-weekdays">
+        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+      </div>
+
+      <div class="cal-grid">
+        <template x-for="i in startOffset" :key="`pad-${i}`">
+          <div class="cal-cell empty"></div>
+        </template>
+        <template x-for="day in gridDays" :key="day.dateStr">
+          <div class="cal-cell"
+               :class="`${day.isToday ? 'today' : ''} ${day.isPast ? 'past' : ''}`"
+               @click="onCellClick($event, day.dateStr)">
+            <div class="cal-day-num" x-text="day.num"></div>
+            <div class="cal-events">
+              <template x-for="ev in day.events" :key="ev.uid">
+                <a :href="ev.link"
+                   class="cal-event-dot"
+                   :style="`background:${ev.dotColor}`"
+                   :title="ev.titleAttr"
+                   @click="onDotClick($event, ev)"></a>
+              </template>
+              <span class="cal-more"
+                    x-show="day.extra > 0"
+                    x-text="`+${day.extra}`"></span>
+            </div>
+          </div>
+        </template>
+      </div>
+
+    </div>
+
+    <div class="calendar-event-list">
+      <div class="calendar-event-list-header">
+        <button class="btn btn-primary"
+                x-show="canCreateNote"
+                @click="openCreateNote()">
+          <span x-html="Icons.plus(16)"></span>
+          <span>Добавить запись</span>
+        </button>
+      </div>
+      <div class="calendar-event-list-content">
+        <template x-if="visibleEvents.length === 0">
+          <div class="empty-state">
+            <div class="empty-state-icon" x-html="Icons.calendar(28)"></div>
+            <div class="empty-state-text">Нет событий для выбранных фильтров</div>
+            <div class="empty-state-hint">Измените фильтр или выберите другой месяц.</div>
+          </div>
+        </template>
+        <template x-if="visibleEvents.length > 0">
+          <div class="tasks-list">
+            <h3>События</h3>
+            <div class="events-table">
+              <template x-for="ev in visibleEvents" :key="ev.uid">
+                <div class="calendar-event-item-wrapper">
+                  <a :href="ev.link || '#/assets'"
+                     class="calendar-event-item"
+                     @click="onListItemClick($event, ev)">
+                    <div class="event-marker" :style="`background:${ev.dotColor}`"></div>
+                    <div class="event-body">
+                      <div class="event-title" x-text="ev.title"></div>
+                      <div class="event-meta">
+                        <span x-text="ev.date"></span>
+                        <span class="event-type" x-text="ev.typeLabel"></span>
+                        <span class="event-period"
+                              x-show="ev.type === 'note' && ev.is_period && ev.end_date"
+                              x-text="`до ${ev.end_date}`"></span>
+                        <span class="indicator" x-show="ev.related_asset_id" title="Привязан к активу" x-html="Icons.box(13)"></span>
+                        <span class="indicator" x-show="ev.source === 'task'" title="Задача" x-html="Icons.checkCircle(13)"></span>
+                      </div>
+                    </div>
+                  </a>
+                  <button class="btn btn-danger btn-sm"
+                          x-show="canDeleteNote(ev)"
+                          @click="deleteNote(ev)">Удалить</button>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+</div>

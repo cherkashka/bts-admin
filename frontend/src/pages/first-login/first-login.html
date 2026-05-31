@@ -1,0 +1,127 @@
+<!--
+  Страница «Первый вход» (полноэкранная) — Alpine.js компонент.
+  Логика в first-login.js.
+-->
+<div class="auth-container auth-container-scroll" x-data="firstLoginPage" x-init="init()">
+  <div class="auth-card auth-card-wide">
+    <h2 class="auth-title fl-title">Активация аккаунта</h2>
+    <p class="fl-subtitle">Проверьте свои данные и задайте постоянный пароль</p>
+
+    <!-- Данные профиля (readonly) -->
+    <div class="fl-profile">
+      <div class="fl-profile-grid">
+        <div>
+          <div class="fl-field-label">ФИО</div>
+          <div class="fl-field-value" x-text="user.full_name || '—'"></div>
+        </div>
+        <div>
+          <div class="fl-field-label">Email</div>
+          <div class="fl-field-value" x-text="user.email || '—'"></div>
+        </div>
+        <div>
+          <div class="fl-field-label">Логин</div>
+          <div class="fl-field-value fl-field-mono" x-text="user.username || '—'"></div>
+        </div>
+        <div>
+          <div class="fl-field-label">Роль</div>
+          <div class="fl-field-value" x-text="user.role === 'admin' ? 'Администратор' : 'Пользователь'"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Права (readonly) -->
+    <details class="fl-perm-details">
+      <summary class="fl-perm-summary">Ваши права доступа</summary>
+      <div class="fl-perm-box">
+        <table class="fl-perm-table">
+          <thead>
+            <tr>
+              <th></th>
+              <template x-for="a in actions" :key="a.key">
+                <th class="fl-perm-th" x-text="a.label"></th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="res in resources" :key="res.key">
+              <tr>
+                <td class="fl-perm-td-res" x-text="res.label"></td>
+                <template x-for="a in actions" :key="a.key">
+                  <td class="fl-perm-td">
+                    <span class="fl-perm-dot"
+                          :class="hasPerm(res.key, a.key) ? 'fl-perm-dot-on' : 'fl-perm-dot-off'"></span>
+                  </td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Форма активации -->
+    <form @submit.prevent="submit()">
+      <div class="form-group fl-form-group">
+        <label class="form-label">Телефон <span class="fl-optional">(необязательно)</span></label>
+        <input type="tel" class="form-input" placeholder="+375 (99) 000-00-00" x-model="phone">
+      </div>
+
+      <div class="form-group fl-form-group">
+        <label class="form-label">Новый пароль <span class="fl-required">*</span></label>
+        <div class="pwd-field">
+          <input :type="showPwd ? 'text' : 'password'"
+                 class="form-input"
+                 placeholder="Минимум 8 символов" minlength="8" required
+                 x-model="password">
+          <button type="button" class="pwd-toggle"
+                  :aria-label="showPwd ? 'Скрыть пароль' : 'Показать пароль'"
+                  @click="showPwd = !showPwd">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="!showPwd">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="showPwd">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+        <div class="fl-pwd-strength">
+          <div class="fl-pwd-bar" :style="`width:${strength.pct}%;background:${strength.color}`"></div>
+        </div>
+      </div>
+
+      <div class="form-group fl-form-group-last">
+        <label class="form-label">Подтвердите пароль <span class="fl-required">*</span></label>
+        <div class="pwd-field">
+          <input :type="showPwdConfirm ? 'text' : 'password'"
+                 class="form-input" placeholder="Повторите пароль" minlength="8" required
+                 x-model="passwordConfirm">
+          <button type="button" class="pwd-toggle"
+                  :aria-label="showPwdConfirm ? 'Скрыть пароль' : 'Показать пароль'"
+                  @click="showPwdConfirm = !showPwdConfirm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="!showPwdConfirm">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="showPwdConfirm">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary auth-submit">Активировать аккаунт</button>
+    </form>
+
+    <div class="auth-message"
+         :class="message.isError ? 'auth-message-error' : 'auth-message-success'"
+         x-show="message.text"
+         x-text="message.text"></div>
+  </div>
+</div>

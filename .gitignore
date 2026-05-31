@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Окружение
+.env.local
+.env.prod
+.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# MongoDB дамп
+mongo_backup/
+
+# Системное
+.DS_Store
+*.log

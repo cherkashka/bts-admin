@@ -1,0 +1,24 @@
+<!--
+  Шаблон универсальной модалки. Поля title/body/кнопок заполняет Modal.js.
+-->
+<template id="modal-shell">
+  <div class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <header class="modal-head">
+        <h3 class="modal-title"></h3>
+        <button class="modal-close-btn" type="button" aria-label="Закрыть"></button>
+      </header>
+      <div class="modal-error" hidden></div>
+      <form class="modal-form" autocomplete="off" novalidate>
+        <div class="modal-body"></div>
+        <footer class="modal-foot">
+          <button type="button" class="btn btn-secondary modal-cancel-btn"></button>
+          <button type="submit" class="btn btn-primary modal-submit-btn">
+            <span class="modal-submit-label"></span>
+            <span class="modal-submit-spinner" hidden></span>
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+</template>

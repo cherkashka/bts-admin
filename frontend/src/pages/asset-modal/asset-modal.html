@@ -1,0 +1,97 @@
+<!--
+  Шаблон формы актива (add/edit).
+  Заполнение values делает asset-modal.js через DOM API.
+  В режиме редактирования сверху появляются вкладки «Данные» / «История»
+  (история берётся из единого audit_log: GET /api/v1/audit).
+-->
+<div class="modal-tabs" data-asset-tabs hidden>
+  <button type="button" class="modal-tab is-active" data-tab-btn="fields">Данные</button>
+  <button type="button" class="modal-tab" data-tab-btn="history">История</button>
+</div>
+
+<div data-tab-panel="fields">
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Название <span class="req">*</span></label>
+      <input type="text" name="name" class="form-input" placeholder="Например: MacBook Pro 14">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Инвентарный номер <span class="req">*</span></label>
+      <input type="text" name="inventory_number" class="form-input" placeholder="INV-00000">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Тип актива <span class="req">*</span></label>
+      <select name="asset_type" class="form-input"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Серийный номер <span class="req">*</span></label>
+      <input type="text" name="serial_number" class="form-input" placeholder="S/N устройства">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">MAC-адрес</label>
+      <input type="text" name="mac_address" class="form-input" placeholder="XX:XX:XX:XX:XX:XX">
+      <small class="form-hint">Формат: AA:BB:CC:DD:EE:FF</small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">МОЛ (Ответственный)</label>
+      <select name="mol_user_id" class="form-input"></select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Дата ввода в эксплуатацию</label>
+      <input type="date" name="commission_date" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Гарантия (мес.)</label>
+      <input type="number" name="warranty_months" class="form-input" min="0" max="120" placeholder="0–120">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Гарантия до</label>
+      <input type="date" name="warranty_end_date" class="form-input" readonly tabindex="-1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Статус</label>
+      <select name="status" class="form-input"></select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Размещение / Кабинет</label>
+    <input type="text" name="location" class="form-input" placeholder="Офис, этаж, кабинет">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Комментарии</label>
+    <textarea name="comments" class="form-input" rows="3"
+              placeholder="Примечания, история ремонтов, комплектация..."></textarea>
+  </div>
+</div>
+
+<div data-tab-panel="history" hidden>
+  <div class="asset-history-loading text-muted">Загрузка истории…</div>
+  <div class="asset-history-empty empty-state-text" hidden>Изменений пока нет</div>
+  <div class="asset-history-list"></div>
+</div>
+
+<!-- Шаблон одной записи истории — клонируется в asset-modal.js -->
+<template id="asset-history-row">
+  <div class="asset-history-item">
+    <div class="asset-history-meta">
+      <span class="badge asset-history-action"></span>
+      <span class="asset-history-actor"></span>
+      <span class="asset-history-time text-muted"></span>
+    </div>
+    <div class="asset-history-changes text-muted"></div>
+  </div>
+</template>

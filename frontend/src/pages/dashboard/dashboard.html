@@ -1,0 +1,202 @@
+<!--
+  Главная страница (Dashboard) — Alpine.js компонент.
+  Логика в dashboard.js. Все графики — из реальных данных задач.
+-->
+<div class="dash" x-data="dashboardPage" x-init="init()">
+
+  <!-- ===== Метрики (кликабельны → переход на задачи с фильтром) ===== -->
+  <div class="dash-metrics">
+    <template x-for="m in metrics" :key="m.title">
+      <div class="metric-card metric-card-clickable"
+           role="button" tabindex="0"
+           @click="openMetric(m)"
+           @keydown.enter="openMetric(m)">
+        <div class="metric-top">
+          <div class="metric-icon" x-html="m.iconHtml"></div>
+          <h4 class="metric-title" x-text="m.title"></h4>
+        </div>
+        <div class="metric-body">
+          <p class="metric-value" x-text="m.value"></p>
+        </div>
+        <div class="metric-spark">
+          <svg viewBox="0 0 100 50" preserveAspectRatio="none">
+            <defs>
+              <linearGradient :id="`grad-${m.gradId}`" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   class="chart-grad-stop-top"/>
+                <stop offset="100%" class="chart-grad-stop-bot"/>
+              </linearGradient>
+            </defs>
+            <path :d="m.sparkArea" :fill="`url(#grad-${m.gradId})`"/>
+            <path :d="m.sparkPath" fill="none" class="chart-line chart-line-accent"
+                  stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          </svg>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- ===== Activity + Schedule ===== -->
+  <div class="dash-grid-2-1">
+
+    <!-- Activity Chart -->
+    <section class="section-card">
+      <header class="section-head">
+        <div class="section-head-title">
+          <span x-html="Icons.grid(20)"></span>
+          <h3>Активность задач</h3>
+        </div>
+        <div class="section-head-controls">
+          <button type="button" class="pill pill-btn" @click="toggleActivityRange()">
+            <span x-html="Icons.calendar(14)"></span>
+            <span x-text="activityRangeLabel"></span>
+          </button>
+          <button type="button" class="pill pill-icon pill-btn"
+                  :class="activityZoom ? 'pill-active' : ''"
+                  title="Развернуть график"
+                  @click="toggleActivityZoom()" x-html="Icons.expand(16)"></button>
+        </div>
+      </header>
+
+      <div class="chart-box" :class="activityZoom ? 'chart-box-zoom' : ''">
+        <div class="chart-y">
+          <template x-for="(y, i) in activity.yTicks" :key="i">
+            <span x-text="y"></span>
+          </template>
+        </div>
+        <div class="chart-area">
+          <div class="chart-grid">
+            <template x-for="(y, i) in activity.yTicks" :key="i"><div></div></template>
+          </div>
+          <svg class="chart-svg" preserveAspectRatio="none" viewBox="0 0 1000 200">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" class="chart-grad-stop-top"/>
+                <stop offset="100%" class="chart-grad-stop-bot"/>
+              </linearGradient>
+            </defs>
+            <path :d="activity.createdArea" fill="url(#lineGrad)"/>
+            <path :d="activity.createdPath" fill="none" class="chart-line chart-line-accent" stroke-width="3" vector-effect="non-scaling-stroke"/>
+            <path :d="activity.closedPath" fill="none" class="chart-line chart-line-muted" stroke-width="3" vector-effect="non-scaling-stroke"/>
+          </svg>
+        </div>
+        <div class="chart-x">
+          <template x-for="(lbl, i) in activity.xLabels" :key="i">
+            <span x-text="lbl"></span>
+          </template>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="chart-legend-item">
+          <span class="chart-legend-dot legend-dot-primary"></span>
+          <span>Создано</span>
+        </div>
+        <div class="chart-legend-item">
+          <span class="chart-legend-dot legend-dot-muted"></span>
+          <span>Закрыто</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schedule (только задачи) -->
+    <section class="section-card">
+      <header class="section-head">
+        <div class="section-head-title">
+          <span x-html="Icons.grid(20)"></span>
+          <h3>Расписание</h3>
+        </div>
+        <button type="button" class="pill pill-btn" title="Открыть календарь" @click="goCalendar()">
+          <span x-html="Icons.calendar(14)"></span>
+          <span x-text="todayLabel"></span>
+          <span x-html="Icons.chevronDown(14)"></span>
+        </button>
+      </header>
+
+      <div class="schedule-week">
+        <template x-for="d in weekDays" :key="d.iso">
+          <div class="schedule-day">
+            <span class="schedule-day-name" x-text="d.label"></span>
+            <div class="schedule-day-num" :class="d.cls" x-text="d.num"></div>
+          </div>
+        </template>
+      </div>
+
+      <div class="schedule-events">
+        <div class="schedule-events-list">
+          <template x-if="scheduleTasks.length === 0">
+            <div class="dash-empty">
+              <div class="dash-empty-text">Ближайших задач нет</div>
+            </div>
+          </template>
+          <template x-for="ev in scheduleTasks" :key="ev.id || ev.title + ev.time">
+            <div class="schedule-event">
+              <span class="schedule-event-dot" :style="`background:${ev.color}`"></span>
+              <div class="schedule-event-title" x-text="ev.title"></div>
+              <div class="schedule-event-time" x-text="ev.time"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== Timeline (Gantt) — реальные задачи ===== -->
+  <section class="timeline-card">
+    <header class="section-head">
+      <div class="section-head-title">
+        <span x-html="Icons.grid(20)"></span>
+        <h3>График работ</h3>
+      </div>
+      <div class="section-head-controls">
+        <button type="button" class="pill pill-icon pill-btn"
+                :class="timelineZoom ? 'pill-active' : ''"
+                title="Развернуть график"
+                @click="toggleTimelineZoom()" x-html="Icons.expand(16)"></button>
+      </div>
+    </header>
+
+    <div class="timeline-row-head">
+      <div class="tl-label-col">Задача</div>
+      <div class="tl-weeks">
+        <template x-for="week in [1,2,3]" :key="week">
+          <div class="timeline-week">
+            <span class="timeline-week-label" x-text="`Неделя ${week}`"></span>
+            <div class="timeline-week-days">
+              <span>П</span><span>В</span><span>С</span><span>Ч</span><span>П</span><span>С</span><span>В</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <div class="timeline-body" :class="timelineZoom ? 'timeline-body-zoom' : ''">
+      <div class="timeline-grid">
+        <template x-for="week in 3" :key="week">
+          <div>
+            <template x-for="d in 7" :key="d">
+              <div></div>
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <template x-if="timelineRows.length === 0">
+        <div class="dash-empty">
+          <div class="dash-empty-text">Нет задач с датами в ближайшие 3 недели</div>
+        </div>
+      </template>
+
+      <template x-for="row in timelineRows" :key="row.label">
+        <div class="timeline-row">
+          <div class="tl-label-col" x-text="row.label"></div>
+          <div class="tl-track">
+            <div class="tl-bar"
+                 :style="`left:${row.left}%;width:${row.width}%;background:${row.color}`"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+</div>

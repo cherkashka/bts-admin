@@ -1,0 +1,143 @@
+<!--
+  Страница «Задачи» — Alpine.js компонент.
+  Логика в tasks.js (Alpine.data('tasksPage', ...)).
+-->
+<div x-data="tasksPage" x-init="init()">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Всего</div>
+      <div class="stat-card-value" x-text="total"></div>
+    </div>
+    <div class="stat-card stat-card-warning">
+      <div class="stat-card-label">В работе</div>
+      <div class="stat-card-value" x-text="inProgressCount"></div>
+    </div>
+    <div class="stat-card stat-card-success">
+      <div class="stat-card-label">Выполнено</div>
+      <div class="stat-card-value" x-text="completedCount"></div>
+    </div>
+    <div class="stat-card stat-card-danger">
+      <div class="stat-card-label">Критических</div>
+      <div class="stat-card-value" x-text="criticalCount"></div>
+    </div>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search"
+           class="form-input table-search-input"
+           placeholder="Поиск по названию или описанию…"
+           autocomplete="off"
+           x-model="search">
+    <div class="table-toolbar-filters">
+      <select class="form-input" x-model="statusFilter">
+        <option value="">Все статусы</option>
+        <option value="pending">Ожидает</option>
+        <option value="in_progress">В работе</option>
+        <option value="completed">Выполнена</option>
+        <option value="cancelled">Отменена</option>
+      </select>
+      <select class="form-input" x-model="priorityFilter">
+        <option value="">Все приоритеты</option>
+        <option value="critical">Критический</option>
+        <option value="high">Высокий</option>
+        <option value="medium">Средний</option>
+        <option value="low">Низкий</option>
+      </select>
+      <label class="form-check filter-checkbox">
+        <input type="checkbox" x-model="onlyMine"> Только мои
+      </label>
+      <label class="form-check filter-checkbox">
+        <input type="checkbox" x-model="onlyOverdue"> Просрочены
+      </label>
+    </div>
+    <button class="btn btn-primary table-add-btn"
+            x-show="canCreate"
+            @click="openCreate()">+&nbsp;Добавить задачу</button>
+  </div>
+
+  <div class="table-container">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="th-sortable" @click="setSort('title')">
+            Название <span class="sort-arrow" x-text="sortArrow('title')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('assigned_to_name')">
+            Исполнитель <span class="sort-arrow" x-text="sortArrow('assigned_to_name')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('priority')">
+            Приоритет <span class="sort-arrow" x-text="sortArrow('priority')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('status')">
+            Статус <span class="sort-arrow" x-text="sortArrow('status')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('start_date')">
+            Начало <span class="sort-arrow" x-text="sortArrow('start_date')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('due_date')">
+            Дедлайн <span class="sort-arrow" x-text="sortArrow('due_date')"></span>
+          </th>
+          <th class="th-actions">Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="task in visibleTasks" :key="task.id">
+          <tr class="task-row row-stripe" :style="`--stripe:${priorityColor(task.priority)}`">
+            <td>
+              <strong x-text="task.title"></strong>
+              <div class="task-desc-preview"
+                   x-show="task.description"
+                   x-text="descPreview(task.description)"></div>
+            </td>
+            <td>
+              <span x-show="task.assigned_to_name" x-text="task.assigned_to_name"></span>
+              <span class="text-muted" x-show="!task.assigned_to_name">—</span>
+            </td>
+            <td><span class="cell-status" x-text="priorityLabel(task.priority)"></span></td>
+            <td><span class="cell-status" x-text="statusLabel(task.status)"></span></td>
+            <td x-text="fmtDate(task.start_date)"></td>
+            <td>
+              <span x-show="task.due_date"
+                    :class="isOverdue(task) ? 'task-due-overdue' : ''"
+                    x-text="fmtDate(task.due_date)"></span>
+              <span class="text-muted" x-show="!task.due_date">—</span>
+            </td>
+            <td class="action-cell">
+              <button class="btn btn-sm btn-secondary"
+                      x-show="canEditFull(task)"
+                      @click="openEdit(task)"
+                      title="Изменить">✎</button>
+              <button class="btn btn-sm btn-secondary"
+                      x-show="!canEditFull(task) && canChangeStatus(task)"
+                      @click="openStatus(task)"
+                      title="Сменить статус">⇄</button>
+              <button class="btn btn-sm btn-secondary"
+                      x-show="canDelete(task)"
+                      @click="remove(task)"
+                      title="Удалить">✕</button>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <div class="empty-state" x-show="!loading && visibleTasks.length === 0">
+      <div class="empty-state-text">Ничего не найдено</div>
+      <div class="empty-state-hint">Попробуйте изменить поиск или фильтры</div>
+    </div>
+  </div>
+
+  <div class="pagination" x-show="pages > 1">
+    <span class="pagination-info"
+          x-text="`${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} из ${total}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page === 1"
+            @click="prevPage()">← Назад</button>
+    <span class="pagination-page" x-text="`${page} / ${pages}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page >= pages"
+            @click="nextPage()">Вперёд →</button>
+  </div>
+
+</div>

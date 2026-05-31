@@ -1,0 +1,80 @@
+<!--
+  Шаблоны модалки задачи.
+  В JS выбираем нужный <template>, клонируем, заполняем DOM API.
+-->
+
+<!-- Только смена статуса -->
+<template id="task-modal-status">
+  <div class="tm-status-head">
+    <strong class="tm-status-title"></strong>
+    <p class="tm-status-desc"></p>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Статус</label>
+    <select name="status" class="form-input">
+      <option value="pending">Ожидает</option>
+      <option value="in_progress">В работе</option>
+      <option value="completed">Выполнена</option>
+      <option value="cancelled">Отменена</option>
+    </select>
+  </div>
+</template>
+
+<!-- Полная форма (add/edit) -->
+<template id="task-modal-full">
+  <div class="form-group">
+    <label class="form-label">Название <span class="req">*</span></label>
+    <input type="text" name="title" class="form-input" minlength="3" maxlength="200" placeholder="Что нужно сделать">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Описание</label>
+    <textarea name="description" class="form-input" rows="3" placeholder="Подробности задачи"></textarea>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Приоритет</label>
+      <select name="priority" class="form-input">
+        <option value="low">Низкий</option>
+        <option value="medium">Средний</option>
+        <option value="high">Высокий</option>
+        <option value="critical">Критический</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Статус</label>
+      <select name="status" class="form-input">
+        <option value="pending">Ожидает</option>
+        <option value="in_progress">В работе</option>
+        <option value="completed">Выполнена</option>
+        <option value="cancelled">Отменена</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Начало <span class="req">*</span></label>
+      <input type="datetime-local" name="start_date" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Дедлайн</label>
+      <input type="datetime-local" name="due_date" class="form-input">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Исполнитель</label>
+    <select name="assigned_to" class="form-input">
+      <option value="">— Не назначен —</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Связанный актив <span class="tm-optional">(необязательно)</span></label>
+    <select name="related_asset_id" class="form-input">
+      <option value="">— Нет —</option>
+    </select>
+  </div>
+</template>

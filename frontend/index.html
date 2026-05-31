@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>BTS Admin System</title>
+  <script>
+    // Применяем тему ДО загрузки CSS, чтобы избежать FOUC.
+    (function() {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="/src/styles/styles.css" />
+</head>
+<body>
+  <!-- Закомментировали окно загрузки -->
+  <!--
+  <div id="loading-screen" class="loading-container">
+    <div class="spinner"></div>
+    <div class="loading-text">Загрузка приложения...</div>
+  </div>
+  -->
+  
+  <div id="app"></div>
+  
+  <script>
+    console.log('Index.html script is running');
+    
+    // Оборачиваем в асинхронную IIFE (Immediately Invoked Function Expression)
+    (async () => {
+      try {
+        console.log('Starting app initialization');
+        
+        console.log('About to import main.js');
+        // Импортируем и запускаем основное приложение
+        await import('./src/main.js');
+        console.log('Main.js imported successfully');
+      } catch (error) {
+        console.error('Ошибка при загрузке приложения:', error);
+        // Если произошла ошибка при загрузке приложения
+        document.body.innerHTML = `
+          <div class="error-container" style="text-align: center; padding: 20px;">
+            <h2 style="color: #e74c3c;">Ошибка загрузки приложения</h2>
+            <p>Произошла ошибка при запуске приложения: ${error.message}</p>
+            <p>Проверьте консоль браузера для получения более подробной информации.</p>
+          </div>
+        `;
+        console.error('Ошибка при загрузке приложения:', error);
+      }
+    })();
+  </script>
+</body>
+</html>

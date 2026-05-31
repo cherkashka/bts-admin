@@ -1,0 +1,49 @@
+<!--
+  Боковая навигация — Alpine.js компонент.
+  Логика в Sidebar.js (Alpine.data('appSidebar', ...)).
+  «Календарь» — раздел с подпунктами (Задачи/Заметки/Категории),
+  раскрывается стрелкой, по умолчанию открыт.
+-->
+<div class="side-wrap" x-data="appSidebar" x-init="init()">
+  <div class="side-overlay" x-show="$store.ui.sidebarOpen" @click="$store.ui.closeSidebar()"></div>
+  <aside class="side" :class="$store.ui.sidebarOpen ? 'side-open' : ''">
+  <div class="side-brand">
+    <div class="side-brand-mark" x-html="Icons.logo(16)"></div>
+    <span class="side-brand-name">BTS&nbsp;ADMIN</span>
+  </div>
+
+  <nav class="side-nav">
+    <template x-for="item in items" :key="item.route">
+      <div class="side-group">
+        <div class="side-row">
+          <a :href="`#${item.route}`"
+             class="side-link"
+             :class="isActive(item.route) ? 'is-active' : ''">
+            <span class="side-link-icon" x-html="item.iconHtml"></span>
+            <span class="side-link-label" x-text="item.label"></span>
+          </a>
+          <button type="button"
+                  class="side-chevron"
+                  x-show="hasChildren(item)"
+                  :class="isExpanded(item.route) ? 'is-open' : ''"
+                  :aria-label="isExpanded(item.route) ? 'Свернуть' : 'Развернуть'"
+                  @click="toggle(item.route)"
+                  x-html="Icons.chevronDown(14)"></button>
+        </div>
+
+        <div class="side-subnav"
+             x-show="hasChildren(item) && isExpanded(item.route)">
+          <template x-for="child in item.children" :key="child.route">
+            <a :href="`#${child.route}`"
+               class="side-link side-sublink"
+               :class="isActive(child.route) ? 'is-active' : ''">
+              <span class="side-link-icon" x-html="child.iconHtml"></span>
+              <span class="side-link-label" x-text="child.label"></span>
+            </a>
+          </template>
+        </div>
+      </div>
+    </template>
+  </nav>
+  </aside>
+</div>

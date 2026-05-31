@@ -1,0 +1,65 @@
+<!--
+  Хедер приложения — Alpine.js компонент.
+  Логика в Header.js (Alpine.data('appHeader', ...)).
+-->
+<header class="topbar" x-data="appHeader" x-init="init()">
+  <button class="topbar-burger" type="button" aria-label="Меню" @click="$store.ui.toggleSidebar()">
+    <span x-html="Icons.menu(22)"></span>
+  </button>
+  <div class="topbar-brand">
+    <span class="topbar-brand-mark" x-html="Icons.logo(15)"></span>
+    <span class="topbar-brand-name">BTS&nbsp;ADMIN</span>
+  </div>
+
+  <div class="topbar-left">
+    <div class="topbar-crumb">
+      <span class="topbar-crumb-root">BTS Admin</span>
+      <span class="topbar-crumb-sep" x-html="Icons.chevronRight(14)"></span>
+      <span class="topbar-crumb-page" x-text="pageLabel"></span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="topbar-bell" type="button" title="Переключить тему" @click="toggleTheme()">
+      <span x-show="!isDark" x-html="Icons.moon(18)"></span>
+      <span x-show="isDark"  x-html="Icons.sun(18)"></span>
+    </button>
+
+    <div class="topbar-bell-wrap" @click.outside="notifOpen = false">
+      <button class="topbar-bell" type="button" title="Уведомления"
+              @click="toggleNotifications()">
+        <span x-html="Icons.bell(18)"></span>
+        <span class="topbar-bell-dot" x-show="visibleNotifications.length > 0"></span>
+      </button>
+
+      <div class="notif-panel" x-show="notifOpen" x-cloak x-transition.opacity>
+        <div class="notif-panel-head">
+          <span>Уведомления</span>
+          <button type="button" class="notif-dismiss-all"
+                  x-show="visibleNotifications.length > 0"
+                  @click="dismissAll()">Скрыть все</button>
+        </div>
+
+        <div class="notif-panel-body">
+          <template x-for="n in visibleNotifications" :key="n.id">
+            <a class="notif-item" :href="n.link"
+               @click="dismiss(n.id)">
+              <span class="notif-item-title" x-text="n.title"></span>
+              <span class="notif-item-sub"   x-text="n.sub"></span>
+            </a>
+          </template>
+
+          <div class="notif-empty"
+               x-show="!notifLoading && visibleNotifications.length === 0">
+            Нет новых уведомлений
+          </div>
+          <div class="notif-empty" x-show="notifLoading">Загрузка…</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="topbar-avatar" type="button" :title="`${userTitle} — выйти`" @click="logout()">
+      <span class="topbar-avatar-initial" x-text="initial"></span>
+    </button>
+  </div>
+</header>

@@ -1,0 +1,151 @@
+<!--
+  Страница «Активы» — Alpine.js компонент.
+  Логика в assets.js (Alpine.data('assetsPage', ...)).
+-->
+<div x-data="assetsPage" x-init="init()">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Всего</div>
+      <div class="stat-card-value" x-text="total"></div>
+    </div>
+    <div class="stat-card stat-card-success">
+      <div class="stat-card-label">В использовании</div>
+      <div class="stat-card-value" x-text="inUseCount"></div>
+    </div>
+    <div class="stat-card stat-card-warning">
+      <div class="stat-card-label">На ремонте</div>
+      <div class="stat-card-value" x-text="repairCount"></div>
+    </div>
+    <div class="stat-card stat-card-danger">
+      <div class="stat-card-label">Снято</div>
+      <div class="stat-card-value" x-text="retiredCount"></div>
+    </div>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search"
+           class="form-input table-search-input"
+           placeholder="Поиск по названию, инв. номеру или серийному номеру…"
+           autocomplete="off"
+           x-model="search">
+    <div class="table-toolbar-filters">
+      <select class="form-input" x-model="statusFilter">
+        <option value="">Все статусы</option>
+        <option value="installed">Установлен</option>
+        <option value="in_use">В использовании</option>
+        <option value="repair">На ремонте</option>
+        <option value="retired">Снят с эксплуатации</option>
+      </select>
+      <select class="form-input" x-model="typeFilter">
+        <option value="">Все типы</option>
+        <template x-for="t in assetTypeList" :key="t.value">
+          <option :value="t.value" x-text="t.label"></option>
+        </template>
+      </select>
+    </div>
+    <button class="btn btn-primary table-add-btn"
+            x-show="canCreate"
+            @click="openCreate()">+&nbsp;Добавить актив</button>
+  </div>
+
+  <div class="table-container">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="th-sortable" @click="setSort('name')">
+            Название <span class="sort-arrow" x-text="sortArrow('name')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('inventory_number')">
+            Инвентарный № <span class="sort-arrow" x-text="sortArrow('inventory_number')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('asset_type')">
+            Тип <span class="sort-arrow" x-text="sortArrow('asset_type')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('mol_name')">
+            МОЛ <span class="sort-arrow" x-text="sortArrow('mol_name')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('status')">
+            Статус <span class="sort-arrow" x-text="sortArrow('status')"></span>
+          </th>
+          <th class="th-actions">Действия</th>
+        </tr>
+      </thead>
+      <template x-for="asset in visibleAssets" :key="asset.id">
+        <tbody>
+          <tr class="asset-row row-clickable" :class="expanded[asset.id] ? 'row-expanded' : ''"
+              @click="toggleDetails(asset.id)">
+            <td><strong x-text="asset.name"></strong></td>
+            <td><span class="mono" x-text="asset.inventory_number"></span></td>
+            <td x-text="assetTypeLabel(asset.asset_type)"></td>
+            <td>
+              <span x-show="asset.mol_name" x-text="asset.mol_name"></span>
+              <span class="text-muted" x-show="!asset.mol_name">Не назначен</span>
+            </td>
+            <td><span class="cell-status" x-text="statusLabel(asset.status)"></span></td>
+            <td class="action-cell">
+              <button class="btn btn-sm btn-secondary"
+                      x-show="canEdit"
+                      @click.stop="openEdit(asset)"
+                      title="Изменить">✎</button>
+              <button class="btn btn-sm btn-secondary"
+                      x-show="canDelete"
+                      @click.stop="remove(asset)"
+                      title="Удалить">✕</button>
+            </td>
+          </tr>
+          <tr class="details-row" x-show="expanded[asset.id]">
+            <td colspan="6">
+              <div class="user-details">
+                <div class="user-details-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Серийный номер</span>
+                    <span class="detail-value detail-value-mono" x-text="asset.serial_number || '—'"></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">MAC-адрес</span>
+                    <span class="detail-value detail-value-mono" x-text="asset.mac_address || '—'"></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Дата ввода в эксплуатацию</span>
+                    <span class="detail-value" x-text="fmtDate(asset.commission_date)"></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Гарантия до</span>
+                    <span class="detail-value" x-text="fmtDate(asset.warranty_end_date)"></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Размещение</span>
+                    <span class="detail-value" x-text="asset.location || '—'"></span>
+                  </div>
+                  <div class="detail-item detail-item-wide">
+                    <span class="detail-label">Комментарии</span>
+                    <span class="detail-value" x-text="asset.comments || '—'"></span>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </template>
+    </table>
+
+    <div class="empty-state" x-show="!loading && visibleAssets.length === 0">
+      <div class="empty-state-text">Ничего не найдено</div>
+      <div class="empty-state-hint">Попробуйте изменить поисковый запрос или фильтр</div>
+    </div>
+  </div>
+
+  <div class="pagination" x-show="pages > 1">
+    <span class="pagination-info"
+          x-text="`${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} из ${total}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page === 1"
+            @click="prevPage()">← Назад</button>
+    <span class="pagination-page" x-text="`${page} / ${pages}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page >= pages"
+            @click="nextPage()">Вперёд →</button>
+  </div>
+
+</div>

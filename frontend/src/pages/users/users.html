@@ -1,0 +1,143 @@
+<!--
+  Страница «Сотрудники» — Alpine.js компонент.
+  Логика в users.js (Alpine.data('usersPage', ...)).
+-->
+<div x-data="usersPage" x-init="init()">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Всего</div>
+      <div class="stat-card-value" x-text="total"></div>
+    </div>
+    <div class="stat-card stat-card-success">
+      <div class="stat-card-label">Активных</div>
+      <div class="stat-card-value" x-text="activeCount"></div>
+    </div>
+    <div class="stat-card stat-card-warning">
+      <div class="stat-card-label">Администраторов</div>
+      <div class="stat-card-value" x-text="adminCount"></div>
+    </div>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search"
+           class="form-input table-search-input"
+           placeholder="Поиск по логину, ФИО или email…"
+           autocomplete="off"
+           x-model="search">
+    <div class="table-toolbar-filters">
+      <select class="form-input" x-model="roleFilter">
+        <option value="">Все роли</option>
+        <option value="admin">Администраторы</option>
+        <option value="user">Пользователи</option>
+      </select>
+      <select class="form-input" x-model="statusFilter">
+        <option value="">Все статусы</option>
+        <option value="active">Активные</option>
+        <option value="inactive">Неактивные</option>
+      </select>
+    </div>
+    <button class="btn btn-primary table-add-btn"
+            @click="openCreate()">+&nbsp;Добавить сотрудника</button>
+  </div>
+
+  <div class="table-container">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="th-sortable" @click="setSort('username')">
+            Логин <span class="sort-arrow" x-text="sortArrow('username')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('full_name')">
+            ФИО <span class="sort-arrow" x-text="sortArrow('full_name')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('email')">
+            Email <span class="sort-arrow" x-text="sortArrow('email')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('role')">
+            Роль <span class="sort-arrow" x-text="sortArrow('role')"></span>
+          </th>
+          <th class="th-sortable" @click="setSort('is_active')">
+            Статус <span class="sort-arrow" x-text="sortArrow('is_active')"></span>
+          </th>
+          <th class="th-actions">Действия</th>
+        </tr>
+      </thead>
+      <template x-for="user in visibleUsers" :key="user.id">
+        <tbody>
+          <tr class="user-row row-clickable" :class="expanded[user.id] ? 'row-expanded' : ''"
+              @click="toggleDetails(user.id)">
+            <td><span class="user-username" x-text="user.username"></span></td>
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar" :style="avatarStyle(user.username)"
+                     x-text="initial(user.full_name || user.username)"></div>
+                <div class="user-cell-name" x-text="user.full_name || '—'"></div>
+              </div>
+            </td>
+            <td>
+              <span x-show="user.email" x-text="user.email"></span>
+              <span class="text-muted" x-show="!user.email">—</span>
+            </td>
+            <td><span class="cell-status" x-text="roleLabel(user.role)"></span></td>
+            <td><span class="cell-status" x-text="user.is_active ? 'Активен' : 'Неактивен'"></span></td>
+            <td class="action-cell">
+              <button class="btn btn-sm btn-secondary"
+                      @click.stop="openEdit(user)"
+                      title="Изменить">✎</button>
+            </td>
+          </tr>
+          <tr class="details-row" x-show="expanded[user.id]">
+            <td colspan="6">
+              <div class="user-details">
+                <div class="user-details-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">ID пользователя</span>
+                    <span class="detail-value detail-value-mono" x-text="user.id"></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Дата создания</span>
+                    <span class="detail-value" x-text="fmtDateTime(user.created_at)"></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Телефон</span>
+                    <span class="detail-value" x-text="user.phone || '—'"></span>
+                  </div>
+                  <div class="detail-item user-details-actions-inline">
+                    <button class="btn btn-sm btn-secondary"
+                            x-show="!!user.email"
+                            @click="resetPassword(user)"
+                            title="Сгенерировать новый пароль и отправить на почту">Сменить пароль</button>
+                    <button class="btn btn-sm"
+                            x-show="!isSelf(user)"
+                            :class="user.is_active ? 'btn-danger' : 'btn-success'"
+                            @click="toggleStatus(user)"
+                            x-text="user.is_active ? 'Деактивировать' : 'Активировать'"></button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </template>
+    </table>
+
+    <div class="empty-state" x-show="!loading && visibleUsers.length === 0">
+      <div class="empty-state-text">Ничего не найдено</div>
+      <div class="empty-state-hint">Попробуйте изменить поисковый запрос или фильтры</div>
+    </div>
+  </div>
+
+  <div class="pagination" x-show="pages > 1">
+    <span class="pagination-info"
+          x-text="`${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)} из ${total}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page === 1"
+            @click="prevPage()">← Назад</button>
+    <span class="pagination-page" x-text="`${page} / ${pages}`"></span>
+    <button class="btn btn-sm btn-secondary"
+            :disabled="page >= pages"
+            @click="nextPage()">Вперёд →</button>
+  </div>
+
+</div>

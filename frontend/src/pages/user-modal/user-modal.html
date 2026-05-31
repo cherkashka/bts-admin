@@ -1,0 +1,99 @@
+<!--
+  Шаблоны модалки сотрудника.
+  В JS — выбираем нужный <template>, клонируем, заполняем DOM API.
+-->
+
+<!-- Форма добавления -->
+<template id="user-modal-add">
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">ФИО <span class="req">*</span></label>
+      <input type="text" name="full_name" class="form-input" placeholder="Иванов Иван Иванович">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email <span class="req">*</span></label>
+      <input type="email" name="email" class="form-input" placeholder="user@example.com">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Телефон <span class="um-optional">(необязательно)</span></label>
+    <input type="tel" name="phone" class="form-input" placeholder="+375 (99) 000-00-00">
+  </div>
+
+  <div class="um-perm-section">
+    <label class="form-label um-perm-label">Права доступа</label>
+    <div class="perm-matrix-wrap">
+      <!-- Матрица собирается через DOM API в user-modal.js -->
+      <table class="um-perm-table">
+        <thead>
+          <tr class="um-perm-head-row"></tr>
+        </thead>
+        <tbody class="um-perm-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="um-helper-text">
+    Логин и пароль генерируются автоматически и отправляются на email.
+  </p>
+</template>
+
+<!-- Форма редактирования -->
+<template id="user-modal-edit">
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">ФИО <span class="req">*</span></label>
+      <input type="text" name="full_name" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" name="email" class="form-input" placeholder="user@example.com">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Телефон</label>
+      <input type="tel" name="phone" class="form-input" placeholder="+375 (99) 000-00-00">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Статус</label>
+      <select name="is_active" class="form-input">
+        <option value="true">Активен</option>
+        <option value="false">Неактивен</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="um-perm-section">
+    <label class="form-label um-perm-label">Права доступа</label>
+    <div class="perm-matrix-wrap">
+      <table class="um-perm-table">
+        <thead>
+          <tr class="um-perm-head-row"></tr>
+        </thead>
+        <tbody class="um-perm-body"></tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<!-- Экран успешного создания -->
+<template id="user-modal-success">
+  <div class="um-success">
+    <div class="um-success-icon"></div>
+    <h3 class="um-success-title">Сотрудник создан</h3>
+    <p class="um-success-note"></p>
+    <div class="um-creds">
+      <div class="um-creds-row">
+        <span class="um-creds-label">Логин</span><br>
+        <span class="um-creds-value um-creds-username"></span>
+      </div>
+      <div class="um-creds-row">
+        <span class="um-creds-label">Временный пароль</span><br>
+        <span class="um-creds-value um-creds-password"></span>
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary um-copy-btn">Скопировать реквизиты</button>
+    <p class="um-success-hint">Пароль показывается один раз.</p>
+  </div>
+</template>

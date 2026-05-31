@@ -1,0 +1,16 @@
+<!--
+  Шаблон формы для добавления / редактирования категории.
+  Заполнение значений делает category-modal.js через DOM API
+  (никакого HTML-конкатенирования в JS).
+-->
+<div class="form-group">
+  <label class="form-label">Название <span class="req">*</span></label>
+  <input type="text" name="name" class="form-input"
+         placeholder="Например: Работа, Встречи, Личное"
+         maxlength="50">
+</div>
+
+<div class="form-group">
+  <label class="form-label">Цвет <span class="req">*</span></label>
+  <div class="color-list" role="radiogroup" aria-label="Выберите цвет"></div>
+</div>

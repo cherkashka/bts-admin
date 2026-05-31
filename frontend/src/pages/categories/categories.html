@@ -1,0 +1,44 @@
+<!--
+  Страница «Категории» — Alpine.js компонент.
+  Логика в categories.js. Модалка категории — pages/category-modal.js.
+-->
+<div x-data="categoriesPage" x-init="init()">
+
+  <div class="form-wrapper">
+    <div class="categories-toolbar">
+      <p class="text-muted">
+        Категории помогают группировать события в календаре. Цвет автоматически
+        применяется к меткам в календарной сетке.
+      </p>
+      <button class="btn btn-primary table-add-btn"
+              @click="openCreate()">+&nbsp;Добавить категорию</button>
+    </div>
+
+    <div class="categories-list" x-show="categories.length > 0">
+      <template x-for="cat in categories" :key="cat.id">
+        <div class="category-item category-item-stripe" :style="`--stripe:${cat.color}`">
+          <div class="category-item-header">
+            <span class="category-name" x-text="cat.name"></span>
+            <span class="badge badge-default" x-show="cat.is_default">Системная</span>
+          </div>
+          <div class="category-item-actions">
+            <button class="btn btn-sm btn-secondary"
+                    x-show="!cat.is_default"
+                    @click="openEdit(cat)"
+                    title="Изменить">✎</button>
+            <button class="btn btn-sm btn-secondary"
+                    x-show="!cat.is_default"
+                    @click="remove(cat)"
+                    title="Удалить">✕</button>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div class="empty-state" x-show="!loading && categories.length === 0">
+      <div class="empty-state-text">Категорий пока нет</div>
+      <div class="empty-state-hint">Создайте первую категорию для группировки записей</div>
+    </div>
+  </div>
+
+</div>
