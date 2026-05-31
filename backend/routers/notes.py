@@ -6,7 +6,7 @@ from typing import List
 
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.core.permissions import is_admin
+from backend.core.permissions import is_admin, require_permission
 from backend.core.audit import log_action, snapshot, diff_changes
 from backend.models.note import NoteCreate, NoteUpdate, NoteResponse
 from backend.models.user import UserResponse
@@ -108,7 +108,7 @@ async def get_notes(
     sort_by: str = "created_at",
     sort_order: str = "desc",
     db=Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("notes", "read"))
 ):
     query = {} if is_admin(current_user) else {"created_by": ObjectId(current_user["id"])}
     total = await db.notes.count_documents(query)

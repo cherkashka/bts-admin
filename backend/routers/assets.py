@@ -9,7 +9,7 @@ from pymongo.errors import DuplicateKeyError
 
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.core.permissions import require_admin
+from backend.core.permissions import require_admin, require_permission
 from backend.core.audit import log_action, snapshot, diff_changes
 from backend.models.asset import AssetCreate, AssetUpdate, AssetResponse
 
@@ -91,7 +91,7 @@ async def get_assets(
     limit: int = 0,
     sort_by: str = "created_at",
     sort_order: str = "desc",
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_permission("assets", "read")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     total = await db.assets.count_documents({})
@@ -110,7 +110,7 @@ async def get_assets(
 @router.get("/{asset_id}", response_model=AssetResponse)
 async def get_asset(
     asset_id: str,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_permission("assets", "read")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(asset_id):

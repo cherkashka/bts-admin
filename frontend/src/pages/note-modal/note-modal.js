@@ -78,23 +78,20 @@ export async function openNoteModal({ id = null, presetDate = null, onSaved = nu
     catch (e) { toast.error('Ошибка: ' + e.message); return; }
   }
 
-  try {
-    const [a, u, c] = await Promise.all([
-      assets.getAll(),
-      users.getAll(),
-      categories.getAll(true),
-    ]);
-    assetsList = a || [];
-    usersList = (u || []).filter(x => x.is_active !== false);
-    categoriesList = (c || []).sort((x, y) => {
-      if (x.is_default && !y.is_default) return -1;
-      if (!x.is_default && y.is_default) return 1;
-      return x.name.localeCompare(y.name);
-    });
-  } catch {
-    toast.error('Не удалось загрузить справочники');
-    return;
-  }
+  // Справочники тянем независимо: нет права на актив/сотрудника/категорию —
+  // просто пустой список в соответствующем дропдауне, модалка не падает.
+  const [a, u, c] = await Promise.all([
+    assets.getAll().catch(() => []),
+    users.getAll().catch(() => []),
+    categories.getAll(true).catch(() => []),
+  ]);
+  assetsList = a || [];
+  usersList = (u || []).filter(x => x.is_active !== false);
+  categoriesList = (c || []).sort((x, y) => {
+    if (x.is_default && !y.is_default) return -1;
+    if (!x.is_default && y.is_default) return 1;
+    return x.name.localeCompare(y.name);
+  });
 
   const isEdit = !!noteData;
   const body = buildBody({ noteData, categoriesList, assetsList, usersList, currentUserId, presetDate });

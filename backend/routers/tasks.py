@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from backend.core.database import get_db
 from backend.models.task import TaskCreate, TaskUpdate, TaskResponse
 from backend.core.security import get_current_user
-from backend.core.permissions import require_admin, is_admin
+from backend.core.permissions import require_admin, is_admin, require_permission
 from backend.core.audit import log_action, snapshot, diff_changes
 from bson import ObjectId
 from datetime import datetime, timezone
@@ -115,7 +115,7 @@ async def get_tasks(
     limit: int = 0,
     sort_by: str = "start_date",
     sort_order: str = "asc",
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_permission("tasks", "read")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     query = {}
@@ -149,7 +149,7 @@ async def get_tasks(
 @router.get("/{task_id}", response_model=TaskResponse)
 async def get_task(
     task_id: str,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_permission("tasks", "read")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(task_id):

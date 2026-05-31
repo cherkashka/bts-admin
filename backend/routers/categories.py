@@ -5,7 +5,7 @@ from datetime import datetime
 
 from backend.core.security import get_current_user
 from backend.core.database import get_db
-from backend.core.permissions import is_admin
+from backend.core.permissions import is_admin, require_permission
 from backend.core.audit import log_action, snapshot, diff_changes
 from backend.models.category import CategoryCreate, CategoryUpdate, CategoryResponse
 from backend.models.user import UserResponse
@@ -59,7 +59,7 @@ async def create_category(
 async def get_categories(
     include_system: bool = True,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("categories", "read"))
 ):
     query = {"$or": []}
 

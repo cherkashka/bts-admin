@@ -56,7 +56,7 @@ async def get_users(
     sort_by: str = "full_name",
     sort_order: str = "asc",
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_admin)
 ):
     query = {}
     if active_only is True:  query["is_active"] = True
