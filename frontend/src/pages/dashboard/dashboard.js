@@ -17,6 +17,10 @@ function dayStart(d) {
   x.setHours(0, 0, 0, 0);
   return x;
 }
+function dayKey(d) {
+  // локальный ключ дня без сдвига часовых поясов
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
 function startOfWeek(d = new Date()) {
   const date = dayStart(d);
   const day = date.getDay() || 7;
@@ -111,6 +115,7 @@ Alpine.data('dashboardPage', () => ({
   activityDays: 30,
   activityZoom: false,
   timelineZoom: false,
+  selectedDay: null,   // ключ выбранного дня (YYYY-M-D) или null = ближайшие
 
   async init() {
     this.now = new Date();
@@ -208,21 +213,51 @@ Alpine.data('dashboardPage', () => ({
   toggleActivityZoom() { this.activityZoom = !this.activityZoom; },
 
   get weekDays() {
-
     const today = dayStart(this.now);
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
+      const key = dayKey(d);
+      const isToday = i === 0;
+      const isSelected = this.selectedDay === key;
+      let cls = isToday ? 'is-today' : 'is-clickable';
+      if (isSelected) cls += ' is-selected';
       return {
         iso: d.toISOString(),
+        key,
         label: DOW_LABELS[d.getDay()],
         num: d.getDate(),
-        cls: i === 0 ? 'is-today' : 'is-clickable',
+        cls,
+        hasTasks: this.tasks.some(t => t.start_date && dayKey(new Date(t.start_date)) === key),
       };
     });
   },
+  selectDay(key) {
+    // повторный клик по выбранному дню — сброс к «ближайшим»
+    this.selectedDay = this.selectedDay === key ? null : key;
+  },
+  get scheduleTitle() {
+    if (!this.selectedDay) return 'Ближайшие задачи';
+    const [y, m, d] = this.selectedDay.split('-').map(Number);
+    return new Date(y, m, d).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long' });
+  },
   get scheduleTasks() {
     const today = dayStart(this.now);
+
+    // выбран конкретный день — показываем задачи именно этого дня
+    if (this.selectedDay) {
+      return this.tasks
+        .filter(t => t.start_date && dayKey(new Date(t.start_date)) === this.selectedDay)
+        .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+        .slice(0, 8)
+        .map(t => ({
+          id: t.id,
+          color: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium,
+          title: t.title || 'Без названия',
+          time: new Date(t.start_date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+        }));
+    }
+
     return this.tasks
       .filter(t => t.start_date && !isNaN(new Date(t.start_date).getTime()))
       .map(t => ({ t, d: new Date(t.start_date) }))

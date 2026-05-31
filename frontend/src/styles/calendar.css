@@ -62,6 +62,9 @@
 .cal-cell.today {
   box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light), 0 0 0 2px var(--primary);
 }
+.cal-cell.selected {
+  box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light), 0 0 0 2px var(--primary-light, var(--primary));
+}
 .cal-cell.past { opacity: 0.6; }
 .cal-cell.past.today {
   opacity: 1;
@@ -117,6 +120,43 @@
   border-bottom: 1px solid var(--border-divider);
 }
 .calendar-event-list-header .btn { width: 100%; }
+
+/* Шапка выбранного дня в правой панели. */
+.cal-selected-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 1rem;
+  background: var(--bg);
+  border-radius: 0.75rem;
+  box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+.cal-selected-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.cal-selected-label {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--gray-800);
+  text-transform: capitalize;
+}
+.cal-selected-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: 0;
+  color: var(--gray-500);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.15s var(--ease);
+}
+.cal-selected-clear:hover { color: var(--primary); }
+.cal-selected-bar .btn { width: 100%; }
 
 .calendar-event-list-content {
   overflow-y: auto;
@@ -351,4 +391,42 @@
     padding: 1rem;
     border-radius: 1rem;
   }
+}
+
+/* ===== Скелетон календаря ===== */
+.cal-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.cal-skeleton-card {
+  background: var(--bg);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+  border: 1px solid var(--border-soft);
+}
+.cal-skeleton-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.cal-skeleton-nav  { width: 2.75rem; height: 2.75rem; border-radius: 0.5rem; }
+.cal-skeleton-title { width: 11rem; height: 2.25rem; border-radius: 0.5rem; }
+.cal-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.cal-skeleton-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .cal-skeleton-card { padding: 0.75rem; border-radius: 1rem; }
+  .cal-skeleton-grid { gap: 3px; }
+  .cal-skeleton-cell { aspect-ratio: 1 / 1; }
+  .cal-skeleton-title { width: 8rem; }
 }

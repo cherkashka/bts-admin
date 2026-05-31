@@ -55,6 +55,7 @@ Alpine.data('calendarPage', () => ({
   monthNames: MONTH_NAMES,
   loading: true,
   mobileFiltersOpen: false,
+  selectedDate: null,   // выбранный день (YYYY-MM-DD) для просмотра событий в панели
 
   filters: {},
 
@@ -101,6 +102,7 @@ Alpine.data('calendarPage', () => ({
 
   async loadMonth() {
     this.loading = true;
+    this.selectedDate = null;   // при смене месяца сбрасываем выбранный день
     const _minLoad = new Promise(r => setTimeout(r, 400));
     const y = this.currentDate.getFullYear();
     const m = this.currentDate.getMonth();
@@ -267,9 +269,30 @@ Alpine.data('calendarPage', () => ({
     openNoteModal({ onSaved: () => this.loadMonth() });
   },
 
-  onCellClick(e, dateStr) {
+  onCellClick(e, day) {
     if (e.target.closest('.cal-event-dot') || e.target.closest('.cal-more')) return;
-    openNoteModal({ presetDate: dateStr, onSaved: () => this.loadMonth() });
+    const hasEvents = (day.events && day.events.length) || day.extra > 0;
+    if (hasEvents) {
+      // день с событиями — показываем их в правой панели (повторный клик снимает выбор)
+      this.selectedDate = this.selectedDate === day.dateStr ? null : day.dateStr;
+    } else {
+      // пустой день — сразу создаём запись на эту дату
+      openNoteModal({ presetDate: day.dateStr, onSaved: () => this.loadMonth() });
+    }
+  },
+  clearSelectedDate() { this.selectedDate = null; },
+  addNoteForSelected() {
+    openNoteModal({ presetDate: this.selectedDate, onSaved: () => this.loadMonth() });
+  },
+  get selectedDateLabel() {
+    if (!this.selectedDate) return '';
+    const [y, m, d] = this.selectedDate.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('ru-RU',
+      { day: '2-digit', month: 'long', year: 'numeric' });
+  },
+  get displayedEvents() {
+    if (!this.selectedDate) return this.visibleEvents;
+    return this.visibleEvents.filter(ev => ev.date === this.selectedDate);
   },
 
   onDotClick(e, ev) {

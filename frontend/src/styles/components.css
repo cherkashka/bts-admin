@@ -1008,14 +1008,3 @@ select[name="category_id"] {
   margin-bottom: 8px;
 }
 
-.skeleton-cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-top: 0.5rem;
-}
-.skeleton-cal-cell {
-  aspect-ratio: 1 / 1;
-  min-height: 56px;
-  border-radius: 0.5rem;
-}

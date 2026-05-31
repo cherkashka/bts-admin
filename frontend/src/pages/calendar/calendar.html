@@ -13,19 +13,22 @@
   </div>
 
   <template x-if="loading">
-    <div>
-      <div class="skeleton-stats" style="margin-bottom:1rem;">
+    <div class="cal-skeleton">
+      <div class="skeleton-stats">
         <div class="skeleton skeleton-stat"></div>
         <div class="skeleton skeleton-stat"></div>
         <div class="skeleton skeleton-stat"></div>
         <div class="skeleton skeleton-stat"></div>
       </div>
-      <div class="skeleton skeleton-toolbar" style="width:40%; margin-bottom:1rem;"></div>
-      <div class="skeleton skeleton-cal-grid-wrap" style="background:var(--bg);border-radius:1.5rem;padding:1rem;">
-        <div class="skeleton skeleton-toolbar" style="width:50%; margin-bottom:1rem;"></div>
-        <div class="skeleton-cal-grid">
-          <template x-for="i in 35" :key="i">
-            <div class="skeleton skeleton-cal-cell"></div>
+      <div class="cal-skeleton-card">
+        <div class="cal-skeleton-head">
+          <div class="skeleton cal-skeleton-nav"></div>
+          <div class="skeleton cal-skeleton-title"></div>
+          <div class="skeleton cal-skeleton-nav"></div>
+        </div>
+        <div class="cal-skeleton-grid">
+          <template x-for="i in 42" :key="i">
+            <div class="skeleton cal-skeleton-cell"></div>
           </template>
         </div>
       </div>
@@ -147,8 +150,8 @@
         </template>
         <template x-for="day in gridDays" :key="day.dateStr">
           <div class="cal-cell"
-               :class="`${day.isToday ? 'today' : ''} ${day.isPast ? 'past' : ''}`"
-               @click="onCellClick($event, day.dateStr)">
+               :class="`${day.isToday ? 'today' : ''} ${day.isPast ? 'past' : ''} ${day.dateStr === selectedDate ? 'selected' : ''}`"
+               @click="onCellClick($event, day)">
             <div class="cal-day-num" x-text="day.num"></div>
             <div class="cal-events">
               <template x-for="ev in day.events" :key="ev.uid">
@@ -177,19 +180,35 @@
           <span>Добавить запись</span>
         </button>
       </div>
+      <div class="cal-selected-bar" x-show="selectedDate">
+        <div class="cal-selected-info">
+          <span class="cal-selected-label" x-text="selectedDateLabel"></span>
+          <button type="button" class="cal-selected-clear" @click="clearSelectedDate()">
+            <span x-html="Icons.x(14)"></span>
+            <span>все события</span>
+          </button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm"
+                x-show="canCreateNote"
+                @click="addNoteForSelected()">
+          <span x-html="Icons.plus(14)"></span>
+          <span>Запись на этот день</span>
+        </button>
+      </div>
+
       <div class="calendar-event-list-content">
-        <template x-if="visibleEvents.length === 0">
+        <template x-if="displayedEvents.length === 0">
           <div class="empty-state">
             <div class="empty-state-icon" x-html="Icons.calendar(28)"></div>
-            <div class="empty-state-text">Нет событий для выбранных фильтров</div>
-            <div class="empty-state-hint">Измените фильтр или выберите другой месяц.</div>
+            <div class="empty-state-text" x-text="selectedDate ? 'На этот день событий нет' : 'Нет событий для выбранных фильтров'"></div>
+            <div class="empty-state-hint" x-text="selectedDate ? 'Создайте запись или выберите другой день.' : 'Измените фильтр или выберите другой месяц.'"></div>
           </div>
         </template>
-        <template x-if="visibleEvents.length > 0">
+        <template x-if="displayedEvents.length > 0">
           <div class="tasks-list">
-            <h3>События</h3>
+            <h3 x-text="selectedDate ? 'События дня' : 'События'"></h3>
             <div class="events-table">
-              <template x-for="ev in visibleEvents" :key="ev.uid">
+              <template x-for="ev in displayedEvents" :key="ev.uid">
                 <div class="calendar-event-item-wrapper">
                   <a :href="ev.link || '#/assets'"
                      class="calendar-event-item"

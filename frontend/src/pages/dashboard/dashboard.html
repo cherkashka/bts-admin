@@ -1,22 +1,18 @@
 
 <div class="dash" x-data="dashboardPage" x-init="init()">
 
-  <template x-if="loading">
-    <div>
-      <div class="dash-metrics">
-        <div class="skeleton skeleton-metric"></div>
-        <div class="skeleton skeleton-metric"></div>
-        <div class="skeleton skeleton-metric"></div>
-        <div class="skeleton skeleton-metric"></div>
-      </div>
-      <div class="skeleton skeleton-chart"></div>
-      <div class="skeleton skeleton-chart-sm"></div>
+  <div class="dash-skeleton" x-show="loading">
+    <div class="dash-metrics">
+      <div class="skeleton skeleton-metric"></div>
+      <div class="skeleton skeleton-metric"></div>
+      <div class="skeleton skeleton-metric"></div>
+      <div class="skeleton skeleton-metric"></div>
     </div>
-  </template>
+    <div class="skeleton skeleton-chart"></div>
+    <div class="skeleton skeleton-chart-sm"></div>
+  </div>
 
-  <template x-if="!loading">
-  <div>
-  <div class="dash-metrics">
+  <div class="dash-metrics" x-show="!loading">
     <template x-for="m in metrics" :key="m.title">
       <div class="metric-card metric-card-clickable"
            role="button" tabindex="0"
@@ -46,7 +42,7 @@
     </template>
   </div>
 
-  <div class="dash-grid-2-1">
+  <div class="dash-grid-2-1" x-show="!loading">
 
     <section class="section-card">
       <header class="section-head">
@@ -122,18 +118,20 @@
 
       <div class="schedule-week">
         <template x-for="d in weekDays" :key="d.iso">
-          <div class="schedule-day">
+          <button type="button" class="schedule-day" @click="selectDay(d.key)">
             <span class="schedule-day-name" x-text="d.label"></span>
             <div class="schedule-day-num" :class="d.cls" x-text="d.num"></div>
-          </div>
+            <span class="schedule-day-mark" :class="d.hasTasks ? 'has-tasks' : ''"></span>
+          </button>
         </template>
       </div>
 
       <div class="schedule-events">
+        <div class="schedule-events-title" x-text="scheduleTitle"></div>
         <div class="schedule-events-list">
           <template x-if="scheduleTasks.length === 0">
             <div class="dash-empty">
-              <div class="dash-empty-text">Ближайших задач нет</div>
+              <div class="dash-empty-text" x-text="selectedDay ? 'На этот день задач нет' : 'Ближайших задач нет'"></div>
             </div>
           </template>
           <template x-for="ev in scheduleTasks" :key="ev.id || ev.title + ev.time">
@@ -149,7 +147,7 @@
 
   </div>
 
-  <section class="timeline-card">
+  <section class="timeline-card" x-show="!loading">
     <header class="section-head">
       <div class="section-head-title">
         <span x-html="Icons.grid(20)"></span>
@@ -205,7 +203,5 @@
       </template>
     </div>
   </section>
-  </div>
-  </template>
 
 </div>
