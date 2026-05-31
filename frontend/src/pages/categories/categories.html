@@ -1,6 +1,14 @@
 
 <div x-data="categoriesPage" x-init="init()">
 
+  <template x-if="loading">
+    <div class="form-wrapper">
+      <div class="skeleton skeleton-toolbar" style="width:50%; margin-bottom:1.25rem;"></div>
+      <template x-for="i in [1,2,3,4,5]" :key="i"><div class="skeleton skeleton-list-item"></div></template>
+    </div>
+  </template>
+
+  <template x-if="!loading">
   <div class="form-wrapper">
     <div class="categories-toolbar">
       <p class="text-muted">
@@ -37,5 +45,6 @@
       <div class="empty-state-hint">Создайте первую категорию для группировки записей</div>
     </div>
   </div>
+  </template>
 
 </div>

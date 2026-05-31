@@ -102,6 +102,7 @@ const DOW_LABELS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 Alpine.data('dashboardPage', () => ({
   Icons,
 
+  loading: true,
   assets: [],
   tasks:  [],
   users:  [],
@@ -113,6 +114,7 @@ Alpine.data('dashboardPage', () => ({
 
   async init() {
     this.now = new Date();
+    this.loading = true;
     try {
       const [a, t, u] = await Promise.all([
         api.get('/assets').catch(() => []),
@@ -124,6 +126,8 @@ Alpine.data('dashboardPage', () => ({
       this.users  = u || [];
     } catch (err) {
       console.error('Dashboard data fetch failed:', err);
+    } finally {
+      this.loading = false;
     }
   },
 

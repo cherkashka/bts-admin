@@ -12,6 +12,28 @@
     </button>
   </div>
 
+  <template x-if="loading">
+    <div>
+      <div class="skeleton-stats" style="margin-bottom:1rem;">
+        <div class="skeleton skeleton-stat"></div>
+        <div class="skeleton skeleton-stat"></div>
+        <div class="skeleton skeleton-stat"></div>
+        <div class="skeleton skeleton-stat"></div>
+      </div>
+      <div class="skeleton skeleton-toolbar" style="width:40%; margin-bottom:1rem;"></div>
+      <div class="skeleton skeleton-cal-grid-wrap" style="background:var(--bg);border-radius:1.5rem;padding:1rem;">
+        <div class="skeleton skeleton-toolbar" style="width:50%; margin-bottom:1rem;"></div>
+        <div class="skeleton-cal-grid">
+          <template x-for="i in 35" :key="i">
+            <div class="skeleton skeleton-cal-cell"></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading">
+  <div>
   <div class="stats-row calendar-stats-row">
     <div class="stat-card">
       <div class="stat-card-label">Событий в месяце</div>
@@ -197,5 +219,7 @@
       </div>
     </div>
   </div>
+  </div>
+  </template>
 
 </div>

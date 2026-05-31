@@ -53,6 +53,7 @@ Alpine.data('calendarPage', () => ({
   onlyMine: localStorage.getItem(ONLY_MINE_KEY) === '1',
   monthDropdownOpen: false,
   monthNames: MONTH_NAMES,
+  loading: true,
   mobileFiltersOpen: false,
 
   filters: {},
@@ -99,6 +100,7 @@ Alpine.data('calendarPage', () => ({
   },
 
   async loadMonth() {
+    this.loading = true;
     const y = this.currentDate.getFullYear();
     const m = this.currentDate.getMonth();
     const start = `${y}-${pad2(m + 1)}-01`;
@@ -110,6 +112,8 @@ Alpine.data('calendarPage', () => ({
       this.allEvents = await api.get(`/calendar/events?start=${start}&end=${end}${onlyMineParam}`);
     } catch {
       this.allEvents = [];
+    } finally {
+      this.loading = false;
     }
   },
 

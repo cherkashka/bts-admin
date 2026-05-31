@@ -1,6 +1,21 @@
 
 <div class="dash" x-data="dashboardPage" x-init="init()">
 
+  <template x-if="loading">
+    <div>
+      <div class="dash-metrics">
+        <div class="skeleton skeleton-metric"></div>
+        <div class="skeleton skeleton-metric"></div>
+        <div class="skeleton skeleton-metric"></div>
+        <div class="skeleton skeleton-metric"></div>
+      </div>
+      <div class="skeleton skeleton-chart"></div>
+      <div class="skeleton skeleton-chart-sm"></div>
+    </div>
+  </template>
+
+  <template x-if="!loading">
+  <div>
   <div class="dash-metrics">
     <template x-for="m in metrics" :key="m.title">
       <div class="metric-card metric-card-clickable"
@@ -190,5 +205,7 @@
       </template>
     </div>
   </section>
+  </div>
+  </template>
 
 </div>

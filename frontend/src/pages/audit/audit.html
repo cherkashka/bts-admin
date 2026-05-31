@@ -1,6 +1,17 @@
 
 <div x-data="auditPage" x-init="init()">
 
+  <template x-if="loading">
+    <div>
+      <div class="skeleton skeleton-toolbar" style="width:80%; margin-bottom:1rem;"></div>
+      <div class="skeleton-table">
+        <template x-for="i in [1,2,3,4,5,6,7,8]" :key="i"><div class="skeleton skeleton-row"></div></template>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading">
+  <div>
   <div class="table-toolbar">
     <div class="table-toolbar-filters">
       <select class="form-input" x-model="entityType" @change="applyFilters()">
@@ -99,5 +110,7 @@
             :disabled="page >= pages"
             @click="nextPage()">Вперёд →</button>
   </div>
+  </div>
+  </template>
 
 </div>
