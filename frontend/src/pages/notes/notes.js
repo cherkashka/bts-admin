@@ -99,6 +99,7 @@ Alpine.data('notesPage', () => ({
 
   async load() {
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
       const url = `/notes/?skip=${skip}&limit=${this.pageSize}`
@@ -111,6 +112,7 @@ Alpine.data('notesPage', () => ({
       this.notes = [];
       this.total = 0;
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },

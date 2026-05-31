@@ -16,6 +16,7 @@ Alpine.data('categoriesPage', () => ({
 
   async load() {
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const list = await categoriesApi.getAll(true);
       list.sort((a, b) => {
@@ -28,6 +29,7 @@ Alpine.data('categoriesPage', () => ({
       console.error('Ошибка загрузки категорий:', e);
       toast.error('Не удалось загрузить категории');
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },

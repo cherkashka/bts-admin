@@ -120,6 +120,7 @@ Alpine.data('tasksPage', () => ({
 
   async load() {
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
       const url = `/tasks?skip=${skip}&limit=${this.pageSize}`
@@ -132,6 +133,7 @@ Alpine.data('tasksPage', () => ({
       this.tasks = [];
       this.total = 0;
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },

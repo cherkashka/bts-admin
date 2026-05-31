@@ -101,6 +101,7 @@ Alpine.data('calendarPage', () => ({
 
   async loadMonth() {
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     const y = this.currentDate.getFullYear();
     const m = this.currentDate.getMonth();
     const start = `${y}-${pad2(m + 1)}-01`;
@@ -113,6 +114,7 @@ Alpine.data('calendarPage', () => ({
     } catch {
       this.allEvents = [];
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },

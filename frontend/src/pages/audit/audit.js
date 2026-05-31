@@ -94,6 +94,7 @@ Alpine.data('auditPage', () => ({
 
   async load() {
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
       let url = `/audit?skip=${skip}&limit=${this.pageSize}`;
@@ -108,6 +109,7 @@ Alpine.data('auditPage', () => ({
       this.entries = [];
       this.total = 0;
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },

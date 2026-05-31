@@ -115,6 +115,7 @@ Alpine.data('dashboardPage', () => ({
   async init() {
     this.now = new Date();
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const [a, t, u] = await Promise.all([
         api.get('/assets').catch(() => []),
@@ -127,6 +128,7 @@ Alpine.data('dashboardPage', () => ({
     } catch (err) {
       console.error('Dashboard data fetch failed:', err);
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },

@@ -75,6 +75,7 @@ Alpine.data('usersPage', () => ({
 
   async load() {
     this.loading = true;
+    const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
       const url = `/users?skip=${skip}&limit=${this.pageSize}`
@@ -87,6 +88,7 @@ Alpine.data('usersPage', () => ({
       this.users = [];
       this.total = 0;
     } finally {
+      await _minLoad;
       this.loading = false;
     }
   },
