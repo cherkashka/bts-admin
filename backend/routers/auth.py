@@ -17,9 +17,9 @@ router = APIRouter(prefix="/api/v1/auth", tags=["Auth"], redirect_slashes=False)
 
 def _set_tokens(response: Response, access: str, refresh: str):
     response.set_cookie("access_token", access, httponly=True,
-                        secure=settings.is_production, samesite="lax", max_age=1800, path="/")
+                        secure=settings.COOKIE_SECURE, samesite="lax", max_age=1800, path="/")
     response.set_cookie("refresh_token", refresh, httponly=True,
-                        secure=settings.is_production, samesite="lax",
+                        secure=settings.COOKIE_SECURE, samesite="lax",
                         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400, path="/")
 
 @router.post("/login")

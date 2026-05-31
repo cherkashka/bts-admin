@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     CRYPTO_KEY: str
     FRONTEND_URL: str = "http://127.0.0.1:3000"
 
+    COOKIE_SECURE: bool = False
+
     SMTP_HOST:    str = "smtp.gmail.com"
     SMTP_PORT:    int = 587
     SMTP_LOGIN:   str = ""
