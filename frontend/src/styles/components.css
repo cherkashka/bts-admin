@@ -259,13 +259,6 @@ select[name="category_id"] {
 }
 .tm-optional { color: var(--text-muted); font-size: 12px; }
 
-.filter-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  white-space: nowrap;
-}
 
 .color-list {
   display: flex;
@@ -558,6 +551,14 @@ select[name="category_id"] {
 .table-toolbar-filters .form-input { min-width: 180px; width: auto; }
 
 .table-add-btn { flex-shrink: 0; white-space: nowrap; }
+
+/* Строка фильтров-переключателей под тулбаром (Только мои / Просрочены). */
+.table-toggle-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
 
 .empty-state {
   padding: 3rem 1rem;

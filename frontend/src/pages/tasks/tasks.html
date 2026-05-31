@@ -58,16 +58,19 @@
         <option value="medium">Средний</option>
         <option value="low">Низкий</option>
       </select>
-      <label class="form-check filter-checkbox">
-        <input type="checkbox" x-model="onlyMine"> Только мои
-      </label>
-      <label class="form-check filter-checkbox">
-        <input type="checkbox" x-model="onlyOverdue"> Просрочены
-      </label>
     </div>
     <button class="btn btn-primary table-add-btn"
             x-show="canCreate"
             @click="openCreate()">+&nbsp;Добавить задачу</button>
+  </div>
+
+  <div class="table-toggle-row">
+    <button type="button" class="cal-filter-btn"
+            :class="onlyMine ? 'active' : ''"
+            @click="onlyMine = !onlyMine">Только мои</button>
+    <button type="button" class="cal-filter-btn"
+            :class="onlyOverdue ? 'active' : ''"
+            @click="onlyOverdue = !onlyOverdue">Просрочены</button>
   </div>
 
   <div class="table-container">
