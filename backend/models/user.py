@@ -2,13 +2,11 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Literal, Optional
 from datetime import datetime
 
-
 class ResourcePermissions(BaseModel):
     create: bool = False
     read:   bool = False
     update: bool = False
     delete: bool = False
-
 
 class UserPermissions(BaseModel):
     assets:     ResourcePermissions = Field(default_factory=ResourcePermissions)
@@ -16,11 +14,9 @@ class UserPermissions(BaseModel):
     notes:      ResourcePermissions = Field(default_factory=ResourcePermissions)
     categories: ResourcePermissions = Field(default_factory=ResourcePermissions)
 
-
 class UserInviteCreate(BaseModel):
-    """Форма, которую заполняет админ при создании нового пользователя."""
     full_name:   str = Field(..., min_length=2, max_length=100)
-    email:       str  # обязателен — инвайт отправляется на него
+    email:       str
     phone:       Optional[str] = None
     permissions: UserPermissions = Field(default_factory=UserPermissions)
 
@@ -31,14 +27,11 @@ class UserInviteCreate(BaseModel):
             raise ValueError("Email обязателен для создания пользователя")
         return v.strip()
 
-
 class UserLogin(BaseModel):
     username: str
     password: str
 
-
 class UserUpdate(BaseModel):
-    """Обновление пользователя администратором."""
     full_name:   Optional[str] = None
     email:       Optional[str] = None
     phone:       Optional[str] = None
@@ -55,15 +48,7 @@ class UserUpdate(BaseModel):
             return None
         return v
 
-
 class UserSelfUpdate(BaseModel):
-    """Самообслуживание — страница первого входа и /settings.
-
-    Поля опциональны: можно прислать только то, что меняется
-    (например, только `theme` после клика по переключателю).
-    Если приходит `password` — обязательно `password_confirm` и они
-    должны совпадать (валидация ниже).
-    """
     phone:            Optional[str] = None
     password:         Optional[str] = Field(None, min_length=8)
     password_confirm: Optional[str] = None
@@ -74,14 +59,13 @@ class UserSelfUpdate(BaseModel):
     def passwords_match(cls, v, info):
         password = info.data.get("password")
         if password is None:
-            # Пароль не меняем — confirm не проверяем.
+
             return v
         if v is None:
             raise ValueError("Требуется подтверждение пароля")
         if v != password:
             raise ValueError("Пароли не совпадают")
         return v
-
 
 class UserResponse(BaseModel):
     id:                       str

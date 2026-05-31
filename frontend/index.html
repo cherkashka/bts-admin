@@ -17,24 +17,17 @@
   <link rel="stylesheet" href="/src/styles/styles.css" />
 </head>
 <body>
-  <!-- Закомментировали окно загрузки -->
-  <!--
-  <div id="loading-screen" class="loading-container">
-    <div class="spinner"></div>
-    <div class="loading-text">Загрузка приложения...</div>
-  </div>
-  -->
-  
+
   <div id="app"></div>
-  
+
   <script>
     console.log('Index.html script is running');
-    
+
     // Оборачиваем в асинхронную IIFE (Immediately Invoked Function Expression)
     (async () => {
       try {
         console.log('Starting app initialization');
-        
+
         console.log('About to import main.js');
         // Импортируем и запускаем основное приложение
         await import('./src/main.js');

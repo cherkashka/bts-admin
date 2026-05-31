@@ -14,11 +14,10 @@ class Settings(BaseSettings):
     CRYPTO_KEY: str
     FRONTEND_URL: str = "http://127.0.0.1:3000"
 
-    # SMTP (по умолчанию Gmail, переключается через .env.local)
     SMTP_HOST:    str = "smtp.gmail.com"
     SMTP_PORT:    int = 587
-    SMTP_LOGIN:   str = ""   # твой gmail
-    SMTP_KEY:     str = ""   # App Password (16 символов из настроек Google)
+    SMTP_LOGIN:   str = ""
+    SMTP_KEY:     str = ""
     SENDER_EMAIL: str = ""
     SENDER_NAME:  str = "IT Admin System"
 

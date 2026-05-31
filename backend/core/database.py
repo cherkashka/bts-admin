@@ -20,12 +20,10 @@ async def init_indexes():
             name="email_1",
         )
 
-        # Одноразовая миграция: удаляем тестовых пользователей с префиксами rtest_/ui_test_
         await db.users.delete_many({
             "username": {"$regex": "^(rtest_|ui_test_)"}
         })
 
-        # Проставляем новые поля существующим аккаунтам (идемпотентно)
         default_perms = {
             "assets":     {"create": False, "read": False, "update": False, "delete": False},
             "tasks":      {"create": False, "read": False, "update": False, "delete": False},
@@ -56,19 +54,18 @@ async def init_indexes():
         await db.tasks.create_index("event_start")
         await db.tasks.create_index("due_date")
         await db.tasks.create_index("deadline")
-        # ===== Индексы для notes =====
+
         await db.notes.create_index("event_start")
         await db.notes.create_index("event_end")
         await db.notes.create_index("created_by")
         await db.notes.create_index("related_asset_id")
         await db.notes.create_index("related_user_id")
-        await db.notes.create_index("category_id")  # Для связи с категориями
-        
-        # ===== Индексы для categories =====
+        await db.notes.create_index("category_id")
+
         await db.categories.create_index("owner_id")
         await db.categories.create_index("name")
         await db.categories.create_index("is_default")
-        
+
         logger.info("✅ Database indexes created/verified")
     except Exception as e:
         logger.error(f"⚠️ Index creation warning: {e}")

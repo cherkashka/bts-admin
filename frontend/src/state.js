@@ -1,7 +1,4 @@
-/**
- * Глобальный AppState — данные текущего пользователя.
- * Загружается из /auth/me при старте и после логина.
- */
+
 import { api } from './api/client.js';
 
 const _empty = {
@@ -14,7 +11,7 @@ const _empty = {
   isActive: true,
   isActivated: true,
   passwordChangeRequired: false,
-  theme: null, // 'light' | 'dark' | null (нет предпочтения — fallback на localStorage)
+  theme: null,
   permissions: {
     assets:     { create: false, read: false, update: false, delete: false },
     tasks:      { create: false, read: false, update: false, delete: false },
@@ -31,19 +28,16 @@ export const state = {
   get isLoggedIn() { return !!_state.id; },
   get permissions() { return _state.permissions; },
 
-  /** Можно ли видеть вкладку (read=true ИЛИ admin). */
   canSee(resource) {
     if (this.isAdmin) return true;
     return !!_state.permissions?.[resource]?.read;
   },
 
-  /** Произвольная проверка action (create/read/update/delete) на ресурсе. */
   can(resource, action) {
     if (this.isAdmin) return true;
     return !!_state.permissions?.[resource]?.[action];
   },
 
-  /** Подгружает данные из /auth/me. Бросает если 401. */
   async load() {
     const r = await api.authCheck();
     if (r.status !== 'authenticated' || !r.user) {

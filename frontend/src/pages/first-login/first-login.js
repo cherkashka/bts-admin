@@ -1,7 +1,4 @@
-/**
- * Страница «Первый вход» — Alpine.js компонент.
- * Шаблон в first-login.html, в коде HTML нет.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './first-login.html?raw';
 
@@ -10,20 +7,17 @@ import { api } from '../../api/client.js';
 const STRENGTH_COLORS = ['#fc8181', '#f6ad55', '#f6e05e', '#68d391', '#48bb78'];
 
 Alpine.data('firstLoginPage', () => ({
-  // Профиль (readonly)
+
   user: {},
 
-  // Поля формы
   phone: '',
   password: '',
   passwordConfirm: '',
 
-  // UI
   showPwd: false,
   showPwdConfirm: false,
   message: { text: '', isError: false },
 
-  // Справочники для таблицы прав
   resources: [
     { key: 'assets',     label: 'Активы' },
     { key: 'tasks',      label: 'Задачи' },

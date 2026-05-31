@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
-# ===== МАППИНГ ЦВЕТОВ (для миграции старых записей) =====
 COLOR_HEX_MAP = {
     "red": "#ef4444",
     "orange": "#f97316",
@@ -13,10 +12,7 @@ COLOR_HEX_MAP = {
     "gray": "#6b7280"
 }
 
-# ===== PYDANTIC МОДЕЛИ =====
-
 class NoteCreate(BaseModel):
-    """Модель для создания новой записи."""
     title: str = Field(..., min_length=1, max_length=200, description="Заголовок записи")
     content: Optional[str] = Field(None, max_length=2000, description="Описание записи")
     event_start: datetime = Field(..., description="Дата и время начала события")
@@ -24,12 +20,8 @@ class NoteCreate(BaseModel):
     category_id: Optional[str] = Field(None, description="ID категории (опционально, по умолчанию — системная)")
     related_asset_id: Optional[str] = Field(None, description="ID связанного актива (опционально)")
     related_user_id: Optional[str] = Field(None, description="ID связанного пользователя (опционально)")
-    
-    # created_by НЕ включён — устанавливается автоматически из get_current_user
-
 
 class NoteUpdate(BaseModel):
-    """Модель для обновления существующей записи."""
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     content: Optional[str] = Field(None, max_length=2000)
     event_start: Optional[datetime] = None
@@ -37,13 +29,9 @@ class NoteUpdate(BaseModel):
     category_id: Optional[str] = None
     related_asset_id: Optional[str] = None
     related_user_id: Optional[str] = None
-    
-    # created_by НЕ включён — изменение запрещено
-
 
 class NoteResponse(BaseModel):
-    """Модель ответа API с данными записи."""
-    id: str  # роутер делает _id → id (см. routers/notes.py)
+    id: str
     title: str
     content: Optional[str] = None
     event_start: datetime

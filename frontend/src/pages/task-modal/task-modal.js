@@ -1,7 +1,4 @@
-/**
- * Модалка задачи (add / edit / status).
- * Шаблоны — task-modal.html. В JS — только DOM-операции.
- */
+
 import { api } from '../../api/client.js';
 import { openModal, validateRequired, applyValidationErrors } from '../../components/Modal/Modal.js';
 import { toast } from '../../components/Toast/Toast.js';
@@ -52,10 +49,10 @@ function buildStatusBody(task) {
   const desc = root.querySelector('.tm-status-desc');
   if (task.description) desc.textContent = task.description;
   else desc.remove();
-  // Подсветить текущий статус
+
   const sel = root.querySelector('select[name="status"]');
   sel.value = task.status || 'pending';
-  return root; // DOM-узел: иначе .value/.selected теряются при сериализации
+  return root;
 }
 
 function buildFullBody(task, users, assets) {
@@ -80,7 +77,7 @@ function buildFullBody(task, users, assets) {
     appendOption(assetSel, a.id, `${a.name} (${a.inventory_number})`, task.related_asset_id === a.id);
   }
 
-  return root; // DOM-узел: иначе .value/.selected теряются при сериализации
+  return root;
 }
 
 export async function openTaskModal({ mode = 'add', id = null, onSaved = null } = {}) {
@@ -143,11 +140,11 @@ export async function openTaskModal({ mode = 'add', id = null, onSaved = null } 
             related_asset_id: data.related_asset_id || null,
           };
           if (mode === 'add') {
-            // При создании пустые поля просто не отправляем (exclude_none на бэке).
+
             Object.keys(payload).forEach(k => { if (payload[k] === null) delete payload[k]; });
             await api.post('/tasks', payload);
           } else {
-            // При редактировании null оставляем — это осознанная очистка поля.
+
             await api.put(`/tasks/${id}`, payload);
           }
         }

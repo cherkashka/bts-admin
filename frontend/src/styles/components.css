@@ -1,4 +1,4 @@
-/* ===== Кнопки ===== */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -36,7 +36,6 @@
 
 .btn-icon { font-size: 1rem; line-height: 1; display: inline-flex; }
 
-/* Цветные кнопки — solid с цветной тенью */
 .btn-primary {
   background: var(--primary);
   color: #fff;
@@ -88,7 +87,6 @@
   font-size: 1rem;
 }
 
-/* ===== Формы ===== */
 .form-group { margin-bottom: 1rem; }
 
 .form-label {
@@ -154,7 +152,6 @@ select[name="category_id"] {
   box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Чекбоксы/радио */
 .checkbox-label, .radio-label {
   display: inline-flex;
   align-items: center;
@@ -170,7 +167,6 @@ select[name="category_id"] {
   height: 1rem;
 }
 
-/* ===== Таблицы ===== */
 .table-container {
   background-color: var(--bg);
   border-radius: 1.5rem;
@@ -218,7 +214,7 @@ select[name="category_id"] {
 .table .action-cell { white-space: nowrap; text-align: right; }
 .table .action-cell .btn { margin-left: 0.375rem; }
 .table .action-cell .btn:first-child { margin-left: 0; }
-/* Кнопки-иконки в строках — крупнее и читаемее. */
+
 .table .action-cell .btn {
   min-width: 2.1rem;
   height: 2.1rem;
@@ -232,7 +228,6 @@ select[name="category_id"] {
 .table .action-cell .btn svg { width: 17px; height: 17px; }
 .table .th-actions { text-align: right; }
 
-/* Сортируемые заголовки таблиц */
 .table .th-sortable {
   cursor: pointer;
   user-select: none;
@@ -246,7 +241,6 @@ select[name="category_id"] {
   opacity: 0.6;
 }
 
-/* Обрезка длинного текста в ячейках */
 .table .text-clip {
   max-width: 24rem;
   overflow: hidden;
@@ -254,10 +248,8 @@ select[name="category_id"] {
   white-space: nowrap;
 }
 
-/* Универсальный класс «скрыть элемент» (для DOM API в модалках) */
 .is-hidden { display: none !important; }
 
-/* Модалка задачи */
 .tm-status-head { margin-bottom: 12px; }
 .tm-status-title { font-size: 15px; color: var(--text-main); }
 .tm-status-desc {
@@ -267,7 +259,6 @@ select[name="category_id"] {
 }
 .tm-optional { color: var(--text-muted); font-size: 12px; }
 
-/* Чекбокс-фильтр в toolbar (для tasks) */
 .filter-checkbox {
   display: inline-flex;
   align-items: center;
@@ -276,11 +267,6 @@ select[name="category_id"] {
   white-space: nowrap;
 }
 
-/* Список цветов в модалке категории (radio-row с цветной полоской слева
-   — повторяет визуальный стиль .stat-card::before).
-   Совместимость: фон-подсветка реализована через ::after с opacity
-   (вместо color-mix — для Safari < 16.2). Выбранное состояние — через
-   класс .is-selected, навешиваемый JS-ом (вместо :has() — для Safari < 15.4). */
 .color-list {
   display: flex;
   flex-direction: column;
@@ -298,13 +284,12 @@ select[name="category_id"] {
   cursor: pointer;
   user-select: none;
   overflow: hidden;
-  /* Явный список свойств — Safari иногда некорректно применяет shorthand
-     `transition: 0.2s ease` без указания property. */
+
   transition: transform 0.2s var(--ease),
               box-shadow 0.2s var(--ease);
   will-change: transform;
 }
-/* Цветная полоска слева — как у .stat-card. */
+
 .color-row::before {
   content: '';
   position: absolute;
@@ -315,7 +300,7 @@ select[name="category_id"] {
   z-index: 1;
   transition: width 0.2s var(--ease);
 }
-/* Тонировочный слой на весь row — opacity-fallback для color-mix. */
+
 .color-row::after {
   content: '';
   position: absolute;
@@ -328,8 +313,6 @@ select[name="category_id"] {
 }
 .color-row > * { position: relative; z-index: 2; }
 
-/* HOVER — только мышь / palm. focus-within убран, иначе в Safari
-   эффект «залипает» после клика, т.к. focus уходит в скрытый radio. */
 .color-row:hover {
   box-shadow: 4px 4px 8px var(--shadow-dark),
               -4px -4px 8px var(--shadow-light);
@@ -339,7 +322,6 @@ select[name="category_id"] {
 .color-row:hover::before { width: 6px; }
 .color-row:hover .color-row-label { color: var(--swatch); }
 
-/* Скрытый radio — остаётся фокусируемым клавиатурой (Tab / стрелки). */
 .color-row-input {
   position: absolute;
   width: 1px;
@@ -360,8 +342,6 @@ select[name="category_id"] {
               font-weight 0.2s var(--ease);
 }
 
-/* Выбранный пункт — выпуклый, полоска шире, текст жирнее.
-   Класс навешивает JS (вместо :has() — для Safari < 15.4). */
 .color-row.is-selected {
   box-shadow: 5px 5px 10px var(--shadow-dark),
               -5px -5px 10px var(--shadow-light);
@@ -373,18 +353,15 @@ select[name="category_id"] {
   color: var(--swatch);
 }
 
-/* Клавиатурный фокус — отдельная обводка, только при keyboard-навигации.
-   `:focus-visible` отличает Tab от mouse-click и в Chromium, и в Safari 15.4+. */
 .color-row-input:focus-visible {
-  /* Сам input скрыт — фокус нужен на родителе. */
+
   outline: none;
 }
 .color-row:focus-within:not(:hover) {
   outline: 2px solid var(--primary, #008080);
   outline-offset: 2px;
 }
-/* Safari применяет focus-within при mouse-click → даём
-   возможность убрать outline для совсем старых браузеров. */
+
 @supports selector(:focus-visible) {
   .color-row:focus-within:not(:hover) { outline: none; }
   .color-row:has(.color-row-input:focus-visible) {
@@ -393,7 +370,6 @@ select[name="category_id"] {
   }
 }
 
-/* Раскрывающиеся детали */
 .details-row > td {
   background-color: var(--row-tint);
   padding: 0 !important;
@@ -436,7 +412,7 @@ select[name="category_id"] {
   padding-top: 0.75rem;
   border-top: 1px dashed rgba(0,0,0,0.08);
 }
-/* Кнопки действий — в одной линии с деталями (ID / Дата / Телефон). */
+
 .user-details-actions-inline {
   flex-direction: row;
   align-items: center;
@@ -445,7 +421,6 @@ select[name="category_id"] {
   align-self: center;
 }
 
-/* Аватарки в таблицах */
 .user-cell {
   display: inline-flex;
   align-items: center;
@@ -468,7 +443,6 @@ select[name="category_id"] {
 .user-cell-name { color: var(--gray-800); font-weight: 600; }
 .user-username  { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--gray-500); }
 
-/* ===== Сообщения ===== */
 .error, .success {
   padding: 0.875rem 1rem;
   margin-bottom: 1rem;
@@ -479,7 +453,6 @@ select[name="category_id"] {
 .error   { color: var(--danger);  background-color: rgba(220,38,38,0.08); }
 .success { color: var(--success); background-color: var(--success-bg); }
 
-/* ===== Бейджи ===== */
 .badge {
   display: inline-block;
   padding: 0.25rem 0.625rem;
@@ -500,7 +473,6 @@ select[name="category_id"] {
 .badge-dark      { color: #fff;            background: var(--gray-800); }
 .badge-default   { color: var(--primary);  background: rgba(0,128,128,0.10); }
 
-/* ===== Карточки статистики (на других страницах) ===== */
 .stats-row {
   display: flex;
   gap: 0.75rem;
@@ -546,15 +518,11 @@ select[name="category_id"] {
   letter-spacing: -0.025em;
 }
 
-/* Статус/тип — простым текстом (без цветной плашки). */
 .cell-status { color: var(--text-body, var(--gray-700)); }
 .cell-muted { color: var(--text-muted); }
 
-/* Кликабельная строка таблицы (раскрытие деталей по клику). */
 .row-clickable { cursor: pointer; }
 
-/* Левая цветная полоска строки (приоритет/категория) — как у .stat-card.
-   Цвет подаём через --stripe на самой строке. */
 .row-stripe > td:first-child { position: relative; }
 .row-stripe > td:first-child::before {
   content: '';
@@ -564,7 +532,6 @@ select[name="category_id"] {
   background: var(--stripe, transparent);
 }
 
-/* ===== Тулбар таблицы ===== */
 .table-toolbar {
   display: flex;
   gap: 0.75rem;
@@ -589,10 +556,9 @@ select[name="category_id"] {
   flex-wrap: wrap;
 }
 .table-toolbar-filters .form-input { min-width: 180px; width: auto; }
-/* Кнопка «Добавить» вынесена в тулбар над таблицей. */
+
 .table-add-btn { flex-shrink: 0; white-space: nowrap; }
 
-/* ===== Пустое состояние ===== */
 .empty-state {
   padding: 3rem 1rem;
   text-align: center;
@@ -602,7 +568,6 @@ select[name="category_id"] {
 .empty-state-text { font-size: 1rem; font-weight: 600; color: var(--gray-700); }
 .empty-state-hint { font-size: 0.875rem; margin-top: 0.25rem; }
 
-/* ===== Модальные окна ===== */
 .modal {
   display: none;
   position: fixed;
@@ -660,7 +625,6 @@ select[name="category_id"] {
   box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
 }
 
-/* ===== Список категорий ===== */
 .categories-list {
   display: flex;
   flex-direction: column;
@@ -679,7 +643,7 @@ select[name="category_id"] {
   transition: 0.2s var(--ease);
   overflow: hidden;
 }
-/* Левая цветная полоска категории (вместо точки-кружка). */
+
 .category-item-stripe::before {
   content: '';
   position: absolute;
@@ -687,7 +651,7 @@ select[name="category_id"] {
   width: 4px;
   background: var(--stripe, var(--primary));
 }
-/* Тулбар над списком категорий (описание + кнопка). */
+
 .categories-toolbar {
   display: flex;
   align-items: center;
@@ -723,7 +687,6 @@ select[name="category_id"] {
 }
 .category-icon { font-size: 1.125rem; }
 
-/* ===== Утилиты раскладки форм ===== */
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -750,7 +713,6 @@ select[name="category_id"] {
   border: 1px solid var(--border-soft);
 }
 
-/* ===== Поле пароля с глазиком ===== */
 .pwd-field {
   position: relative;
   display: block;
@@ -786,7 +748,6 @@ select[name="category_id"] {
   outline-offset: 2px;
 }
 
-/* ===== Матрица прав в модалке создания юзера ===== */
 .perm-matrix-wrap {
   background: var(--bg);
   border-radius: 12px;
@@ -799,7 +760,6 @@ select[name="category_id"] {
   color: var(--text-main);
 }
 
-/* ===== Модалка сотрудника ===== */
 .um-optional { color: #a0aec0; font-size: 12px; }
 .um-perm-section { margin-top: 16px; }
 .um-perm-label { margin-bottom: 8px; display: block; }
@@ -828,7 +788,6 @@ select[name="category_id"] {
   accent-color: #667eea;
 }
 
-/* Success-экран в модалке создания */
 .um-success { text-align: center; }
 .um-success-icon { font-size: 40px; margin-bottom: 12px; }
 .um-success-title { margin: 0 0 8px; color: #2d3748; }
@@ -855,7 +814,6 @@ select[name="category_id"] {
 .um-copy-btn { margin-top: 12px; width: 100%; }
 .um-success-hint { font-size: 11px; color: #a0aec0; margin-top: 8px; }
 
-/* ===== Пагинация ===== */
 .pagination {
   display: flex;
   align-items: center;
@@ -881,7 +839,6 @@ select[name="category_id"] {
   cursor: not-allowed;
 }
 
-/* ===== Задачи: визуальные пометки в таблице ===== */
 .task-desc-preview {
   font-size: 12px;
   color: var(--text-muted);
@@ -897,7 +854,6 @@ select[name="category_id"] {
   color: var(--danger);
 }
 
-/* ===== Аудит-лог: разворачиваемая строка с изменениями ===== */
 .audit-detail-row > td {
   background: var(--row-tint);
   padding: var(--space-3) var(--space-4);
@@ -929,7 +885,6 @@ select[name="category_id"] {
   white-space: nowrap;
 }
 
-/* ===== Тосты (неблокирующие уведомления) ===== */
 .toast-container {
   position: fixed;
   top: var(--space-4);

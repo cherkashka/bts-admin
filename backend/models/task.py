@@ -8,14 +8,13 @@ class TaskCreate(BaseModel):
     description: Optional[str] = None
     start_date: datetime
     due_date: Optional[datetime] = None
-    assigned_to: Optional[str] = None  # ID пользователя, которому назначена задача
-    assigned_to_name: Optional[str] = None  # Имя пользователя (денормализация)
+    assigned_to: Optional[str] = None
+    assigned_to_name: Optional[str] = None
     priority: str = Field(default="medium", pattern=r'^(low|medium|high|critical)$')
     status: str = Field(default="pending", pattern=r'^(pending|in_progress|completed|cancelled)$')
-    task_type: str = Field(default="admin", pattern=r'^(user|admin)$')  # Тип задачи: для пользователей или администраторов
-    related_asset_id: Optional[str] = None  # ID связанного актива
-    related_user_id: Optional[str] = None  # ID связанного пользователя
-
+    task_type: str = Field(default="admin", pattern=r'^(user|admin)$')
+    related_asset_id: Optional[str] = None
+    related_user_id: Optional[str] = None
 
 class TaskUpdate(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -30,7 +29,6 @@ class TaskUpdate(BaseModel):
     task_type: Optional[str] = Field(None, pattern=r'^(user|admin)$')
     related_asset_id: Optional[str] = None
     related_user_id: Optional[str] = None
-
 
 class TaskResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="allow")

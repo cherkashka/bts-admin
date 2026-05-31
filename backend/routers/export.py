@@ -21,12 +21,11 @@ router = APIRouter(
     redirect_slashes=False,
 )
 
-
 class ExportRequest(BaseModel):
     format: Literal["csv", "xlsx"]
     types: List[Literal["assets", "users", "tasks"]]
-    date_from: Optional[str] = None  # YYYY-MM-DD
-    date_to: Optional[str] = None    # YYYY-MM-DD
+    date_from: Optional[str] = None
+    date_to: Optional[str] = None
 
     @field_validator("types")
     @classmethod
@@ -35,8 +34,6 @@ class ExportRequest(BaseModel):
             raise ValueError("Выберите хотя бы один тип данных")
         return v
 
-
-# Колонки: (поле в документе, заголовок для файла)
 ASSET_COLUMNS = [
     ("name",              "Название"),
     ("inventory_number",  "Инв. номер"),
@@ -80,7 +77,6 @@ COLLECTION_MAP = {
     "tasks":  ("tasks",  TASK_COLUMNS),
 }
 
-
 def _serialize(value) -> str:
     if value is None:
         return ""
@@ -89,7 +85,6 @@ def _serialize(value) -> str:
     if isinstance(value, datetime):
         return value.strftime("%Y-%m-%d %H:%M")
     return str(value)
-
 
 def _build_date_filter(date_from: Optional[str], date_to: Optional[str]) -> dict:
     f = {}
@@ -103,9 +98,7 @@ def _build_date_filter(date_from: Optional[str], date_to: Optional[str]) -> dict
         f.setdefault("created_at", {})["$lte"] = dt
     return f
 
-
 async def _fetch_rows(db, collection: str, columns: list, date_filter: dict):
-    """Возвращает (заголовки, список строк) для заданной коллекции."""
     headers = [col[1] for col in columns]
     fields = [col[0] for col in columns]
     docs = await db[collection].find(date_filter).to_list(length=None)
@@ -114,14 +107,12 @@ async def _fetch_rows(db, collection: str, columns: list, date_filter: dict):
         rows.append([_serialize(doc.get(f)) for f in fields])
     return headers, rows
 
-
 def _build_xlsx(sheets: dict) -> bytes:
-    """sheets: {sheet_name: (headers, rows)}"""
     from openpyxl import Workbook
     from openpyxl.styles import Font
 
     wb = Workbook()
-    wb.remove(wb.active)  # удаляем дефолтный пустой лист
+    wb.remove(wb.active)
 
     for sheet_name, (headers, rows) in sheets.items():
         ws = wb.create_sheet(title=sheet_name)
@@ -136,7 +127,6 @@ def _build_xlsx(sheets: dict) -> bytes:
     wb.save(buf)
     return buf.getvalue()
 
-
 def _build_csv_single(headers: list, rows: list) -> bytes:
     buf = io.StringIO()
     writer = csv.writer(buf)
@@ -144,16 +134,13 @@ def _build_csv_single(headers: list, rows: list) -> bytes:
     writer.writerows(rows)
     return buf.getvalue().encode("utf-8-sig")
 
-
 def _build_csv_zip(sheets: dict) -> bytes:
-    """sheets: {filename: (headers, rows)}"""
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         for filename, (headers, rows) in sheets.items():
             csv_bytes = _build_csv_single(headers, rows)
             zf.writestr(f"{filename}.csv", csv_bytes)
     return buf.getvalue()
-
 
 @router.post("")
 async def export_data(
@@ -164,7 +151,6 @@ async def export_data(
     date_filter = _build_date_filter(req.date_from, req.date_to)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Собираем данные для каждого выбранного типа
     sheets = {}
     sheet_labels = {"assets": "Активы", "users": "Пользователи", "tasks": "Задачи"}
     for t in req.types:
@@ -177,7 +163,7 @@ async def export_data(
         filename = f"export_{timestamp}.xlsx"
         media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
-    else:  # csv
+    else:
         if len(sheets) == 1:
             label = next(iter(sheets))
             headers, rows = sheets[label]
@@ -185,7 +171,7 @@ async def export_data(
             filename = f"export_{timestamp}.csv"
             media_type = "text/csv; charset=utf-8-sig"
         else:
-            # Несколько типов — ZIP из отдельных CSV
+
             type_names = {"Активы": "assets", "Пользователи": "users", "Задачи": "tasks"}
             zip_sheets = {type_names[k]: v for k, v in sheets.items()}
             content = _build_csv_zip(zip_sheets)

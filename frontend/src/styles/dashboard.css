@@ -1,6 +1,4 @@
-/* ====================================================
-   Dashboard — точная копия структуры из референса
-   ==================================================== */
+
 
 .dash {
   display: flex;
@@ -8,7 +6,6 @@
   gap: 2rem;
 }
 
-/* ===== Метрики (4 в ряд) ===== */
 .dash-metrics {
   display: grid;
   grid-template-columns: 1fr;
@@ -95,7 +92,6 @@
 }
 .metric-spark svg { width: 100%; height: 100%; display: block; }
 
-/* ===== Сетка: широкая + узкая колонки ===== */
 .dash-grid-2-1 {
   display: grid;
   grid-template-columns: 1fr;
@@ -105,7 +101,6 @@
   .dash-grid-2-1 { grid-template-columns: 1.3fr 0.9fr; }
 }
 
-/* ===== Карточка-секция ===== */
 .section-card {
   border-radius: 1.5rem;
   padding: 1.5rem;
@@ -142,7 +137,6 @@
   align-items: center;
 }
 
-/* Пилюли (Date picker, View dropdown и т.п.) */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -161,7 +155,6 @@
 .pill-icon  { padding: 0.375rem; }
 .pill svg   { color: var(--gray-500); }
 
-/* ===== Chart (Campaigns/Активность) ===== */
 .chart-box {
   width: 100%;
   min-height: 16rem;
@@ -228,7 +221,6 @@
 .chart-legend-dot.legend-dot-primary { background: var(--primary); }
 .chart-legend-dot.legend-dot-muted   { background: var(--gray-400); }
 
-/* ===== Schedule & Events ===== */
 .schedule-week {
   display: flex;
   justify-content: space-between;
@@ -274,7 +266,6 @@
   box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
 }
 
-/* События — timeline с точками */
 .schedule-events {
   flex: 1;
   position: relative;
@@ -319,7 +310,6 @@
   margin-top: 0.125rem;
 }
 
-/* ===== Timeline / Gantt ===== */
 .timeline-card {
   border-radius: 1.5rem;
   padding: 1.5rem;
@@ -440,7 +430,6 @@
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* ===== Empty states ===== */
 .dash-empty {
   padding: 2rem 1rem;
   text-align: center;
@@ -453,20 +442,17 @@
   color: var(--gray-500);
 }
 
-/* ===== Адаптив (доп. правила) ===== */
 @media (max-width: 640px) {
   .timeline-row-head .tl-label-col,
   .tl-label-col { width: 8rem; }
 }
 
-/* ===== Этап D: интерактив дашборда ===== */
 .metric-card-clickable { cursor: pointer; }
 .metric-card-clickable:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-/* pill как кнопка (сброс UA-стилей) */
 .pill-btn {
   font: inherit;
   font-size: 0.875rem;
@@ -478,10 +464,8 @@
 }
 .pill-active svg { color: var(--primary); }
 
-/* Зум графика активности — расширение по высоте */
 .chart-box-zoom { height: 28rem; min-height: 28rem; }
 
-/* Зум графика работ — увеличиваем окно по высоте (как у активности) */
 .timeline-body-zoom {
   min-height: 22rem;
   gap: 2rem;
@@ -489,7 +473,6 @@
 }
 .timeline-body-zoom .tl-bar { height: 1.6rem; }
 
-/* ===== Цвета линий и градиентов графиков (через CSS-переменные темы) ===== */
 .chart-line-accent { stroke: var(--chart-accent); }
 .chart-line-muted  { stroke: var(--chart-muted); }
 .chart-grad-stop-top { stop-color: var(--chart-accent); stop-opacity: 0.25; }

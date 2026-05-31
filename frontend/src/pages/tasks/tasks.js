@@ -1,7 +1,4 @@
-/**
- * Страница «Задачи» — Alpine.js компонент.
- * Шаблон в tasks.html, в коде нет HTML.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './tasks.html?raw';
 
@@ -37,7 +34,7 @@ const PRIORITY_BADGE = {
   high:     'badge-warning',
   critical: 'badge-danger',
 };
-// Цвета левой полоски строки по приоритету.
+
 const PRIORITY_COLOR = {
   low:      '#9ca3af',
   medium:   '#3b82f6',
@@ -76,7 +73,6 @@ Alpine.data('tasksPage', () => ({
 
   loading: false,
 
-  // Геттеры
   get pages() {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   },
@@ -108,9 +104,8 @@ Alpine.data('tasksPage', () => ({
   },
   get canCreate() { return state.isAdmin || state.can('tasks', 'create'); },
 
-  // Lifecycle
   async init() {
-    // Пресет-фильтр от клика по карточке дашборда (одноразовый).
+
     try {
       const raw = localStorage.getItem('tasksPreset');
       if (raw) {
@@ -119,7 +114,7 @@ Alpine.data('tasksPage', () => ({
         if (preset.status)   this.statusFilter = preset.status;
         if (preset.priority) this.priorityFilter = preset.priority;
       }
-    } catch { /* пресет необязателен */ }
+    } catch {  }
     await this.load();
   },
 
@@ -141,7 +136,6 @@ Alpine.data('tasksPage', () => ({
     }
   },
 
-  // Сортировка
   setSort(field) {
     if (this.sortBy === field) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -157,7 +151,6 @@ Alpine.data('tasksPage', () => ({
     return this.sortOrder === 'asc' ? '↑' : '↓';
   },
 
-  // Пагинация
   prevPage() {
     if (this.page <= 1) return;
     this.page -= 1;
@@ -169,20 +162,17 @@ Alpine.data('tasksPage', () => ({
     this.load();
   },
 
-  // Лейблы
   statusLabel(s) { return STATUS_LABELS[s] || s || '—'; },
   statusBadgeClass(s) { return STATUS_BADGE[s] || 'badge-secondary'; },
   priorityLabel(p) { return PRIORITY_LABELS[p] || p || '—'; },
   priorityBadgeClass(p) { return PRIORITY_BADGE[p] || 'badge-secondary'; },
   priorityColor(p) { return PRIORITY_COLOR[p] || '#9ca3af'; },
 
-  // Превью описания
   descPreview(text) {
     if (!text) return '';
     return text.length > 80 ? `${text.slice(0, 80)}…` : text;
   },
 
-  // Права на строку
   canEditFull(_task) {
     return state.isAdmin || state.can('tasks', 'update');
   },
@@ -193,7 +183,6 @@ Alpine.data('tasksPage', () => ({
     return state.isAdmin || state.can('tasks', 'delete');
   },
 
-  // CRUD
   openCreate() {
     openTaskModal({ mode: 'add', onSaved: () => this.load() });
   },

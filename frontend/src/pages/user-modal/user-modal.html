@@ -1,9 +1,5 @@
-<!--
-  Шаблоны модалки сотрудника.
-  В JS — выбираем нужный <template>, клонируем, заполняем DOM API.
--->
 
-<!-- Форма добавления -->
+
 <template id="user-modal-add">
   <div class="form-row">
     <div class="form-group">
@@ -23,7 +19,7 @@
   <div class="um-perm-section">
     <label class="form-label um-perm-label">Права доступа</label>
     <div class="perm-matrix-wrap">
-      <!-- Матрица собирается через DOM API в user-modal.js -->
+
       <table class="um-perm-table">
         <thead>
           <tr class="um-perm-head-row"></tr>
@@ -38,7 +34,6 @@
   </p>
 </template>
 
-<!-- Форма редактирования -->
 <template id="user-modal-edit">
   <div class="form-row">
     <div class="form-group">
@@ -77,7 +72,6 @@
   </div>
 </template>
 
-<!-- Экран успешного создания -->
 <template id="user-modal-success">
   <div class="um-success">
     <div class="um-success-icon"></div>

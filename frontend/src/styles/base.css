@@ -1,6 +1,6 @@
-/* ===== Дизайн-токены (точные из референса) ===== */
+
 :root {
-  /* Основные цвета */
+
   --bg:            #f0f2f5;
   --text-main:     #2d3748;
   --text-muted:    #a0aec0;
@@ -11,7 +11,6 @@
   --shadow-light:  #ffffff;
   --shadow-dark:   #d1d9e6;
 
-  /* Серая шкала */
   --gray-200: #e5e7eb;
   --gray-400: #99a1af;
   --gray-500: #6a7282;
@@ -19,14 +18,12 @@
   --gray-700: #364153;
   --gray-800: #1e2939;
 
-  /* Семантика */
   --success: #16A34A;
   --success-bg: #ecfdf5;
   --warning: #d97706;
   --danger:  #DC2626;
   --info:    #20b2aa;
 
-  /* Скругление */
   --radius-sm: 0.25rem;
   --radius:    0.5rem;
   --radius-lg: 0.75rem;
@@ -34,27 +31,21 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* Раскладка */
-  --sidebar-width: 16rem;   /* 256px */
-  --header-height: 6rem;    /* 96px */
+  --sidebar-width: 16rem;
+  --header-height: 6rem;
 
-  /* Границы и подложки (для адаптации к тёмной теме).
-     Используются вместо хардкод-rgba повсюду; в themes.css переопределяются. */
-  --border-soft:           rgba(255, 255, 255, 0.4); /* «glassy»-обводка карточек */
-  --border-divider:        rgba(229, 231, 235, 0.6); /* разделители строк, низ ячеек */
+  --border-soft:           rgba(255, 255, 255, 0.4);
+  --border-divider:        rgba(229, 231, 235, 0.6);
   --border-divider-strong: rgba(229, 231, 235, 0.4);
-  --row-tint:              rgba(0, 0, 0, 0.02);      /* подложка раскрытой строки */
+  --row-tint:              rgba(0, 0, 0, 0.02);
   --row-tint-strong:       rgba(0, 0, 0, 0.04);
 
-  /* Шрифты */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  /* Анимация */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --duration: 0.2s;
 
-  /* Совместимость со старым кодом */
   --primary-color:   var(--primary);
   --primary-hover:   var(--primary-dark);
   --danger-color:    var(--danger);
@@ -98,7 +89,6 @@
   --transition: all var(--duration) var(--ease);
   --dark-color: var(--gray-800);
 
-  /* Размер отступа */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -107,7 +97,6 @@
   --space-6: 24px;
   --container-padding: 24px;
 
-  /* Тени (тех. совместимость) */
   --nm-xs:    3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
   --nm-sm:    5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
   --nm-md:    8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
@@ -123,7 +112,6 @@
   --shadow-xl:    var(--nm-lg);
 }
 
-/* ===== Сброс ===== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -198,7 +186,6 @@ img, svg, video {
 
 ul, ol { list-style: none; }
 
-/* ===== Утилиты neumorphism ===== */
 .neu-flat {
   background-color: var(--bg);
   box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
@@ -232,7 +219,6 @@ ul, ol { list-style: none; }
   transform: translateY(1px);
 }
 
-/* ===== Утилиты ===== */
 .text-muted     { color: var(--text-muted); }
 .text-gray-400  { color: var(--gray-400); }
 .text-gray-500  { color: var(--gray-500); }

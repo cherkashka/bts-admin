@@ -1,8 +1,4 @@
-/**
- * Модалка актива (создание/редактирование).
- * Шаблон формы — asset-modal.html. В этом файле HTML нет:
- * только DOM-операции (заполнение values, добавление option-ов).
- */
+
 import { api } from '../../api/client.js';
 import { openModal, validateRequired, applyValidationErrors } from '../../components/Modal/Modal.js';
 import { toast } from '../../components/Toast/Toast.js';
@@ -25,7 +21,6 @@ const STATUSES = [
   { value: 'retired',   label: 'Снят с эксплуатации' },
 ];
 
-// ===== История актива (единый audit_log) =====
 const ACTION_LABELS = { create: 'Создание', update: 'Изменение', delete: 'Удаление' };
 const ACTION_COLORS = { create: '#10b981', update: '#f59e0b', delete: '#ef4444' };
 
@@ -58,7 +53,6 @@ function fmtHistoryVal(v) {
   return String(v);
 }
 
-/** Краткое текстовое описание изменений записи (без HTML). */
 function summarizeEntry(entry) {
   if (entry.action === 'create') return 'Актив создан';
   if (entry.action === 'delete') return 'Актив удалён';
@@ -90,7 +84,6 @@ function buildBody(asset, usersList) {
   const root = document.createElement('div');
   root.innerHTML = formTpl;
 
-  // Text inputs
   root.querySelector('input[name="name"]').value             = asset.name || '';
   root.querySelector('input[name="inventory_number"]').value = asset.inventory_number || '';
   root.querySelector('input[name="serial_number"]').value    = asset.serial_number || '';
@@ -101,25 +94,20 @@ function buildBody(asset, usersList) {
   root.querySelector('input[name="location"]').value         = asset.location || '';
   root.querySelector('textarea[name="comments"]').value      = asset.comments || '';
 
-  // Тип актива
   const typeSel = root.querySelector('select[name="asset_type"]');
   appendOption(typeSel, '', 'Выберите тип', !asset.asset_type, true);
   for (const t of ASSET_TYPES) appendOption(typeSel, t.value, t.label, asset.asset_type === t.value);
 
-  // МОЛ
   const molSel = root.querySelector('select[name="mol_user_id"]');
   appendOption(molSel, '', 'Не выбран', !asset.mol_user_id);
   for (const u of usersList) appendOption(molSel, u.id, u.full_name, asset.mol_user_id === u.id);
 
-  // Статус
   const statusSel = root.querySelector('select[name="status"]');
   for (const s of STATUSES) appendOption(statusSel, s.value, s.label, asset.status === s.value);
 
-  // Возвращаем DOM-узел (не строку): иначе .value/.selected теряются.
   return root;
 }
 
-/** Заполняет список истории клонами template-строки (DOM API, без HTML в JS). */
 function renderHistory(bodyEl, entries) {
   const list    = bodyEl.querySelector('.asset-history-list');
   const loading = bodyEl.querySelector('.asset-history-loading');
@@ -156,7 +144,6 @@ function renderHistory(bodyEl, entries) {
   }
 }
 
-/** Показывает вкладки и подгружает историю актива из audit_log. */
 function wireHistoryTabs(ctl, assetId) {
   const body  = ctl.bodyEl;
   const strip = body.querySelector('[data-asset-tabs]');
@@ -170,7 +157,7 @@ function wireHistoryTabs(ctl, assetId) {
   const activate = (name) => {
     btns.forEach(b => b.classList.toggle('is-active', b.dataset.tabBtn === name));
     panels.forEach(p => { p.hidden = p.dataset.tabPanel !== name; });
-    // submit-кнопка нужна только на вкладке «Данные»
+
     if (ctl.submitBtn) ctl.submitBtn.style.visibility = name === 'history' ? 'hidden' : '';
     if (name === 'history' && !loaded) {
       loaded = true;
@@ -217,7 +204,7 @@ export async function openAssetModal({ mode = 'add', id = null, onSaved = null }
       if (window.location.hash !== '#/assets') window.location.hash = '/assets';
     },
     onOpen: (ctl) => {
-      // Вкладка «История» — только в режиме редактирования (есть id).
+
       if (mode === 'edit' && id) wireHistoryTabs(ctl, id);
 
       const form   = ctl.form;
@@ -272,8 +259,7 @@ export async function openAssetModal({ mode = 'add', id = null, onSaved = null }
       }
 
       if (mode === 'edit' && id) {
-        // Очищенные необязательные поля шлём как null — иначе PATCH не трогает
-        // непереданные ключи и старое значение осталось бы в БД.
+
         const OPTIONAL = ['mol_user_id', 'mac_address', 'commission_date',
                           'warranty_months', 'warranty_end_date', 'location', 'comments'];
         for (const f of OPTIONAL) if (!(f in payload)) payload[f] = null;

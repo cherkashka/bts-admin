@@ -19,15 +19,11 @@ router = APIRouter(prefix="/api/v1/users", tags=["Users"], redirect_slashes=Fals
 
 _ALPHA = string.ascii_letters + string.digits
 
-
 def _gen_password(length: int = 12) -> str:
     return ''.join(secrets.choice(_ALPHA) for _ in range(length))
 
-
 async def _active_admin_count(db: AsyncIOMotorDatabase) -> int:
-    """Число активных администраторов — для защиты от потери доступа к системе."""
     return await db.users.count_documents({"role": "admin", "is_active": True})
-
 
 def _serialize_user(user: dict) -> UserResponse:
     user["id"] = str(user["_id"])
@@ -46,17 +42,14 @@ def _serialize_user(user: dict) -> UserResponse:
     })
     return UserResponse(**user)
 
-
-# Поля, по которым разрешена сортировка (защита от инъекций).
 _ALLOWED_SORT_FIELDS = {"username", "full_name", "email", "role", "is_active", "created_at"}
-
 
 @router.get("", response_model=List[UserResponse])
 async def get_users(
     response: Response,
     active_only: Optional[bool] = None,
     skip: int = 0,
-    limit: int = 0,            # 0 = все
+    limit: int = 0,
     sort_by: str = "full_name",
     sort_order: str = "asc",
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -77,9 +70,8 @@ async def get_users(
         cursor = cursor.skip(skip)
     if limit > 0:
         cursor = cursor.limit(limit)
-    users = await cursor.to_list(length=None)  # без лимита; режется skip/limit выше
+    users = await cursor.to_list(length=None)
     return [_serialize_user(u) for u in users]
-
 
 @router.post("", status_code=201)
 async def create_user(
@@ -87,7 +79,6 @@ async def create_user(
     db: AsyncIOMotorDatabase = Depends(get_db),
     admin: dict = Depends(require_admin)
 ):
-    """Создаёт пользователя и отправляет инвайт на email."""
     if await db.users.find_one({"email": user_in.email}):
         raise HTTPException(400, "Email уже зарегистрирован")
 
@@ -133,7 +124,6 @@ async def create_user(
         "email_sent":  email_sent,
     }
 
-
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: str,
@@ -146,7 +136,6 @@ async def get_user(
     if not user:
         raise HTTPException(404, "Пользователь не найден")
     return _serialize_user(user)
-
 
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user(
@@ -170,7 +159,6 @@ async def update_user(
         if await db.users.find_one({"email": update_data["email"], "_id": {"$ne": ObjectId(user_id)}}):
             raise HTTPException(400, "Email уже зарегистрирован")
 
-    # Защита: нельзя снять права/деактивировать последнего активного админа.
     removes_admin = (
         update_data.get("role") == "user"
         or update_data.get("is_active") is False
@@ -195,20 +183,12 @@ async def update_user(
         )
     return _serialize_user(updated)
 
-
 @router.post("/{user_id}/reset-password")
 async def reset_user_password(
     user_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
     admin: dict = Depends(require_admin)
 ):
-    """Сброс пароля администратором.
-
-    Логика как у первого входа: генерируем новый временный пароль,
-    помечаем аккаунт `password_change_required=True` (+ снимаем активацию),
-    отправляем письмо с реквизитами. Возвращаем сами реквизиты, чтобы
-    админ мог передать их вручную, если письмо не доставлено.
-    """
     if not ObjectId.is_valid(user_id):
         raise HTTPException(400, "Неверный формат ID")
     user = await db.users.find_one({"_id": ObjectId(user_id)})
@@ -249,7 +229,6 @@ async def reset_user_password(
         "email_sent":  email_sent,
     }
 
-
 @router.delete("/{user_id}", status_code=204)
 async def deactivate_user(
     user_id: str,
@@ -263,7 +242,7 @@ async def deactivate_user(
     existing = await db.users.find_one({"_id": ObjectId(user_id)})
     if not existing:
         raise HTTPException(404, "Пользователь не найден")
-    # Не оставляем систему без активного администратора.
+
     if (
         existing.get("role") == "admin"
         and existing.get("is_active", True)
@@ -274,7 +253,6 @@ async def deactivate_user(
     if result.matched_count == 0:
         raise HTTPException(404, "Пользователь не найден")
 
-    # Деактивация — это мягкое удаление: фиксируем как изменение is_active.
     if existing.get("is_active", True):
         await log_action(
             db, actor=admin, action="update", entity_type="user",

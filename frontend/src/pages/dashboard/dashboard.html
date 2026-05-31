@@ -1,10 +1,6 @@
-<!--
-  Главная страница (Dashboard) — Alpine.js компонент.
-  Логика в dashboard.js. Все графики — из реальных данных задач.
--->
+
 <div class="dash" x-data="dashboardPage" x-init="init()">
 
-  <!-- ===== Метрики (кликабельны → переход на задачи с фильтром) ===== -->
   <div class="dash-metrics">
     <template x-for="m in metrics" :key="m.title">
       <div class="metric-card metric-card-clickable"
@@ -35,10 +31,8 @@
     </template>
   </div>
 
-  <!-- ===== Activity + Schedule ===== -->
   <div class="dash-grid-2-1">
 
-    <!-- Activity Chart -->
     <section class="section-card">
       <header class="section-head">
         <div class="section-head-title">
@@ -98,7 +92,6 @@
       </div>
     </section>
 
-    <!-- Schedule (только задачи) -->
     <section class="section-card">
       <header class="section-head">
         <div class="section-head-title">
@@ -141,7 +134,6 @@
 
   </div>
 
-  <!-- ===== Timeline (Gantt) — реальные задачи ===== -->
   <section class="timeline-card">
     <header class="section-head">
       <div class="section-head-title">

@@ -1,6 +1,5 @@
-/* ===== Тёмная тема ===== */
-/* Подключается переключателем в Header. Меняет только переменные —
-   все компоненты используют их и адаптируются автоматически. */
+
+
 [data-theme="dark"] {
   --bg:            #1a1d24;
   --bg-page:       #1a1d24;
@@ -24,7 +23,6 @@
   --primary-glow:  rgba(32, 178, 170, 0.35);
   --accent:        #fbbf24;
 
-  /* Цвета для линий графиков (используются на дашборде вместо хардкода). */
   --chart-accent:    #2dd4bf;
   --chart-muted:     #4b5563;
   --chart-grid:      rgba(255, 255, 255, 0.05);
@@ -33,9 +31,8 @@
   --border-strong:   rgba(255, 255, 255, 0.15);
   --focus-ring:      rgba(45, 212, 191, 0.35);
 
-  /* Неоморфизм в тёмной теме — тени светлее основного фона */
-  --shadow-light:  #242832;   /* для верхней «подсветки» */
-  --shadow-dark:   #11131a;   /* для нижней «тени» */
+  --shadow-light:  #242832;
+  --shadow-dark:   #11131a;
 
   --gray-200: #2d3748;
   --gray-400: #718096;
@@ -54,8 +51,6 @@
   --primary-hover:   var(--primary-dark);
   --danger-color:    var(--danger);
 
-  /* Границы и подложки: тёмная версия. Светлая «glassy» обводка
-     убивает контраст — делаем еле заметную подсветку. */
   --border-soft:     rgba(255, 255, 255, 0.06);
   --border-divider:  rgba(255, 255, 255, 0.08);
   --border-divider-strong: rgba(255, 255, 255, 0.05);
@@ -65,7 +60,6 @@
   color-scheme: dark;
 }
 
-/* Корректировки для конкретных мест, где захардкожены цвета */
 [data-theme="dark"] body,
 [data-theme="dark"] html {
   background: var(--bg);
@@ -112,7 +106,6 @@
   border-color: var(--gray-200);
 }
 
-/* Шапка таблицы — чуть приглушённый цвет, чтобы заголовки колонок не доминировали */
 [data-theme="dark"] .table thead th {
   color: var(--text-muted);
   background: transparent;
@@ -122,34 +115,25 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* Полосы приоритета/категорий — на тёмном смотрятся ярче, если разбавить
-   к белому. Делаем тонкую обводку и slight glow. */
 [data-theme="dark"] .row-stripe > td:first-child::before,
 [data-theme="dark"] .category-item-stripe::before {
   filter: brightness(1.15) saturate(0.9);
 }
 
-/* Бейджи категорий в календарной сетке/заметках — точечная адаптация цветов,
-   чтобы пользовательский --stripe не «мерцал» на тёмном фоне. */
 [data-theme="dark"] .badge {
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-main);
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Спарклайны метрик в тёмной теме делаем чуть ярче */
 [data-theme="dark"] .metric-spark { opacity: 0.55; }
 
-/* Линия сетки графика в тёмной теме */
 [data-theme="dark"] .chart-grid > div { border-color: var(--chart-grid); }
 
-/* Логин-карточка */
 [data-theme="dark"] .auth-card { background: var(--surface-raised); }
 
-/* Хлебная крошка */
 [data-theme="dark"] .topbar-crumb-page { color: var(--text-dark); }
 
-/* Цвета текста в деталях/легенде/осях графика */
 [data-theme="dark"] .chart-y,
 [data-theme="dark"] .chart-x,
 [data-theme="dark"] .chart-legend-item,
@@ -162,7 +146,6 @@
   color: var(--text-muted);
 }
 
-/* Кнопки */
 [data-theme="dark"] .btn-secondary {
   background: var(--surface-raised);
   color: var(--text-main);

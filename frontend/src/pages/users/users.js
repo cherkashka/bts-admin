@@ -1,7 +1,4 @@
-/**
- * Страница «Сотрудники» — Alpine.js компонент.
- * Шаблон в users.html, в коде нет HTML.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './users.html?raw';
 
@@ -51,7 +48,6 @@ Alpine.data('usersPage', () => ({
   expanded: {},
   loading: false,
 
-  // Геттеры
   get pages() {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   },
@@ -73,7 +69,6 @@ Alpine.data('usersPage', () => ({
   get activeCount() { return this.users.filter(u => u.is_active).length; },
   get adminCount()  { return this.users.filter(u => u.role === 'admin').length; },
 
-  // Lifecycle
   async init() {
     await this.load();
   },
@@ -96,7 +91,6 @@ Alpine.data('usersPage', () => ({
     }
   },
 
-  // Сортировка
   setSort(field) {
     if (this.sortBy === field) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -112,7 +106,6 @@ Alpine.data('usersPage', () => ({
     return this.sortOrder === 'asc' ? '↑' : '↓';
   },
 
-  // Пагинация
   prevPage() {
     if (this.page <= 1) return;
     this.page -= 1;
@@ -128,11 +121,9 @@ Alpine.data('usersPage', () => ({
     this.expanded[id] = !this.expanded[id];
   },
 
-  // Лейблы
   roleLabel(role) { return role === 'admin' ? 'Администратор' : 'Пользователь'; },
   roleBadgeClass(role) { return role === 'admin' ? 'badge-warning' : 'badge-info'; },
 
-  // CRUD
   openCreate() {
     openUserModal({ mode: 'add', onSaved: () => this.load() });
   },

@@ -1,13 +1,9 @@
-<!--
-  Страница «Первый вход» (полноэкранная) — Alpine.js компонент.
-  Логика в first-login.js.
--->
+
 <div class="auth-container auth-container-scroll" x-data="firstLoginPage" x-init="init()">
   <div class="auth-card auth-card-wide">
     <h2 class="auth-title fl-title">Активация аккаунта</h2>
     <p class="fl-subtitle">Проверьте свои данные и задайте постоянный пароль</p>
 
-    <!-- Данные профиля (readonly) -->
     <div class="fl-profile">
       <div class="fl-profile-grid">
         <div>
@@ -29,7 +25,6 @@
       </div>
     </div>
 
-    <!-- Права (readonly) -->
     <details class="fl-perm-details">
       <summary class="fl-perm-summary">Ваши права доступа</summary>
       <div class="fl-perm-box">
@@ -59,7 +54,6 @@
       </div>
     </details>
 
-    <!-- Форма активации -->
     <form @submit.prevent="submit()">
       <div class="form-group fl-form-group">
         <label class="form-label">Телефон <span class="fl-optional">(необязательно)</span></label>

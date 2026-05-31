@@ -1,8 +1,4 @@
-/**
- * Модалка сотрудника (создание/редактирование).
- * Шаблоны — в user-modal.html (template-теги). В этом файле HTML не пишется,
- * только DOM-операции (clone, querySelector, append).
- */
+
 import { api } from '../../api/client.js';
 import { openModal, validateRequired, applyValidationErrors } from '../../components/Modal/Modal.js';
 import { toast } from '../../components/Toast/Toast.js';
@@ -33,7 +29,6 @@ function fillPermMatrix(rootEl, permissions = {}) {
   const headRow = rootEl.querySelector('.um-perm-head-row');
   const body    = rootEl.querySelector('.um-perm-body');
 
-  // Заголовок: пустая ячейка + по одной на действие
   const corner = document.createElement('th');
   headRow.appendChild(corner);
   for (const a of ACTIONS) {
@@ -43,7 +38,6 @@ function fillPermMatrix(rootEl, permissions = {}) {
     headRow.appendChild(th);
   }
 
-  // Строки: ресурс + чекбоксы
   for (const res of RESOURCES) {
     const tr = document.createElement('tr');
     const resTd = document.createElement('td');
@@ -81,7 +75,7 @@ function buildAddBody() {
   const root = document.createElement('div');
   root.appendChild(cloneTemplate('user-modal-add'));
   fillPermMatrix(root, {});
-  return root; // DOM-узел: иначе .value/.selected/.checked теряются
+  return root;
 }
 
 function buildEditBody(user) {
@@ -93,14 +87,13 @@ function buildEditBody(user) {
   const sel = root.querySelector('select[name="is_active"]');
   sel.value = user.is_active === false ? 'false' : 'true';
   fillPermMatrix(root, user.permissions || {});
-  return root; // DOM-узел: иначе .value/.selected/.checked теряются
+  return root;
 }
 
 function buildSuccessBody({ username, password, emailSent }) {
   const root = document.createElement('div');
   root.appendChild(cloneTemplate('user-modal-success'));
 
-  // Иконка успеха — SVG из набора (инфраструктурное исключение, не emoji).
   const iconEl = root.querySelector('.um-success-icon');
   if (iconEl) iconEl.innerHTML = Icons.checkCircle(40);
 
@@ -113,14 +106,9 @@ function buildSuccessBody({ username, password, emailSent }) {
   root.querySelector('.um-creds-username').textContent = username;
   root.querySelector('.um-creds-password').textContent = password;
 
-  return root; // DOM-узел: иначе .value/.selected/.checked теряются
+  return root;
 }
 
-/**
- * Открывает модалку с реквизитами для входа (логин + временный пароль).
- * Используется после создания сотрудника и после сброса пароля —
- * чтобы админ мог передать данные вручную, если письмо не дошло.
- */
 export function openUserCredentialsModal({ username, password, emailSent, title = 'Данные для входа' } = {}) {
   const ctl = openModal({
     title,
@@ -196,7 +184,6 @@ export async function openUserModal({ mode = 'add', id = null, onSaved = null } 
         return;
       }
 
-      // edit
       const errors = validateRequired(data, ['full_name']);
       if (Object.keys(errors).length > 0) {
         applyValidationErrors(ctl, errors);
@@ -207,8 +194,7 @@ export async function openUserModal({ mode = 'add', id = null, onSaved = null } 
       const payload = {
         full_name:   data.full_name?.trim(),
         permissions: collectPermissions(ctl.form),
-        // Пустое поле = осознанная очистка → шлём null, иначе старое значение
-        // осталось бы в БД (PATCH/PUT не трогает непереданные поля).
+
         email:       data.email?.trim() || null,
         phone:       data.phone?.trim() || null,
       };

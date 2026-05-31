@@ -1,7 +1,4 @@
-/**
- * Хедер приложения — Alpine.js компонент.
- * Шаблон в Header.html. В коде HTML нет.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './Header.html?raw';
 
@@ -81,14 +78,12 @@ Alpine.data('appHeader', () => ({
     this.pageLabel = currentPageLabel();
     this._onHashChange = () => { this.pageLabel = currentPageLabel(); };
     window.addEventListener('hashchange', this._onHashChange);
-    // Тихо подгружаем уведомления на старте — чтобы индикатор-точка
-    // появилась без открытия панели.
+
     this.loadNotifications();
   },
 
   async loadNotifications() {
-    // Уведомления = последние действия из аудит-лога. Доступ к /audit
-    // только у админа, поэтому не-админам просто оставляем пустой список.
+
     if (state.user.role !== 'admin') { this.notifications = []; return; }
     this.notifLoading = true;
     try {
@@ -129,8 +124,6 @@ Alpine.data('appHeader', () => ({
     else             document.documentElement.removeAttribute('data-theme');
     localStorage.setItem('theme', theme);
 
-    // Сохраняем тему на сервере — чтобы следовала за пользователем
-    // между устройствами. Ошибки молча игнорируем (тема локально применена).
     try { await api.patch('/auth/me', { theme }); } catch {}
   },
 

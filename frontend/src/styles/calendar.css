@@ -1,4 +1,4 @@
-/* ===== Календарь ===== */
+
 .calendar-container {
   display: grid;
   grid-template-columns: 1fr 400px;
@@ -35,9 +35,7 @@
 
 .cal-cell {
   position: relative;
-  /* Квадратная пропорция — ячейки масштабируются вместе с шириной сетки
-     и не сплющиваются при изменении окна. min-height — защита, чтобы
-     при очень узкой колонке цифра+точки всё-таки помещались. */
+
   aspect-ratio: 1 / 1;
   min-height: 56px;
   padding: 0.5rem;
@@ -102,7 +100,6 @@
   padding: 0 4px;
 }
 
-/* Список событий справа */
 .calendar-event-list {
   background: var(--bg);
   border-radius: 1.5rem;
@@ -181,7 +178,6 @@
 .event-type { font-weight: 600; color: var(--primary); }
 .event-period { font-style: italic; }
 
-/* Навигация календаря */
 .calendar-nav {
   display: flex;
   gap: 0.5rem;
@@ -302,7 +298,6 @@
   box-shadow: 0 8px 16px rgba(0,128,128,0.4);
 }
 
-/* Индикаторы */
 .indicator {
   display: inline-block;
   margin-left: 4px;
@@ -316,12 +311,10 @@
   .calendar-container { grid-template-columns: 1fr; }
 }
 
-/* ===== Мобильная адаптация календаря ===== */
-/* По умолчанию (десктоп) тоггл скрыт. */
 .calendar-filters-toggle { display: none; }
 
 @media (max-width: 768px) {
-  /* Кнопка-тоггл фильтров — видна */
+
   .calendar-filters-toggle {
     display: inline-flex;
     align-items: center;
@@ -329,20 +322,18 @@
     align-self: flex-start;
     margin-bottom: 0.75rem;
   }
-  /* Контейнер фильтров скрываем, раскрываем по клику */
+
   .calendar-filters-container {
     display: none;
     margin-bottom: 0.75rem;
   }
   .calendar-filters-container.is-open { display: block; }
 
-  /* Календарная сетка — компактнее, чтобы 7 ячеек влезали */
   .calendar-grid-wrapper { padding: 0.75rem; border-radius: 1rem; }
   .cal-grid { gap: 2px; }
   .cal-weekdays { gap: 2px; font-size: 0.65rem; }
   .cal-cell {
-    /* На мобильном aspect-ratio наследуется (1/1) — ячейки остаются
-       квадратными при любой ширине экрана. min-height тут как fallback. */
+
     min-height: 40px;
     padding: 0.25rem;
     border-radius: 0.35rem;
@@ -352,11 +343,9 @@
   .cal-event-dot { width: 6px; height: 6px; }
   .cal-more { font-size: 0.625rem; }
 
-  /* Шапка навигации календаря — компактнее */
   .calendar-nav-wrapper { gap: 0.5rem; }
   .cal-title { font-size: 0.9rem; }
 
-  /* Список событий справа — без max-height (естественная высота под календарём) */
   .calendar-event-list {
     max-height: none;
     padding: 1rem;

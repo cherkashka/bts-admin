@@ -1,9 +1,4 @@
-<!--
-  Шаблон формы актива (add/edit).
-  Заполнение values делает asset-modal.js через DOM API.
-  В режиме редактирования сверху появляются вкладки «Данные» / «История»
-  (история берётся из единого audit_log: GET /api/v1/audit).
--->
+
 <div class="modal-tabs" data-asset-tabs hidden>
   <button type="button" class="modal-tab is-active" data-tab-btn="fields">Данные</button>
   <button type="button" class="modal-tab" data-tab-btn="history">История</button>
@@ -84,7 +79,6 @@
   <div class="asset-history-list"></div>
 </div>
 
-<!-- Шаблон одной записи истории — клонируется в asset-modal.js -->
 <template id="asset-history-row">
   <div class="asset-history-item">
     <div class="asset-history-meta">

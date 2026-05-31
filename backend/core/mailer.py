@@ -1,4 +1,3 @@
-"""Async SMTP-отправщик через Brevo (smtp-relay.brevo.com)."""
 import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -6,9 +5,7 @@ from email.mime.text import MIMEText
 from backend.core.config import settings
 from backend.core.logging import logger
 
-
 async def send_email(to: str, subject: str, html_body: str, text_body: str = "") -> bool:
-    """Отправляет письмо. Возвращает True при успехе, False при ошибке (не бросает)."""
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -33,9 +30,7 @@ async def send_email(to: str, subject: str, html_body: str, text_body: str = "")
         logger.error(f"❌ Ошибка отправки email на {to}: {exc}")
         return False
 
-
 def build_invite_html(full_name: str, username: str, password: str, login_url: str) -> str:
-    """HTML-шаблон письма-приглашения."""
     return f"""<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -131,7 +126,6 @@ def build_invite_html(full_name: str, username: str, password: str, login_url: s
   </table>
 </body>
 </html>"""
-
 
 def build_invite_text(full_name: str, username: str, password: str, login_url: str) -> str:
     return (

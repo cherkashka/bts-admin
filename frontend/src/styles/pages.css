@@ -1,4 +1,4 @@
-/* ===== Авторизация ===== */
+
 .auth-container {
   display: flex;
   justify-content: center;
@@ -27,7 +27,6 @@
   letter-spacing: -0.025em;
 }
 
-/* Auth form helpers */
 .auth-submit { width: 100%; margin-top: 20px; }
 
 .auth-message {
@@ -47,7 +46,6 @@
   border: 1px solid #c3e6cb;
 }
 
-/* First-login: layout */
 .auth-container-scroll { align-items: flex-start; padding: 40px 20px; overflow-y: auto; }
 .auth-card-wide { max-width: 540px; }
 .fl-title { margin-bottom: 6px; }
@@ -58,7 +56,6 @@
   margin-bottom: 28px;
 }
 
-/* First-login: profile box */
 .fl-profile {
   background: var(--bg);
   border-radius: 14px;
@@ -85,7 +82,6 @@
 }
 .fl-field-mono { font-family: monospace; }
 
-/* First-login: permissions */
 .fl-perm-details { margin-bottom: 20px; }
 .fl-perm-summary {
   cursor: pointer;
@@ -139,7 +135,6 @@
   box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
 }
 
-/* First-login: form */
 .fl-form-group { margin-bottom: 16px; }
 .fl-form-group-last { margin-bottom: 24px; }
 .fl-required { color: #e53e3e; }
@@ -188,7 +183,6 @@
   box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
 }
 
-/* ===== Страницы форм (add/edit) ===== */
 .container-form-page {
   min-height: 100vh;
   padding: 1.5rem;
@@ -220,7 +214,6 @@
   border-top: 1px solid var(--border-divider);
 }
 
-/* ===== Календарь (filters/buttons) ===== */
 .calendar-container {
   background-color: var(--bg);
   border-radius: 1.5rem;
@@ -290,7 +283,6 @@
   box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
 }
 
-/* Master-фильтр визуально выделен */
 .cal-filter-btn.cal-filter-master {
   font-weight: 700;
   border: 1px solid rgba(0, 128, 128, 0.18);
@@ -299,7 +291,6 @@
   color: var(--primary-dark);
 }
 
-/* ===== Экспорт ===== */
 .export-container {
   display: grid;
   grid-template-columns: 1fr 1fr;

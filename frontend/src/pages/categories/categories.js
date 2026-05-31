@@ -1,7 +1,4 @@
-/**
- * Страница «Категории» — Alpine.js компонент.
- * Шаблон в categories.html. Модалка — pages/category-modal.js.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './categories.html?raw';
 

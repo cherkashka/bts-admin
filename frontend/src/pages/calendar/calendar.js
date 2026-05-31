@@ -1,7 +1,4 @@
-/**
- * Страница «Календарь» — Alpine.js компонент.
- * Шаблон в calendar.html. Модалка заметки — pages/note-modal.js.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './calendar.html?raw';
 
@@ -47,30 +44,24 @@ function eventTypeLabel(ev) {
 Alpine.data('calendarPage', () => ({
   Icons,
 
-  // Данные
   allEvents: [],
   categoriesById: {},
 
-  // Навигация
   currentDate: new Date(),
   realToday: new Date(),
 
-  // UI
   onlyMine: localStorage.getItem(ONLY_MINE_KEY) === '1',
   monthDropdownOpen: false,
   monthNames: MONTH_NAMES,
-  mobileFiltersOpen: false, // на мобильном фильтры в свёрнутом блоке
+  mobileFiltersOpen: false,
 
-  // Фильтры: плоский объект флагов { 'task': true, 'warranty': true, 'category-XXX': true }
   filters: {},
 
-  // ===== Lifecycle =====
   async init() {
     await this.loadCategories();
     this.initFilters();
     await this.loadMonth();
 
-    // Глобальный обработчик клика — закрытие dropdown
     this._docClick = () => { this.monthDropdownOpen = false; };
     this._docEsc   = (e) => { if (e.key === 'Escape') this.monthDropdownOpen = false; };
     document.addEventListener('click', this._docClick);
@@ -122,7 +113,6 @@ Alpine.data('calendarPage', () => ({
     }
   },
 
-  // ===== Геттеры =====
   get monthYearLabel() {
     return this.currentDate.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
   },
@@ -149,13 +139,12 @@ Alpine.data('calendarPage', () => ({
 
   get canCreateNote() { return state.can('notes', 'create'); },
 
-  // ===== Фильтрация =====
   shouldShowEvent(ev) {
     if (ev.type === 'task_due' || ev.type === 'task_start') return !!this.filters['task'];
     if (ev.type === 'warranty_end' || ev.type === 'commission') return !!this.filters['warranty'];
     if (ev.type === 'note') {
       if (ev.category_id) return !!this.filters[`category-${ev.category_id}`];
-      // Заметка без категории — видна если хотя бы один category-* активен
+
       for (const k of Object.keys(this.filters)) {
         if (k.startsWith('category-') && this.filters[k]) return true;
       }
@@ -164,7 +153,6 @@ Alpine.data('calendarPage', () => ({
     return !!this.filters[ev.type];
   },
 
-  // События с подмешанными цветом/лейблом/uid (для x-for keys)
   enrich(ev, idx) {
     return {
       ...ev,
@@ -181,7 +169,6 @@ Alpine.data('calendarPage', () => ({
       .map((e, i) => this.enrich(e, i));
   },
 
-  // ===== Сетка месяца =====
   get startOffset() {
     const y = this.currentDate.getFullYear();
     const m = this.currentDate.getMonth();
@@ -217,7 +204,6 @@ Alpine.data('calendarPage', () => ({
     return days;
   },
 
-  // ===== Навигация =====
   toggleOnlyMine() {
     this.onlyMine = !this.onlyMine;
     localStorage.setItem(ONLY_MINE_KEY, this.onlyMine ? '1' : '0');
@@ -241,7 +227,6 @@ Alpine.data('calendarPage', () => ({
     this.loadMonth();
   },
 
-  // ===== Dropdown месяцев =====
   get dropdownYears() {
     const y = this.currentDate.getFullYear();
     return [y - 1, y, y + 1];
@@ -261,7 +246,6 @@ Alpine.data('calendarPage', () => ({
     this.loadMonth();
   },
 
-  // ===== Фильтры =====
   toggleFilter(key) {
     this.filters[key] = !this.filters[key];
   },
@@ -273,7 +257,6 @@ Alpine.data('calendarPage', () => ({
     for (const c of children) this.filters[c] = !wasActive;
   },
 
-  // ===== Действия =====
   openCreateNote() {
     openNoteModal({ onSaved: () => this.loadMonth() });
   },

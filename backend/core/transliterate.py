@@ -1,4 +1,3 @@
-"""Транслитерация ФИО → username (латиница + цифры + underscore)."""
 import re
 
 _TABLE = str.maketrans({
@@ -18,19 +17,15 @@ _TABLE = str.maketrans({
     'Э': 'e',  'Ю': 'yu', 'Я': 'ya',
 })
 
-
 def fio_to_username(full_name: str) -> str:
-    """«Иванов Иван Иванович» → «ivanov_ivan_ivanovich»."""
     parts = full_name.strip().split()
     result = '_'.join(p.translate(_TABLE) for p in parts)
-    # убираем всё кроме латиницы, цифр и underscore
+
     result = re.sub(r'[^a-z0-9_]', '', result.lower())
     result = re.sub(r'_+', '_', result).strip('_')
     return result or 'user'
 
-
 async def unique_username(full_name: str, db) -> str:
-    """Генерирует уникальный логин, добавляя суффикс _2, _3 при коллизии."""
     base = fio_to_username(full_name)
     candidate = base
     n = 2

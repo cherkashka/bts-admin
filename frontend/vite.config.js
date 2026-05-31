@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 export default defineConfig({
   server: {
-    host: '0.0.0.0',  // ← Слушаем все интерфейсы (и localhost, и 127.0.0.1)
+    host: '0.0.0.0',
     port: 3000,
     proxy: {
       '/api': {

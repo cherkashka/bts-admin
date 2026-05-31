@@ -1,15 +1,4 @@
-/**
- * Тосты — неблокирующие всплывающие уведомления (замена alert()).
- *
- * Разметка карточки — в Toast.html (template), здесь только DOM-операции:
- * клонируем шаблон, заполняем textContent, вставляем в контейнер, через
- * таймаут убираем. Иконка — SVG из icons.js (инфраструктурное исключение,
- * как и везде вставляется через innerHTML иконки).
- *
- *   import { toast } from '.../components/Toast/Toast.js';
- *   toast.success('Актив сохранён');
- *   toast.error('Не удалось удалить');
- */
+
 import tpl from './Toast.html?raw';
 import { Icons } from '../icons.js';
 

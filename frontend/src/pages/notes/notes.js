@@ -1,11 +1,4 @@
-/**
- * Страница «Заметки» — Alpine.js компонент.
- *
- * Архитектурное соглашение:
- *   - вся разметка живёт в notes.html;
- *   - этот файл импортирует её строкой (Vite ?raw) и регистрирует поведение
- *     через Alpine.data — в коде нет ни одной HTML-строки.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './notes.html?raw';
 
@@ -37,25 +30,21 @@ function fmtDateTime(value) {
 }
 
 Alpine.data('notesPage', () => ({
-  // Данные
+
   notes: [],
   total: 0,
   categoriesById: {},
 
-  // Пагинация
   page: 1,
   pageSize: PAGE_SIZE,
 
-  // Сортировка
   sortBy: 'created_at',
   sortOrder: 'desc',
 
-  // UI-состояние
   search: '',
   categoryFilter: '',
   loading: false,
 
-  // Геттеры
   get pages() {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   },
@@ -93,7 +82,6 @@ Alpine.data('notesPage', () => ({
     return state.can('notes', 'create');
   },
 
-  // Lifecycle
   async init() {
     await Promise.all([this.loadCategories(), this.load()]);
   },
@@ -127,7 +115,6 @@ Alpine.data('notesPage', () => ({
     }
   },
 
-  // Сортировка
   setSort(field) {
     if (this.sortBy === field) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -143,7 +130,6 @@ Alpine.data('notesPage', () => ({
     return this.sortOrder === 'asc' ? '↑' : '↓';
   },
 
-  // Пагинация
   prevPage() {
     if (this.page <= 1) return;
     this.page -= 1;
@@ -155,7 +141,6 @@ Alpine.data('notesPage', () => ({
     this.load();
   },
 
-  // Категории — отображение (иконка + имя, как в календаре/модалке)
   categoryLabel(id) {
     if (!id) return SYSTEM_CATEGORY_LABEL;
     const cat = this.categoriesById[id];
@@ -167,7 +152,6 @@ Alpine.data('notesPage', () => ({
     return `background:${color}20;color:${color};border:1px solid ${color}55;`;
   },
 
-  // Права на строку
   canEdit(note) {
     return state.isAdmin || String(note.created_by) === String(state.user.id);
   },
@@ -175,7 +159,6 @@ Alpine.data('notesPage', () => ({
     return this.canEdit(note);
   },
 
-  // CRUD-действия
   openCreate() {
     openNoteModal({ onSaved: () => this.load() });
   },
@@ -193,21 +176,12 @@ Alpine.data('notesPage', () => ({
     }
   },
 
-  // Форматтеры — используются в шаблоне через x-text
   fmtDate,
   fmtDateTime,
 }));
 
-/**
- * Возвращает разметку страницы. Никакой HTML внутри функции — только импорт.
- * Alpine автоматически активирует x-data при вставке в DOM.
- */
 export async function renderNotesPage() {
   return tpl;
 }
 
-/**
- * Заглушка для совместимости с роутером (события навешивает Alpine
- * через декларативные атрибуты, императивный init не нужен).
- */
 export function initNotesEvents() {}

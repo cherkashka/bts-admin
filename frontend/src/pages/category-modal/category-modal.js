@@ -1,8 +1,4 @@
-/**
- * Модалка добавления / редактирования категории.
- * Сохраняет старый UX (Modal.js helper), без HTML в логике страницы.
- * Шаблон формы — отдельный .html (импорт ?raw).
- */
+
 import { categories } from '../../api/client.js';
 import { openModal, validateRequired, applyValidationErrors } from '../../components/Modal/Modal.js';
 import formTpl from './category-modal.html?raw';
@@ -24,14 +20,8 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-/**
- * Подставляет данные в шаблон формы. Шаблон лежит в .html (импортируется),
- * здесь только DOM-операции: заполнение value, добавление option-ов,
- * сборка списка цветов из <label>+<input radio>+<span>.
- */
 function buildBody(category) {
-  // Если у существующей категории цвет не из списка — подсвечиваем первый.
-  // Это редкий кейс (старые цвета, миграция), палитра «фри-ввод» больше не доступна.
+
   const knownColors = new Set(COLOR_OPTIONS.map(c => c.value));
   const selectedColor = category?.color && knownColors.has(category.color)
     ? category.color
@@ -40,15 +30,13 @@ function buildBody(category) {
   const tmp = document.createElement('div');
   tmp.innerHTML = formTpl;
 
-  // name
   tmp.querySelector('input[name="name"]').value = category?.name || '';
 
-  // Список цветов
   const colorList = tmp.querySelector('.color-list');
   for (const o of COLOR_OPTIONS) {
     const row = document.createElement('label');
     row.className = 'color-row';
-    // Цвет полоски подаём CSS-переменной — стили в components.css.
+
     row.style.setProperty('--swatch', o.value);
 
     const input = document.createElement('input');
@@ -58,8 +46,7 @@ function buildBody(category) {
     input.className = 'color-row-input';
     if (selectedColor === o.value) {
       input.checked = true;
-      // setAttribute, чтобы значение сохранилось в outerHTML/innerHTML
-      // (для DOM-свойства .checked нужен ещё атрибут `checked`).
+
       input.setAttribute('checked', '');
       row.classList.add('is-selected');
     }
@@ -73,7 +60,6 @@ function buildBody(category) {
     colorList.appendChild(row);
   }
 
-  // Возвращаем DOM-узел (не строку): иначе .value/.selected/.checked теряются.
   return tmp;
 }
 
@@ -87,8 +73,7 @@ export function openCategoryModal({ category = null, onSaved = null } = {}) {
     size: 'md',
     submitText: isEdit ? 'Сохранить' : 'Создать',
     onOpen: (ctl) => {
-      // Подсветка выбранной цветной строки через класс .is-selected
-      // (вместо CSS :has() — для совместимости с Safari < 15.4).
+
       const colorRows = ctl.bodyEl.querySelectorAll('.color-row');
       colorRows.forEach(row => {
         const input = row.querySelector('.color-row-input');
@@ -98,7 +83,6 @@ export function openCategoryModal({ category = null, onSaved = null } = {}) {
         });
       });
 
-      // Сброс ошибок при изменении любого поля.
       ctl.form.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('input',  () => el.classList.remove('has-error'));
         el.addEventListener('change', () => el.classList.remove('has-error'));

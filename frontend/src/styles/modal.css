@@ -1,6 +1,4 @@
-/* ====================================================
-   Модальная система — Neumorphism overlay
-   ==================================================== */
+
 
 .modal-overlay {
   position: fixed;
@@ -36,13 +34,11 @@
   opacity: 1;
 }
 
-/* Размеры */
 .modal-size-sm { max-width: 28rem; }
 .modal-size-md { max-width: 36rem; }
 .modal-size-lg { max-width: 48rem; }
 .modal-size-xl { max-width: 56rem; }
 
-/* Шапка */
 .modal-head {
   display: flex;
   align-items: center;
@@ -82,7 +78,6 @@
   box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
 }
 
-/* Ошибка над формой */
 .modal-error {
   margin: 1rem 1.5rem 0;
   padding: 0.75rem 1rem;
@@ -94,7 +89,6 @@
   box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
 }
 
-/* Форма + тело */
 .modal-form {
   display: flex;
   flex-direction: column;
@@ -108,7 +102,6 @@
   flex: 1;
 }
 
-/* Подвал */
 .modal-foot {
   display: flex;
   justify-content: flex-end;
@@ -136,7 +129,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Подсветка ошибок поля */
 .form-input.has-error {
   box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light), 0 0 0 2px var(--danger);
 }
@@ -148,7 +140,6 @@
   font-weight: 500;
 }
 
-/* Адаптив */
 @media (max-width: 640px) {
   .modal-overlay { padding: 1rem; }
   .modal-head { padding: 1rem; }
@@ -157,7 +148,6 @@
   .modal-foot .btn { width: 100%; }
 }
 
-/* ===== Вкладки внутри модалки (Данные / История) ===== */
 .modal-tabs {
   display: flex;
   gap: var(--space-2);
@@ -183,7 +173,6 @@
   border-bottom-color: var(--primary);
 }
 
-/* ===== История актива внутри модалки ===== */
 .asset-history-list {
   display: flex;
   flex-direction: column;

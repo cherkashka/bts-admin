@@ -1,12 +1,4 @@
-/**
- * Страница «Аудит-лог» — Alpine.js компонент (только admin).
- *
- * Архитектурное соглашение (см. CLAUDE.md): вся разметка — в audit.html,
- * здесь только поведение через Alpine.data. HTML-строк в коде нет.
- *
- * Источник данных — единая коллекция audit_log (GET /api/v1/audit).
- * Эта же коллекция питает вкладку «История» на странице актива.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './audit.html?raw';
 
@@ -28,14 +20,12 @@ const ACTION_LABELS = {
   delete: 'Удаление',
 };
 
-// Цвета действий (не пересекаются с системными цветами календаря).
 const ACTION_COLORS = {
   create: '#10b981',
   update: '#f59e0b',
   delete: '#ef4444',
 };
 
-// Перевод имён полей для понятного diff.
 const FIELD_LABELS = {
   name: 'Название', inventory_number: 'Инв. номер', serial_number: 'Серийный номер',
   asset_type: 'Тип', status: 'Статус', mol_user_id: 'МОЛ (id)', mol_name: 'МОЛ',
@@ -73,7 +63,7 @@ function fmtVal(v) {
   if (v === undefined || v === null || v === '') return '—';
   if (typeof v === 'boolean') return v ? 'да' : 'нет';
   if (typeof v === 'object') return JSON.stringify(v);
-  // ISO-даты приводим к локальному виду
+
   if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v)) {
     const d = new Date(v);
     if (!isNaN(d.getTime())) return d.toLocaleString('ru-RU');
@@ -88,12 +78,10 @@ Alpine.data('auditPage', () => ({
   pageSize: PAGE_SIZE,
   loading: false,
 
-  // Фильтры
   entityType: '',
   action: '',
   days: '',
 
-  // Развёрнутые строки (id записи)
   openIds: [],
 
   get pages() {
@@ -143,7 +131,6 @@ Alpine.data('auditPage', () => ({
     this.load();
   },
 
-  // Развороты
   toggle(id) {
     const i = this.openIds.indexOf(id);
     if (i === -1) this.openIds.push(id);
@@ -153,7 +140,6 @@ Alpine.data('auditPage', () => ({
     return this.openIds.includes(id);
   },
 
-  // Отображение
   entityLabel(t) { return ENTITY_LABELS[t] || t; },
   actionLabel(a) { return ACTION_LABELS[a] || a; },
   actionStyle(a) {
@@ -162,7 +148,6 @@ Alpine.data('auditPage', () => ({
   },
   changeHint(a) { return CHANGE_HINTS[a] || ''; },
 
-  // Список изменений: объединение ключей before/after.
   changeRows(entry) {
     const before = entry.before || {};
     const after = entry.after || {};

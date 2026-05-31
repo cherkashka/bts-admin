@@ -1,7 +1,4 @@
-<!--
-  Страница «Календарь» — Alpine.js компонент.
-  Логика в calendar.js (Alpine.data('calendarPage', ...)).
--->
+
 <div x-data="calendarPage" x-init="init()">
 
   <div class="content-header" style="justify-content: flex-end;">
@@ -34,14 +31,12 @@
     </div>
   </div>
 
-  <!-- Кнопка-тоггл фильтров (видна только на мобильном) -->
   <button type="button"
           class="btn btn-secondary calendar-filters-toggle"
           @click="mobileFiltersOpen = !mobileFiltersOpen">
     <span x-text="mobileFiltersOpen ? 'Скрыть фильтры' : 'Фильтры'"></span>
   </button>
 
-  <!-- Фильтры -->
   <div class="calendar-filters-container" :class="mobileFiltersOpen ? 'is-open' : ''">
     <div class="calendar-filters-group">
       <div class="filter-group-label">Администрирование</div>
@@ -91,7 +86,6 @@
     </div>
   </div>
 
-  <!-- Сетка месяца + список -->
   <div class="calendar-container">
     <div class="calendar-grid-wrapper">
 

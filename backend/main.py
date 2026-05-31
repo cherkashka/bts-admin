@@ -6,25 +6,13 @@ from backend.core.database import client, init_indexes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await client.admin.command("ping")   # проверка соединения при старте
+    await client.admin.command("ping")
     await init_indexes()
     await cleanup_legacy_starter_categories()
     yield
     client.close()
 
-
 async def cleanup_legacy_starter_categories():
-    """Одноразовая миграция: убирает старые «общие» стартовые категории.
-
-    Раньше при старте создавался набор Работа/Встречи/Личное/Напоминания/Срочно
-    с owner_id=None (видны всем). Это было неправильно: такие категории
-    должны быть либо системными (автособытия календаря из активов/задач —
-    они синтезируются в роутере calendar.py, в коллекции их нет), либо
-    личными пользовательскими.
-
-    Удаляем те общие категории, к которым не привязаны заметки.
-    Привязанные оставляем, чтобы не сломать данные пользователя.
-    """
     from backend.core.database import db
     from bson import ObjectId
 
@@ -42,20 +30,17 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     lifespan=lifespan,
-    # Swagger доступен только не в продакшне
+
     docs_url=None if settings.is_production else "/docs",
     redoc_url=None if settings.is_production else "/redoc",
-    redirect_slashes=False,  # ← Отключаем автоматический редирект /path → /path/ (иначе теряются cookies при cross-origin)
+    redirect_slashes=False,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    # localhost/127.0.0.1 — для запуска на одной машине;
-    # 192.168.x.x / 10.x.x.x — для доступа с телефона/другого устройства
-    # по LAN-адресу (когда фронт открывают, например, как http://192.168.100.125:3000).
-    # На проде origins переопределяем явно через ENV.
+
     allow_origin_regex=r"http://(127\.0\.0\.1|localhost|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+):3000",
-    allow_credentials=True,   # ← обязательно для httponly кук
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["Content-Disposition", "X-Total-Count"],

@@ -7,7 +7,7 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from backend.core.config import settings
-from backend.core.database import get_db 
+from backend.core.database import get_db
 
 def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
@@ -32,14 +32,14 @@ def create_refresh_token(data: dict) -> str:
 
 async def get_current_user(
     access_token: Optional[str] = Cookie(default=None),
-    db: AsyncIOMotorDatabase = Depends(get_db)  # ✅ Внедрение зависимости
+    db: AsyncIOMotorDatabase = Depends(get_db)
 ) -> dict:
     if not access_token:
         raise HTTPException(status_code=401, detail="Требуется авторизация",
                             headers={"WWW-Authenticate": "Bearer"})
     try:
         payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        if payload.get("type") != "access":          # ← обязательная проверка!
+        if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Неверный тип токена")
         user_id = payload.get("sub")
         username = payload.get("username")

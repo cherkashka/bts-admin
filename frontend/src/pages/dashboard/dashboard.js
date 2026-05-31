@@ -1,19 +1,10 @@
-/**
- * Главная страница (Dashboard) — Alpine.js компонент.
- * Шаблон в dashboard.html. Иконки — из components/icons.js (инфраструктурный
- * модуль SVG-ассетов; вставка только через x-html в шаблоне).
- *
- * Все графики строятся из РЕАЛЬНЫХ данных (задачи), без захардкоженных кривых.
- * SVG-path — это строка-данные атрибута, не разметка (правило «нет HTML в JS»
- * не нарушается: тегов не конкатенируем).
- */
+
 import Alpine from 'alpinejs';
 import tpl from './dashboard.html?raw';
 
 import { api } from '../../api/client.js';
 import { Icons } from '../../components/icons.js';
 
-// Один цвет по стилю сайта (без зелёного/красного) для мини-графиков.
 const ACCENT = '#008080';
 const MUTED  = '#C4C9D4';
 
@@ -21,7 +12,6 @@ const PRIORITY_COLOR = {
   low: '#9ca3af', medium: '#3b82f6', high: '#f59e0b', critical: '#ef4444',
 };
 
-// ===== Утилиты дат =====
 function dayStart(d) {
   const x = new Date(d);
   x.setHours(0, 0, 0, 0);
@@ -40,8 +30,6 @@ function fmtRange(start, end) {
 
 const DAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
-// Раскладывает элементы по дням за последние `days` дней.
-// getDate(item) → дата (строка/Date) или null.
 function bucketByDay(items, getDate, days, now) {
   const buckets = new Array(days).fill(0);
   const start = dayStart(now);
@@ -57,8 +45,6 @@ function bucketByDay(items, getDate, days, now) {
   return buckets;
 }
 
-// Точки графика в координатах viewBox WxH. maxOverride — общий масштаб для
-// нескольких рядов (чтобы линии были в одной системе координат).
 function buildPoints(values, w, h, pad, maxOverride) {
   const max = maxOverride || Math.max(1, ...values);
   const stepX = w / (values.length - 1 || 1);
@@ -68,9 +54,6 @@ function buildPoints(values, w, h, pad, maxOverride) {
   }));
 }
 
-// Сглаженный SVG-path монотонной кубической интерполяцией (Фрич–Карлсон).
-// Проходит ТОЧНО через каждую точку и НЕ выходит за диапазон соседних точек
-// между ними — поэтому нет ложных «горбов» вниз/вверх перед подъёмом.
 function smoothPath(points) {
   const n = points.length;
   if (n === 0) return '';
@@ -83,14 +66,13 @@ function smoothPath(points) {
     delta.push(hx === 0 ? 0 : (points[i + 1].y - points[i].y) / hx);
   }
 
-  // Касательные в точках.
   const m = new Array(n);
   m[0] = delta[0];
   m[n - 1] = delta[n - 2];
   for (let i = 1; i < n - 1; i++) {
     m[i] = (delta[i - 1] * delta[i] <= 0) ? 0 : (delta[i - 1] + delta[i]) / 2;
   }
-  // Ограничение по Фрич–Карлсон (гарантирует монотонность сегментов).
+
   for (let i = 0; i < n - 1; i++) {
     if (delta[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
     const a = m[i] / delta[i];
@@ -115,7 +97,6 @@ function smoothPath(points) {
   return d;
 }
 
-// Названия дней по getDay() (0=Вс).
 const DOW_LABELS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
 Alpine.data('dashboardPage', () => ({
@@ -150,7 +131,6 @@ Alpine.data('dashboardPage', () => ({
     return this.now.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' });
   },
 
-  // ===== Метрики (значения реальные, мини-график из реальных дат, один цвет) =====
   get metrics() {
     const t = this.tasks;
     const now = this.now;
@@ -176,13 +156,11 @@ Alpine.data('dashboardPage', () => ({
 
   accentColor: ACCENT,
 
-  // Клик по карточке → переход на задачи с предустановленным фильтром.
   openMetric(m) {
     if (m.preset) localStorage.setItem('tasksPreset', JSON.stringify(m.preset));
     window.location.hash = m.route;
   },
 
-  // ===== Activity Chart (Создано / Закрыто по дням) =====
   get activity() {
     const days = this.activityDays;
     const now = this.now;
@@ -196,7 +174,6 @@ Alpine.data('dashboardPage', () => ({
     const createdPath = smoothPath(buildPoints(created, W, H, PAD, max));
     const closedPath  = smoothPath(buildPoints(closed,  W, H, PAD, max));
 
-    // Деления оси Y без дублей: при малых max берём столько делений, сколько max.
     const ticks = Math.min(5, max);
     const yTicks = [];
     for (let i = ticks; i >= 0; i--) yTicks.push(Math.round((max * i) / ticks));
@@ -204,7 +181,7 @@ Alpine.data('dashboardPage', () => ({
     const start = dayStart(now);
     start.setDate(start.getDate() - (days - 1));
     const xLabels = [];
-    // показываем ~8 равномерных меток (день месяца), чтобы не было каши
+
     const stepLabel = Math.ceil(days / 8);
     for (let i = 0; i < days; i += stepLabel) {
       const d = new Date(start);
@@ -224,9 +201,8 @@ Alpine.data('dashboardPage', () => ({
   get activityRangeLabel() { return this.activityDays === 30 ? '30 дней' : '7 дней'; },
   toggleActivityZoom() { this.activityZoom = !this.activityZoom; },
 
-  // ===== Schedule (только задачи) =====
   get weekDays() {
-    // Неделя начинается с СЕГОДНЯ (а не с понедельника): 7 дней вперёд.
+
     const today = dayStart(this.now);
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(today);
@@ -256,7 +232,6 @@ Alpine.data('dashboardPage', () => ({
   },
   goCalendar() { window.location.hash = '/calendar'; },
 
-  // ===== Timeline / Gantt (реальные задачи, без демо-заглушек) =====
   get timelineRangeLabel() {
     const start = dayStart(this.now);
     const end = new Date(start);

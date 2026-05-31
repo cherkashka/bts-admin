@@ -13,9 +13,7 @@ from backend.core.permissions import require_admin
 from backend.core.audit import log_action, snapshot, diff_changes
 from backend.models.asset import AssetCreate, AssetUpdate, AssetResponse
 
-
 def _asset_label(doc: Dict[str, Any]) -> str:
-    """Человекочитаемая подпись актива для аудит-лога."""
     return doc.get("name") or doc.get("inventory_number") or ""
 
 logger = logging.getLogger("it_admin_backend")
@@ -23,23 +21,23 @@ logger = logging.getLogger("it_admin_backend")
 router = APIRouter(
     prefix="/api/v1/assets",
     tags=["Assets"],
-    redirect_slashes=False  # Строгое соответствие URL, без 307 редиректов
+    redirect_slashes=False
 )
 
 def convert_doc(doc: Dict[str, Any]) -> AssetResponse:
-    # ✅ Исправлено: создаём копию, чтобы не мутировать словарь от Motor
+
     safe_doc = dict(doc)
     safe_doc["id"] = str(safe_doc.pop("_id"))
-    
+
     if "comments" in safe_doc and not isinstance(safe_doc["comments"], str):
         safe_doc["comments"] = None
-        
+
     return AssetResponse(**safe_doc)
 
 @router.post("", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
 async def create_asset(
     asset: AssetCreate,
-    current_user: dict = Depends(require_admin),  # ← только admin создаёт активы
+    current_user: dict = Depends(require_admin),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     asset_dict = asset.model_dump(exclude_none=True)
@@ -81,31 +79,21 @@ async def create_asset(
     )
     return convert_doc(created_doc)
 
-# Поля, по которым разрешена сортировка (защита от инъекций).
 _ALLOWED_SORT_FIELDS = {
     "name", "inventory_number", "asset_type", "mol_name",
     "status", "commission_date", "warranty_end_date", "created_at",
 }
 
-
 @router.get("", response_model=List[AssetResponse])
 async def get_assets(
     response: Response,
     skip: int = 0,
-    limit: int = 0,            # 0 = без лимита (backward compat)
+    limit: int = 0,
     sort_by: str = "created_at",
     sort_order: str = "desc",
     current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    """
-    Список активов с опциональной пагинацией.
-
-    - Без параметров — отдаёт все записи (для дашборда / dropdown'ов).
-    - С `?skip=&limit=` — постранично; в заголовке `X-Total-Count`
-      возвращается общее число записей в коллекции.
-    - `?sort_by=&sort_order=` — серверная сортировка по разрешённым полям.
-    """
     total = await db.assets.count_documents({})
     response.headers["X-Total-Count"] = str(total)
 
@@ -137,7 +125,7 @@ async def get_asset(
 async def update_asset(
     asset_id: str,
     update_data: AssetUpdate,
-    current_user: dict = Depends(require_admin),  # ← только admin редактирует активы
+    current_user: dict = Depends(require_admin),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(asset_id):
@@ -147,7 +135,6 @@ async def update_asset(
     if not existing:
         raise HTTPException(404, "Asset not found")
 
-    # ✅ КРИТИЧНОЕ ИСПРАВЛЕНИЕ: удалён exclude_none=True
     update_dict = update_data.model_dump(exclude_unset=True)
     if not update_dict:
         raise HTTPException(400, "No data to update")
@@ -181,7 +168,7 @@ async def update_asset(
         raise HTTPException(404, "Asset not found after update")
 
     before, after = diff_changes(existing, update_dict)
-    if after:  # пишем только если реально что-то изменилось
+    if after:
         await log_action(
             db, actor=current_user, action="update", entity_type="asset",
             entity_id=asset_id, entity_label=_asset_label(updated_doc),
@@ -192,7 +179,7 @@ async def update_asset(
 @router.delete("/{asset_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_asset(
     asset_id: str,
-    current_user: dict = Depends(require_admin),  # ← только admin удаляет активы
+    current_user: dict = Depends(require_admin),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(asset_id):

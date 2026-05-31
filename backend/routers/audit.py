@@ -1,9 +1,3 @@
-"""Аудит-лог — чтение журнала действий.
-
-Только admin. Одна коллекция `audit_log` (см. backend/core/audit.py)
-питает и страницу `/audit`, и вкладку «История» на странице актива.
-История актива — выборка `?entity_type=asset&entity_id=<id>`.
-"""
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
@@ -19,12 +13,10 @@ router = APIRouter(prefix="/api/v1/audit", tags=["Audit"], redirect_slashes=Fals
 _ENTITY_TYPES = {"asset", "user", "task", "note", "category"}
 _ACTIONS = {"create", "update", "delete"}
 
-
 def _convert(doc: dict) -> AuditLogResponse:
     safe = dict(doc)
     safe["id"] = str(safe.pop("_id"))
     return AuditLogResponse(**safe)
-
 
 @router.get("", response_model=List[AuditLogResponse])
 async def get_audit_log(
@@ -39,14 +31,6 @@ async def get_audit_log(
     current_user: dict = Depends(require_admin),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Журнал действий с фильтрами. Сортировка — всегда от новых к старым.
-
-    - `entity_type` / `entity_id` — конкретная сущность (история актива);
-    - `actor_id` — действия одного пользователя;
-    - `action` — create/update/delete;
-    - `days` — последние N дней;
-    - `skip`/`limit` — постранично, `X-Total-Count` в заголовке.
-    """
     query: dict = {}
     if entity_type in _ENTITY_TYPES:
         query["entity_type"] = entity_type

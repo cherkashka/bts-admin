@@ -18,11 +18,8 @@ import { renderCategoriesPage, initCategoriesEvents } from './pages/categories/c
 import { renderDashboardPage, initDashboardEvents } from './pages/dashboard/dashboard.js';
 import { renderAuditPage, initAuditEvents } from './pages/audit/audit.js';
 
-// Alpine стартует после регистрации всех Alpine.data в импортируемых модулях.
 window.Alpine = Alpine;
 
-// Глобальный UI-стор: общее состояние мобильного off-canvas меню
-// (хедер открывает, сайдбар читает). Надёжнее, чем window-события.
 Alpine.store('ui', {
   sidebarOpen: false,
   toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; },
@@ -43,8 +40,6 @@ const MODAL_ROUTES = {
   '/tasks/add':   { parent: '/tasks',    open: () => openTaskModal({ mode: 'add' }) },
 };
 
-// Защита по правам: для каждого роута — список (resource, action) которые нужны.
-// Главная и Календарь — для всех залогиненных. Остальное — по правам / только admin.
 const ROUTE_GUARDS = {
   '/assets':     { type: 'permission', resource: 'assets',     action: 'read' },
   '/tasks':      { type: 'permission', resource: 'tasks',      action: 'read' },
@@ -57,7 +52,7 @@ const ROUTE_GUARDS = {
 
 function canAccess(route) {
   const g = ROUTE_GUARDS[route];
-  if (!g) return true;                        // не охраняемый роут
+  if (!g) return true;
   if (g.type === 'admin')      return state.isAdmin;
   if (g.type === 'permission') return state.can(g.resource, g.action);
   return true;
@@ -91,8 +86,6 @@ class Router {
       this.isLoggedIn = true;
       this.passwordChangeRequired = state.user.passwordChangeRequired;
 
-      // Источник истины для темы — User.theme. Если задан — применяем
-      // (перекрывает anti-FOUC из localStorage). null оставляем как есть.
       if (state.user.theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         localStorage.setItem('theme', 'dark');
@@ -170,7 +163,7 @@ class Router {
 
     if (MODAL_ROUTES[lvl2]) {
       const cfg = MODAL_ROUTES[lvl2];
-      // /assets/add → assets:create; /users/add → admin; /notes/add → notes:create
+
       const allowed =
         (lvl2 === '/assets/add' && state.can('assets', 'create')) ||
         (lvl2 === '/users/add'  && state.isAdmin) ||
@@ -229,7 +222,6 @@ class Router {
 
     if (this.currentPage === pageName) return;
 
-    // Корневой layout — берём из app-layout.html, в JS HTML не пишем.
     appElement.innerHTML = appLayoutTpl;
     appElement.querySelector('.app-shell-sidebar').innerHTML = renderSidebar();
     appElement.querySelector('.app-shell-header').innerHTML  = renderHeader();

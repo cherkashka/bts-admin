@@ -1,7 +1,4 @@
-/**
- * Страница «Экспорт» — Alpine.js компонент.
- * Шаблон в export.html, в коде нет HTML.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './export.html?raw';
 

@@ -1,8 +1,5 @@
-/* ====================================================
-   Раскладка: Sidebar + Topbar + контейнер
-   ==================================================== */
 
-/* ===== Sidebar ===== */
+
 .side {
   position: fixed;
   top: 0; left: 0;
@@ -47,7 +44,6 @@
   text-transform: uppercase;
 }
 
-/* Навигация */
 .side-nav {
   flex: 1;
   display: flex;
@@ -100,7 +96,6 @@
   align-items: center;
 }
 
-/* ===== Раздел с подпунктами (Календарь) ===== */
 .side-group {
   display: flex;
   flex-direction: column;
@@ -141,7 +136,6 @@
   font-size: 0.84rem;
 }
 
-/* Низ сайдбара */
 .side-foot {
   margin-top: 1.5rem;
   padding: 0 0.5rem;
@@ -188,7 +182,6 @@
   border-color: var(--border-soft);
 }
 
-/* ===== Topbar ===== */
 .topbar {
   height: var(--header-height);
   display: flex;
@@ -271,8 +264,6 @@
   border: 2px solid var(--bg);
 }
 
-/* Обёртка над колокольчиком — чтобы выпадающая панель позиционировалась
-   относительно него и @click.outside работал на всю группу. */
 .topbar-bell-wrap { position: relative; display: inline-flex; }
 
 .notif-panel {
@@ -371,7 +362,6 @@
   letter-spacing: -0.025em;
 }
 
-/* ===== Мобильные элементы хедера + off-canvas (скрыты на десктопе) ===== */
 .side-wrap { display: contents; }
 .topbar-burger,
 .topbar-brand,
@@ -407,7 +397,6 @@
   z-index: 39;
 }
 
-/* ===== Контейнер контента ===== */
 .container {
   margin-left: var(--sidebar-width);
   min-height: 100vh;
@@ -416,7 +405,6 @@
   flex-direction: column;
 }
 
-/* Корневой layout (app-layout.html): slot-обёртки прозрачные. */
 .app-shell,
 .app-shell-sidebar,
 .app-shell-header { display: contents; }
@@ -443,7 +431,6 @@
   letter-spacing: -0.025em;
 }
 
-/* Старые компоненты (для совместимости со страницами не-дашборда) */
 .header { display: none; }
 .sidebar { display: none; }
 .header-title { display: none; }

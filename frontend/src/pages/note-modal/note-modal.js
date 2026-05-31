@@ -1,7 +1,4 @@
-/**
- * Модалка заметки (создание/редактирование).
- * Шаблон формы — note-modal.html. В JS — только DOM-операции.
- */
+
 import { api, notes, categories, assets, users } from '../../api/client.js';
 import { openModal, validateRequired, applyValidationErrors } from '../../components/Modal/Modal.js';
 import { toast } from '../../components/Toast/Toast.js';
@@ -35,17 +32,14 @@ function buildBody({ noteData, categoriesList, assetsList, usersList, currentUse
   root.querySelector('input[name="event_end"]').value   = initialEnd;
   root.querySelector('input[name="is_single"]').checked = isSingleEvent;
 
-  // Скрываем поле окончания при разовом событии
   const endGroup = root.querySelector('.nm-end-group');
   if (isSingleEvent && endGroup) endGroup.classList.add('is-hidden');
 
-  // Категория
   const catSel = root.querySelector('select[name="category_id"]');
   for (const c of categoriesList) {
     appendOption(catSel, c.id, c.name, noteData?.category_id === c.id, { color: c.color });
   }
 
-  // Актив
   const assetSel = root.querySelector('select[name="related_asset_id"]');
   appendOption(assetSel, '', '— Не выбрано —', !noteData?.related_asset_id);
   for (const a of assetsList) {
@@ -54,7 +48,6 @@ function buildBody({ noteData, categoriesList, assetsList, usersList, currentUse
                  noteData?.related_asset_id === aid);
   }
 
-  // Пользователь
   const userSel = root.querySelector('select[name="related_user_id"]');
   appendOption(userSel, '', '— Не выбрано —', !noteData?.related_user_id);
   if (currentUserId) {
@@ -67,7 +60,6 @@ function buildBody({ noteData, categoriesList, assetsList, usersList, currentUse
                  noteData?.related_user_id === uid);
   }
 
-  // Возвращаем DOM-узел (не строку): иначе .value/.selected теряются.
   return root;
 }
 

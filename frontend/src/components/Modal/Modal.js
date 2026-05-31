@@ -1,15 +1,4 @@
-/**
- * Универсальная модалка.
- * Шаблон обёртки — Modal.html (template-тег). JS клонирует и заполняет
- * через DOM API; никаких HTML-строк в коде, кроме вставки `body`,
- * который сам уже импортирован из .html в вызывающей модалке.
- *
- * Использование:
- *   openModal({ title, body, size, submitText, cancelText, onSubmit, onCancel, onOpen, showFooter })
- *   closeModal()
- *
- * onSubmit(data, ctl) получает контроллер ctl с form/bodyEl/setError/close/...
- */
+
 import { Icons } from '../icons.js';
 import shellHtml from './Modal.html?raw';
 
@@ -38,30 +27,20 @@ export function openModal({
 } = {}) {
   if (activeModal) closeModal();
 
-  // Клонируем шаблон
   const fragment = ensureShellTemplate().content.cloneNode(true);
   const overlay  = fragment.querySelector('.modal-overlay');
   const window_  = fragment.querySelector('.modal-window');
 
-  // Размер
   window_.classList.add(`modal-size-${size}`);
 
-  // Заголовок
   overlay.querySelector('.modal-title').textContent = title;
 
-  // Иконка крестика
   overlay.querySelector('.modal-close-btn').innerHTML = Icons.close(20);
 
-  // Body — принимаем строку ИЛИ DOM-узел.
-  // Узел обязателен, когда форма заполнена через .value / .selected / .checked:
-  // эти DOM-свойства НЕ сериализуются в innerHTML-строку (отражаются только
-  // атрибуты defaultValue/defaultSelected), из-за чего поля редактирования
-  // открывались пустыми. Узел вставляем как есть — состояние сохраняется.
   const bodyEl = overlay.querySelector('.modal-body');
   if (body instanceof Node) bodyEl.appendChild(body);
   else bodyEl.innerHTML = body;
 
-  // Footer
   const footEl = overlay.querySelector('.modal-foot');
   if (!showFooter) {
     footEl.remove();
@@ -74,10 +53,8 @@ export function openModal({
   document.body.appendChild(overlay);
   document.body.style.overflow = 'hidden';
 
-  // Анимация появления
   requestAnimationFrame(() => overlay.classList.add('is-open'));
 
-  // Контроллер
   const ctl = {
     overlay,
     form:          overlay.querySelector('.modal-form'),
@@ -145,7 +122,6 @@ export function openModal({
 
   activeModal = ctl;
 
-  // Закрытие
   overlay.querySelector('.modal-close-btn').addEventListener('click', () => {
     if (onCancel) onCancel();
     closeModal();
@@ -156,7 +132,6 @@ export function openModal({
     closeModal();
   });
 
-  // Клик по фону
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       if (onCancel) onCancel();
@@ -164,7 +139,6 @@ export function openModal({
     }
   });
 
-  // Escape
   const escHandler = (e) => {
     if (e.key === 'Escape') {
       if (onCancel) onCancel();
@@ -174,7 +148,6 @@ export function openModal({
   document.addEventListener('keydown', escHandler);
   ctl._escHandler = escHandler;
 
-  // Submit
   if (onSubmit) {
     ctl.form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -220,7 +193,6 @@ export function getActiveModal() {
   return activeModal;
 }
 
-// ===== Хелперы валидации =====
 export function validateRequired(data, fields) {
   const errors = {};
   for (const f of fields) {

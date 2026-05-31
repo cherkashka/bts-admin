@@ -1,11 +1,4 @@
-/**
- * Боковая навигация — Alpine.js компонент.
- * Шаблон в Sidebar.html. В коде HTML нет.
- *
- * Структура меню: верхний уровень — Главная, Активы, Сотрудники, Календарь,
- * Отчёты, Аудит-лог. «Календарь» — раскрывающийся раздел: внутри Задачи,
- * Заметки, Категории (по умолчанию раскрыт, сворачивается стрелкой).
- */
+
 import Alpine from 'alpinejs';
 import tpl from './Sidebar.html?raw';
 
@@ -16,11 +9,8 @@ Alpine.data('appSidebar', () => ({
   Icons,
   currentHash: window.location.hash || '#/dashboard',
 
-  // Меню строится один раз в init() — права за сессию не меняются.
-  // Геттер пересоздавал бы массив на каждый ре-рендер, ломая вложенный x-for.
   items: [],
 
-  // Раскрытые разделы. Подпункты «Календаря» открыты по умолчанию.
   expanded: { '/calendar': true },
 
   buildMenu() {
@@ -60,7 +50,7 @@ Alpine.data('appSidebar', () => ({
     this.items = this.buildMenu();
     this._onHashChange = () => {
       this.currentHash = window.location.hash;
-      Alpine.store('ui').closeSidebar(); // навигация закрывает мобильное меню
+      Alpine.store('ui').closeSidebar();
     };
     window.addEventListener('hashchange', this._onHashChange);
   },

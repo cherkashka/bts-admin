@@ -37,8 +37,7 @@ async function request(endpoint, options = {}, isRetry = false) {
 
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
-            // FastAPI на 422 возвращает detail как массив объектов { loc, msg, type }
-            // — приводим к читабельной строке. На обычных ошибках detail — строка.
+
             let message;
             if (Array.isArray(err.detail)) {
                 message = err.detail
@@ -54,7 +53,7 @@ async function request(endpoint, options = {}, isRetry = false) {
 
         if (response.status === 204) return null;
         const data = await response.json();
-        // Если запросили с включёнными метаданными — отдаём { items, total }
+
         if (options.includeMeta) {
             const total = Number(response.headers.get('x-total-count') ?? (Array.isArray(data) ? data.length : 0));
             return { items: data, total };
@@ -71,7 +70,7 @@ export const api = {
     put:       (url, body, opts) => request(url, { ...opts, method: 'PUT',    body: JSON.stringify(body) }),
     patch:     (url, body, opts) => request(url, { ...opts, method: 'PATCH',  body: JSON.stringify(body) }),
     delete:    (url, opts)       => request(url, { ...opts, method: 'DELETE' }),
-    /** Возвращает { items, total } и читает X-Total-Count заголовок. */
+
     getPaginated: (url)          => request(url, { method: 'GET', includeMeta: true }),
     authCheck: ()                => request('/auth/me', { method: 'GET' }),
 };
@@ -114,8 +113,6 @@ export const calendar = {
     getEvents: (start, end) => api.get(`/calendar/events?start=${start}&end=${end}`),
 };
 
-// Trailing slash required — without it FastAPI returns 307 redirect to absolute URL,
-// which loses cookies on cross-origin requests.
 export const notes = {
     getAll:          ()         => api.get('/notes/'),
     getById:         (id)       => api.get(`/notes/${id}`),

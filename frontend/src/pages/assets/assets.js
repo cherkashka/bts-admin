@@ -1,7 +1,4 @@
-/**
- * Страница «Активы» — Alpine.js компонент.
- * Шаблон в assets.html, в коде нет ни одной HTML-строки.
- */
+
 import Alpine from 'alpinejs';
 import tpl from './assets.html?raw';
 
@@ -60,7 +57,6 @@ Alpine.data('assetsPage', () => ({
   expanded: {},
   loading: false,
 
-  // Геттеры
   get pages() {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   },
@@ -89,7 +85,6 @@ Alpine.data('assetsPage', () => ({
   get canEdit()   { return state.can('assets', 'update'); },
   get canDelete() { return state.can('assets', 'delete'); },
 
-  // Lifecycle
   async init() {
     await this.load();
   },
@@ -112,7 +107,6 @@ Alpine.data('assetsPage', () => ({
     }
   },
 
-  // Сортировка
   setSort(field) {
     if (this.sortBy === field) {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
@@ -128,7 +122,6 @@ Alpine.data('assetsPage', () => ({
     return this.sortOrder === 'asc' ? '↑' : '↓';
   },
 
-  // Пагинация
   prevPage() {
     if (this.page <= 1) return;
     this.page -= 1;
@@ -140,17 +133,14 @@ Alpine.data('assetsPage', () => ({
     this.load();
   },
 
-  // Раскрытие деталей строки
   toggleDetails(id) {
     this.expanded[id] = !this.expanded[id];
   },
 
-  // Лейблы и стили
   assetTypeLabel(t) { return ASSET_TYPE_LABELS[t] || t || '—'; },
   statusLabel(s)    { return STATUS_LABELS[s] || s || '—'; },
   statusBadgeClass(s) { return STATUS_BADGE[s] || 'badge-secondary'; },
 
-  // CRUD
   openCreate() {
     openAssetModal({ mode: 'add', onSaved: () => this.load() });
   },

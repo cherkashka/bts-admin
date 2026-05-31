@@ -1,7 +1,4 @@
-<!--
-  Хедер приложения — Alpine.js компонент.
-  Логика в Header.js (Alpine.data('appHeader', ...)).
--->
+
 <header class="topbar" x-data="appHeader" x-init="init()">
   <button class="topbar-burger" type="button" aria-label="Меню" @click="$store.ui.toggleSidebar()">
     <span x-html="Icons.menu(22)"></span>
