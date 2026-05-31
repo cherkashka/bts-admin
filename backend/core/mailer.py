@@ -5,6 +5,8 @@ from email.mime.text import MIMEText
 from backend.core.config import settings
 from backend.core.logging import logger
 
+BRAND = "BTS Admin"
+
 async def send_email(to: str, subject: str, html_body: str, text_body: str = "") -> bool:
     try:
         msg = MIMEMultipart("alternative")
@@ -30,93 +32,114 @@ async def send_email(to: str, subject: str, html_body: str, text_body: str = "")
         logger.error(f"❌ Ошибка отправки email на {to}: {exc}")
         return False
 
-def build_invite_html(full_name: str, username: str, password: str, login_url: str) -> str:
+
+def _email_shell(*, title: str, heading: str, intro: str, full_name: str,
+                 username: str, password: str, login_url: str,
+                 button_label: str, password_label: str, note: str) -> str:
+    """Общий каркас письма — белая тема, тил-акцент BTS Admin.
+
+    Вёрстка на таблицах с инлайн-стилями для совместимости с почтовыми
+    клиентами (Gmail, Outlook, Apple Mail).
+    """
     return f"""<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Добро пожаловать в IT Admin System</title>
+  <title>{title}</title>
 </head>
-<body style="margin:0;padding:0;background:#e8ecef;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8ecef;padding:40px 0;">
+<body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:40px 16px;">
     <tr><td align="center">
-      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
 
-        <!-- Логотип / заголовок -->
+        <!-- Шапка с брендом -->
         <tr>
-          <td align="center" style="padding-bottom:24px;">
-            <!-- LOGO_PLACEHOLDER -->
-            <h1 style="margin:0;font-size:22px;font-weight:700;color:#4a5568;letter-spacing:-0.5px;">IT Admin System</h1>
+          <td align="center" style="padding-bottom:20px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="vertical-align:middle;padding-right:10px;">
+                  <div style="width:34px;height:34px;background:#008080;border-radius:9px;
+                              text-align:center;line-height:34px;color:#ffffff;
+                              font-size:17px;font-weight:700;">B</div>
+                </td>
+                <td style="vertical-align:middle;">
+                  <span style="font-size:19px;font-weight:700;color:#0f766e;letter-spacing:-0.3px;">{BRAND}</span>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
 
-        <!-- Карточка -->
+        <!-- Белая карточка -->
         <tr>
-          <td style="background:#e8ecef;border-radius:20px;
-                     box-shadow:8px 8px 16px #c8cdd2,-8px -8px 16px #ffffff;
-                     padding:36px 40px;">
+          <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;
+                     box-shadow:0 1px 3px rgba(16,24,40,0.06),0 1px 2px rgba(16,24,40,0.04);
+                     padding:40px 40px 36px;">
 
-            <h2 style="margin:0 0 8px;font-size:20px;color:#2d3748;">Добро пожаловать!</h2>
-            <p style="margin:0 0 28px;color:#718096;font-size:15px;">
-              Ваш аккаунт в <strong>IT Admin System</strong> создан. Используйте данные ниже для первого входа.
-            </p>
+            <!-- Тил-акцент сверху -->
+            <div style="width:44px;height:4px;background:#008080;border-radius:2px;margin-bottom:24px;"></div>
+
+            <h1 style="margin:0 0 10px;font-size:21px;line-height:1.3;color:#111827;font-weight:700;">{heading}</h1>
+            <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;">{intro}</p>
 
             <!-- Реквизиты -->
-            <table width="100%" cellpadding="0" cellspacing="0"
-                   style="background:#e8ecef;border-radius:14px;
-                          box-shadow:inset 4px 4px 8px #c8cdd2,inset -4px -4px 8px #ffffff;
-                          padding:20px 24px;margin-bottom:28px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background:#f9fafb;border:1px solid #eceef1;border-radius:12px;
+                          padding:8px 22px;margin-bottom:28px;">
               <tr>
-                <td style="padding:6px 0;">
-                  <span style="color:#718096;font-size:13px;display:block;margin-bottom:2px;">ФИО</span>
-                  <span style="color:#2d3748;font-size:15px;font-weight:600;">{full_name}</span>
+                <td style="padding:12px 0;">
+                  <span style="color:#9ca3af;font-size:12px;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px;">Сотрудник</span>
+                  <span style="color:#111827;font-size:15px;font-weight:600;">{full_name}</span>
                 </td>
               </tr>
               <tr>
-                <td style="padding:6px 0;border-top:1px solid #d0d5db;">
-                  <span style="color:#718096;font-size:13px;display:block;margin-bottom:2px;">Логин</span>
-                  <span style="color:#2d3748;font-size:15px;font-weight:600;font-family:monospace;">{username}</span>
+                <td style="padding:12px 0;border-top:1px solid #eceef1;">
+                  <span style="color:#9ca3af;font-size:12px;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px;">Логин</span>
+                  <span style="color:#111827;font-size:15px;font-weight:600;font-family:'SF Mono',Menlo,Consolas,monospace;">{username}</span>
                 </td>
               </tr>
               <tr>
-                <td style="padding:6px 0;border-top:1px solid #d0d5db;">
-                  <span style="color:#718096;font-size:13px;display:block;margin-bottom:2px;">Временный пароль</span>
-                  <span style="color:#2d3748;font-size:15px;font-weight:600;font-family:monospace;">{password}</span>
+                <td style="padding:12px 0;border-top:1px solid #eceef1;">
+                  <span style="color:#9ca3af;font-size:12px;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px;">{password_label}</span>
+                  <span style="color:#008080;font-size:17px;font-weight:700;font-family:'SF Mono',Menlo,Consolas,monospace;letter-spacing:0.5px;">{password}</span>
                 </td>
               </tr>
             </table>
 
-            <!-- CTA -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+            <!-- Кнопка -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
               <tr>
                 <td align="center">
                   <a href="{login_url}"
-                     style="display:inline-block;padding:14px 36px;
-                            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+                     style="display:inline-block;padding:14px 40px;background:#008080;
                             color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;
-                            border-radius:12px;letter-spacing:0.3px;">
-                    Войти в систему
+                            border-radius:10px;letter-spacing:0.2px;">
+                    {button_label}
                   </a>
                 </td>
               </tr>
             </table>
 
-            <!-- Инструкция -->
-            <p style="margin:0;padding:16px 20px;background:#fffbeb;border-radius:10px;
-                      border-left:4px solid #f59e0b;color:#78350f;font-size:13px;line-height:1.6;">
-              ⚠️ При первом входе вас попросят <strong>сменить пароль</strong>. Временный пароль
-              действителен только для одного входа. Сохраните новый пароль в надёжном месте.
-            </p>
+            <!-- Примечание -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;">
+              <tr>
+                <td style="padding:14px 18px;color:#92400e;font-size:13px;line-height:1.6;">
+                  {note}
+                </td>
+              </tr>
+            </table>
 
           </td>
         </tr>
 
         <!-- Подвал -->
         <tr>
-          <td align="center" style="padding-top:24px;">
-            <p style="margin:0;color:#a0aec0;font-size:12px;">
-              Это письмо сформировано автоматически. Если вы его не ожидали — проигнорируйте.
+          <td align="center" style="padding-top:22px;">
+            <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
+              Письмо сформировано автоматически системой {BRAND}.<br>
+              Если вы его не ожидали — просто проигнорируйте.
             </p>
           </td>
         </tr>
@@ -127,12 +150,53 @@ def build_invite_html(full_name: str, username: str, password: str, login_url: s
 </body>
 </html>"""
 
+
+def build_invite_html(full_name: str, username: str, password: str, login_url: str) -> str:
+    return _email_shell(
+        title=f"Добро пожаловать в {BRAND}",
+        heading="Добро пожаловать!",
+        intro=f"Для вас создан аккаунт в системе <strong>{BRAND}</strong>. "
+              f"Используйте данные ниже для первого входа.",
+        full_name=full_name, username=username, password=password, login_url=login_url,
+        button_label="Войти в систему",
+        password_label="Временный пароль",
+        note="<strong>При первом входе потребуется сменить пароль.</strong> "
+             "Временный пароль действует только до первой смены — задайте свой и "
+             "сохраните его в надёжном месте.",
+    )
+
+
 def build_invite_text(full_name: str, username: str, password: str, login_url: str) -> str:
     return (
         f"Добро пожаловать, {full_name}!\n\n"
-        f"Ваш аккаунт в IT Admin System создан.\n\n"
+        f"Для вас создан аккаунт в системе {BRAND}.\n\n"
         f"Логин: {username}\n"
         f"Временный пароль: {password}\n\n"
         f"Войти: {login_url}\n\n"
         "При первом входе потребуется сменить пароль.\n"
+    )
+
+
+def build_reset_html(full_name: str, username: str, password: str, login_url: str) -> str:
+    return _email_shell(
+        title=f"Сброс пароля — {BRAND}",
+        heading="Пароль сброшен",
+        intro=f"Администратор сбросил пароль для вашего аккаунта в <strong>{BRAND}</strong>. "
+              f"Войдите с новым временным паролем ниже.",
+        full_name=full_name, username=username, password=password, login_url=login_url,
+        button_label="Войти в систему",
+        password_label="Новый временный пароль",
+        note="<strong>При входе потребуется задать новый пароль.</strong> "
+             "Если вы не запрашивали сброс — сообщите администратору.",
+    )
+
+
+def build_reset_text(full_name: str, username: str, password: str, login_url: str) -> str:
+    return (
+        f"Здравствуйте, {full_name}!\n\n"
+        f"Администратор сбросил пароль для вашего аккаунта в {BRAND}.\n\n"
+        f"Логин: {username}\n"
+        f"Новый временный пароль: {password}\n\n"
+        f"Войти: {login_url}\n\n"
+        "При входе потребуется задать новый пароль.\n"
     )

@@ -11,7 +11,10 @@ from backend.core.security import get_current_user, get_password_hash
 from backend.core.permissions import require_admin
 from backend.core.audit import log_action, snapshot, diff_changes
 from backend.core.transliterate import unique_username
-from backend.core.mailer import send_email, build_invite_html, build_invite_text
+from backend.core.mailer import (
+    send_email, build_invite_html, build_invite_text,
+    build_reset_html, build_reset_text,
+)
 from backend.core.config import settings
 from backend.models.user import UserInviteCreate, UserUpdate, UserSelfUpdate, UserResponse
 
@@ -113,7 +116,7 @@ async def create_user(
     text = build_invite_text(user_in.full_name, username, password, login_url)
     email_sent = await send_email(
         to=user_in.email,
-        subject=f"Ваши данные для входа в IT Admin System",
+        subject="Ваши данные для входа — BTS Admin",
         html_body=html,
         text_body=text,
     )
@@ -208,11 +211,11 @@ async def reset_user_password(
     )
 
     login_url = f"{settings.FRONTEND_URL}/#/login"
-    html = build_invite_html(user["full_name"], user["username"], new_password, login_url)
-    text = build_invite_text(user["full_name"], user["username"], new_password, login_url)
+    html = build_reset_html(user["full_name"], user["username"], new_password, login_url)
+    text = build_reset_text(user["full_name"], user["username"], new_password, login_url)
     email_sent = await send_email(
         to=user["email"],
-        subject="Сброс пароля — IT Admin System",
+        subject="Сброс пароля — BTS Admin",
         html_body=html,
         text_body=text,
     )
