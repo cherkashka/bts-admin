@@ -16,6 +16,9 @@ frontend/dist/
 # MongoDB дамп
 mongo_backup/
 
+# Claude Code
+.claude/
+
 # Системное
 .DS_Store
 *.log
