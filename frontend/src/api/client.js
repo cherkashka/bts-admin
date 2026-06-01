@@ -8,10 +8,16 @@ async function request(endpoint, options = {}, isRetry = false) {
         ...options,
     };
 
+    // Запросы самой авторизации (вход, обновление токена) НЕ должны
+    // запускать авто-рефреш и редирект на /login — их 401 означает
+    // «неверные данные», и ошибку нужно показать на форме как есть.
+    const isAuthCall = endpoint.startsWith('/auth/login')
+                    || endpoint.startsWith('/auth/refresh');
+
     try {
         const response = await fetch(url, config);
 
-        if (response.status === 401 && !isRetry) {
+        if (response.status === 401 && !isRetry && !isAuthCall) {
             try {
                 const refreshResponse = await fetch(`${API_BASE}/auth/refresh`, {
                     method: 'POST',
@@ -29,7 +35,7 @@ async function request(endpoint, options = {}, isRetry = false) {
             }
         }
 
-        if (response.status === 401) {
+        if (response.status === 401 && !isAuthCall) {
             localStorage.removeItem('isLoggedIn');
             if (window.location.hash !== '#/login') window.location.hash = '/login';
             throw new Error('Unauthorized');
