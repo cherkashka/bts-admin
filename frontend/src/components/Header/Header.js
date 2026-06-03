@@ -5,8 +5,10 @@ import tpl from './Header.html?raw';
 import { Icons } from '../icons.js';
 import { state } from '../../state.js';
 import { api } from '../../api/client.js';
+import { toast } from '../Toast/Toast.js';
 
 const DISMISSED_KEY = 'notif:dismissed';
+const LAST_POPPED_KEY = 'notif:lastPopped';
 
 function loadDismissed() {
   try { return new Set(JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]')); }
@@ -79,22 +81,36 @@ Alpine.data('appHeader', () => ({
     this._onHashChange = () => { this.pageLabel = currentPageLabel(); };
     window.addEventListener('hashchange', this._onHashChange);
 
-    this.loadNotifications();
+    // popNew=true — при загрузке показываем всплывающий тост для самого
+    // свежего непрочитанного уведомления (один раз на каждое новое).
+    this.loadNotifications({ popNew: true });
   },
 
-  async loadNotifications() {
-
+  async loadNotifications({ popNew = false } = {}) {
     if (state.user.role !== 'admin') { this.notifications = []; return; }
     this.notifLoading = true;
     try {
       const data = await api.get('/audit?limit=10');
       const items = Array.isArray(data) ? data : (data.items || []);
       this.notifications = buildNotifications(items);
+      if (popNew) this.popLatest();
     } catch {
       this.notifications = [];
     } finally {
       this.notifLoading = false;
     }
+  },
+
+  popLatest() {
+    // самое свежее непрочитанное уведомление (аудит отсортирован desc)
+    const fresh = this.visibleNotifications;
+    if (fresh.length === 0) return;
+    const newest = fresh[0];
+    let lastPopped = null;
+    try { lastPopped = localStorage.getItem(LAST_POPPED_KEY); } catch {}
+    if (newest.id === lastPopped) return;   // уже показывали — не дублируем
+    toast.info(newest.sub ? `${newest.title} — ${newest.sub}` : newest.title);
+    try { localStorage.setItem(LAST_POPPED_KEY, newest.id); } catch {}
   },
 
   toggleNotifications() {
