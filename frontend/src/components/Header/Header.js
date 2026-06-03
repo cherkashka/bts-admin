@@ -84,6 +84,12 @@ Alpine.data('appHeader', () => ({
     // popNew=true — при загрузке показываем всплывающий тост для самого
     // свежего непрочитанного уведомления (один раз на каждое новое).
     this.loadNotifications({ popNew: true });
+
+    // Периодическая проверка: новые уведомления всплывают на ЛЮБОЙ странице
+    // (включая активы), а не только при загрузке. Дедуп по notif:lastPopped.
+    this._notifTimer = setInterval(() => {
+      this.loadNotifications({ popNew: true });
+    }, 15000);
   },
 
   async loadNotifications({ popNew = false } = {}) {
@@ -130,6 +136,7 @@ Alpine.data('appHeader', () => ({
   },
   destroy() {
     window.removeEventListener('hashchange', this._onHashChange);
+    clearInterval(this._notifTimer);
   },
 
   async toggleTheme() {
