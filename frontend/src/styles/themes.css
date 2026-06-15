@@ -70,13 +70,17 @@
 [data-theme="dark"] input,
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text-main);
   border-color: var(--gray-200);
 }
 [data-theme="dark"] .form-input::placeholder,
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder { color: var(--text-light); }
+
+[data-theme="dark"] select.form-input {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%23a0aec0' d='M6 8L0 0h12z'/%3e%3c/svg%3e");
+}
 
 [data-theme="dark"] .badge { filter: brightness(1.1); }
 
