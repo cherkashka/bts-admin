@@ -1,3 +1,4 @@
+import re
 import secrets
 import string
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -51,6 +52,8 @@ _ALLOWED_SORT_FIELDS = {"username", "full_name", "email", "role", "is_active", "
 async def get_users(
     response: Response,
     active_only: Optional[bool] = None,
+    search: Optional[str] = None,
+    role: Optional[str] = None,
     skip: int = 0,
     limit: int = 0,
     sort_by: str = "full_name",
@@ -61,6 +64,11 @@ async def get_users(
     query = {}
     if active_only is True:  query["is_active"] = True
     if active_only is False: query["is_active"] = False
+    if role in ("admin", "user"):
+        query["role"] = role
+    if search and search.strip():
+        rx = {"$regex": re.escape(search.strip()), "$options": "i"}
+        query["$or"] = [{"username": rx}, {"full_name": rx}, {"email": rx}]
 
     total = await db.users.count_documents(query)
     response.headers["X-Total-Count"] = str(total)
@@ -127,11 +135,37 @@ async def create_user(
         "email_sent":  email_sent,
     }
 
+@router.get("/stats")
+async def get_user_stats(
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(require_admin)
+):
+    return {
+        "total":  await db.users.count_documents({}),
+        "active": await db.users.count_documents({"is_active": True}),
+        "admins": await db.users.count_documents({"role": "admin"}),
+    }
+
+@router.get("/options")
+async def get_user_options(
+    db: AsyncIOMotorDatabase = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    cursor = db.users.find(
+        {"is_active": True},
+        {"full_name": 1, "username": 1},
+    ).sort("full_name", 1)
+    users = await cursor.to_list(length=None)
+    return [
+        {"id": str(u["_id"]), "full_name": u.get("full_name", ""), "username": u.get("username", "")}
+        for u in users
+    ]
+
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_admin)
 ):
     if not ObjectId.is_valid(user_id):
         raise HTTPException(400, "Неверный формат ID")
@@ -154,9 +188,8 @@ async def update_user(
         raise HTTPException(404, "Пользователь не найден")
 
     update_data = user_in.model_dump(exclude_unset=True)
-
-    if "permissions" in update_data and update_data["permissions"] is not None:
-        update_data["permissions"] = update_data["permissions"]
+    if not update_data:
+        raise HTTPException(400, "Нет данных для обновления")
 
     if "email" in update_data and update_data["email"]:
         if await db.users.find_one({"email": update_data["email"], "_id": {"$ne": ObjectId(user_id)}}):

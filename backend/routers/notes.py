@@ -1,8 +1,9 @@
 
+import re
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from bson import ObjectId
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from backend.core.database import get_db
 from backend.core.security import get_current_user
@@ -55,7 +56,7 @@ async def validate_category_exists(category_id: str, db) -> None:
 async def create_note(
     note: NoteCreate,
     db=Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("notes", "create"))
 ):
 
     await validate_asset_exists(note.related_asset_id, db)
@@ -103,6 +104,8 @@ _ALLOWED_SORT_FIELDS = {"title", "event_start", "event_end", "created_at", "upda
 @router.get("/", response_model=List[NoteResponse])
 async def get_notes(
     response: Response,
+    search: Optional[str] = None,
+    category: Optional[str] = None,
     skip: int = 0,
     limit: int = 0,
     sort_by: str = "created_at",
@@ -111,6 +114,16 @@ async def get_notes(
     current_user: UserResponse = Depends(require_permission("notes", "read"))
 ):
     query = {} if is_admin(current_user) else {"created_by": ObjectId(current_user["id"])}
+
+    if category == "__none__":
+        query["category_id"] = None
+    elif category and ObjectId.is_valid(category):
+        query["category_id"] = ObjectId(category)
+
+    if search and search.strip():
+        rx = {"$regex": re.escape(search.strip()), "$options": "i"}
+        query["$or"] = [{"title": rx}, {"content": rx}]
+
     total = await db.notes.count_documents(query)
     response.headers["X-Total-Count"] = str(total)
 
@@ -138,6 +151,18 @@ async def get_notes(
         result.append(note_data)
 
     return result
+
+@router.get("/stats")
+async def get_note_stats(
+    db=Depends(get_db),
+    current_user: UserResponse = Depends(require_permission("notes", "read"))
+):
+    base = {} if is_admin(current_user) else {"created_by": ObjectId(current_user["id"])}
+    return {
+        "total":      await db.notes.count_documents(base),
+        "with_asset": await db.notes.count_documents({**base, "related_asset_id": {"$ne": None}}),
+        "with_user":  await db.notes.count_documents({**base, "related_user_id": {"$ne": None}}),
+    }
 
 @router.get("/{note_id}", response_model=NoteResponse)
 async def get_note(
@@ -176,7 +201,7 @@ async def update_note(
     note_id: str,
     note_update: NoteUpdate,
     db=Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("notes", "update"))
 ):
     obj_id = validate_object_id(note_id, "note_id")
 
@@ -203,6 +228,14 @@ async def update_note(
 
     if "created_by" in update_data:
         del update_data["created_by"]
+
+    new_start = update_data.get("event_start", existing.get("event_start"))
+    new_end = update_data.get("event_end", existing.get("event_end"))
+    if new_start and new_end and new_end < new_start:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Окончание события не может быть раньше начала"
+        )
 
     if update_data.get("related_asset_id"):
         update_data["related_asset_id"] = ObjectId(update_data["related_asset_id"])
@@ -248,7 +281,7 @@ async def update_note(
 async def delete_note(
     note_id: str,
     db=Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("notes", "delete"))
 ):
     obj_id = validate_object_id(note_id, "note_id")
 

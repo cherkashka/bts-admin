@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status, Cookie
 from typing import Optional
-from jose import jwt, JWTError
+import jwt
 from bson import ObjectId
 from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -17,7 +17,8 @@ router = APIRouter(prefix="/api/v1/auth", tags=["Auth"], redirect_slashes=False)
 
 def _set_tokens(response: Response, access: str, refresh: str):
     response.set_cookie("access_token", access, httponly=True,
-                        secure=settings.COOKIE_SECURE, samesite="lax", max_age=1800, path="/")
+                        secure=settings.COOKIE_SECURE, samesite="lax",
+                        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, path="/")
     response.set_cookie("refresh_token", refresh, httponly=True,
                         secure=settings.COOKIE_SECURE, samesite="lax",
                         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400, path="/")
@@ -64,7 +65,7 @@ async def refresh_token(
         token_data = {"sub": str(user["_id"]), "username": user["username"], "role": user.get("role", "user")}
         _set_tokens(response, create_access_token(token_data), create_refresh_token(token_data))
         return {"status": "success"}
-    except JWTError:
+    except jwt.InvalidTokenError:
         raise HTTPException(401, "Невалидный или истёкший refresh-токен")
 
 @router.post("/logout")
@@ -115,6 +116,16 @@ async def update_me(
     update: dict = {}
 
     if data.password is not None:
+        user = await db.users.find_one({"_id": ObjectId(current_user["id"])})
+        if not user:
+            raise HTTPException(404, "Пользователь не найден")
+
+        if not user.get("password_change_required", False):
+            if not data.current_password:
+                raise HTTPException(400, "Укажите текущий пароль")
+            if not verify_password(data.current_password, user["hashed_password"]):
+                raise HTTPException(400, "Текущий пароль неверен")
+
         update["hashed_password"]          = get_password_hash(data.password)
         update["password_change_required"] = False
         update["is_activated"]             = True

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import JWTError, jwt
+import jwt
 import bcrypt
 from fastapi import Depends, HTTPException, status, Cookie
 from bson import ObjectId
@@ -48,6 +48,6 @@ async def get_current_user(
         user = await db.users.find_one({"_id": ObjectId(user_id), "is_active": True})
         if not user:
             raise HTTPException(status_code=401, detail="Пользователь не найден")
-        return {"id": str(user["_id"]), "username": username, "role": payload.get("role", "user")}
-    except JWTError:
+        return {"id": str(user["_id"]), "username": username, "role": user.get("role", "user")}
+    except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Невалидный или истёкший токен")

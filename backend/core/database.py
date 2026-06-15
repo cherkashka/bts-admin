@@ -2,7 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from backend.core.config import settings
 from backend.core.logging import logger
 
-client = AsyncIOMotorClient(settings.MONGO_URI)
+client = AsyncIOMotorClient(settings.MONGO_URI, tz_aware=True)
 db = client[settings.DB_NAME]
 
 async def init_indexes():
@@ -65,6 +65,10 @@ async def init_indexes():
         await db.categories.create_index("owner_id")
         await db.categories.create_index("name")
         await db.categories.create_index("is_default")
+
+        await db.audit_log.create_index(
+            "timestamp", expireAfterSeconds=365 * 24 * 3600
+        )
 
         logger.info("✅ Database indexes created/verified")
     except Exception as e:

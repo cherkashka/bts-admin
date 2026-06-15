@@ -1,5 +1,5 @@
 
-<div x-data="notesPage" x-init="init()">
+<div x-data="notesPage">
 
   <template x-if="loading">
     <div>
@@ -21,7 +21,7 @@
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-card-label">Всего</div>
-      <div class="stat-card-value" x-text="total"></div>
+      <div class="stat-card-value" x-text="totalAll"></div>
     </div>
     <div class="stat-card stat-card-success">
       <div class="stat-card-label">С привязкой к активу</div>

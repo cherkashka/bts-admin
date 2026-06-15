@@ -10,12 +10,14 @@ import { toast } from '../Toast/Toast.js';
 const DISMISSED_KEY = 'notif:dismissed';
 const LAST_POPPED_KEY = 'notif:lastPopped';
 
+let _notifTimer = null;
+
 function loadDismissed() {
   try { return new Set(JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]')); }
   catch { return new Set(); }
 }
 function saveDismissed(set) {
-  try { localStorage.setItem(DISMISSED_KEY, JSON.stringify([...set])); } catch {}
+  try { localStorage.setItem(DISMISSED_KEY, JSON.stringify([...set].slice(-200))); } catch {}
 }
 
 const ACTION_LABEL = { create: 'создал', update: 'изменил', delete: 'удалил' };
@@ -87,7 +89,8 @@ Alpine.data('appHeader', () => ({
 
     // Периодическая проверка: новые уведомления всплывают на ЛЮБОЙ странице
     // (включая активы), а не только при загрузке. Дедуп по notif:lastPopped.
-    this._notifTimer = setInterval(() => {
+    clearInterval(_notifTimer);
+    _notifTimer = setInterval(() => {
       this.loadNotifications({ popNew: true });
     }, 15000);
   },
@@ -136,7 +139,8 @@ Alpine.data('appHeader', () => ({
   },
   destroy() {
     window.removeEventListener('hashchange', this._onHashChange);
-    clearInterval(this._notifTimer);
+    clearInterval(_notifTimer);
+    _notifTimer = null;
   },
 
   async toggleTheme() {
@@ -151,6 +155,7 @@ Alpine.data('appHeader', () => ({
   },
 
   async logout() {
+    if (!confirm('Выйти из аккаунта?')) return;
     try { await api.post('/auth/logout', {}); } catch {}
     state.clear();
     localStorage.removeItem('isLoggedIn');

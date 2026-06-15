@@ -1,5 +1,5 @@
 
-<div x-data="categoriesPage" x-init="init()">
+<div x-data="categoriesPage">
 
   <template x-if="loading">
     <div class="form-wrapper">
@@ -16,6 +16,7 @@
         применяется к меткам в календарной сетке.
       </p>
       <button class="btn btn-primary table-add-btn"
+              x-show="canCreate"
               @click="openCreate()">+&nbsp;Добавить категорию</button>
     </div>
 
@@ -28,11 +29,11 @@
           </div>
           <div class="category-item-actions">
             <button class="btn btn-sm btn-secondary"
-                    x-show="!cat.is_default"
+                    x-show="!cat.is_default && canEdit"
                     @click="openEdit(cat)"
                     title="Изменить">✎</button>
             <button class="btn btn-sm btn-secondary"
-                    x-show="!cat.is_default"
+                    x-show="!cat.is_default && canDelete"
                     @click="remove(cat)"
                     title="Удалить">✕</button>
           </div>

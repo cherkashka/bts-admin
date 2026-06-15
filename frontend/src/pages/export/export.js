@@ -48,17 +48,12 @@ Alpine.data('exportPage', () => ({
     this.busy = true;
 
     try {
-      const resp = await fetch('/api/v1/export', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          format: this.format,
-          types,
-          date_from: this.dateFrom || null,
-          date_to:   this.dateTo   || null,
-        }),
-      });
+      const resp = await api.post('/export', {
+        format: this.format,
+        types,
+        date_from: this.dateFrom || null,
+        date_to:   this.dateTo   || null,
+      }, { raw: true });
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));

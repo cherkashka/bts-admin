@@ -4,11 +4,16 @@ import tpl from './categories.html?raw';
 
 import { categories as categoriesApi } from '../../api/client.js';
 import { toast } from '../../components/Toast/Toast.js';
+import { state } from '../../state.js';
 import { openCategoryModal } from '../category-modal/category-modal.js';
 
 Alpine.data('categoriesPage', () => ({
   categories: [],
   loading: false,
+
+  get canCreate() { return state.can('categories', 'create'); },
+  get canEdit()   { return state.can('categories', 'update'); },
+  get canDelete() { return state.can('categories', 'delete'); },
 
   async init() {
     await this.load();
@@ -42,7 +47,7 @@ Alpine.data('categoriesPage', () => ({
   },
   async remove(cat) {
     const ok = confirm(
-      `Удалить категорию «${cat.name}»?\n\nЗаписи, привязанные к этой категории, останутся без категории.`
+      `Удалить категорию «${cat.name}»?\n\nКатегорию с привязанными записями удалить нельзя — сначала уберите её у записей.`
     );
     if (!ok) return;
     try {

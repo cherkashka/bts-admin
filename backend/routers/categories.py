@@ -23,7 +23,7 @@ def convert_doc(doc):
 async def create_category(
     category: CategoryCreate,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("categories", "create"))
 ):
 
     existing = await db.categories.find_one({
@@ -40,6 +40,7 @@ async def create_category(
     category_data = category.model_dump()
     category_data.update({
         "owner_id": current_user["id"],
+        "is_default": False,
         "created_at": now,
         "updated_at": now
     })
@@ -113,7 +114,7 @@ async def update_category(
     category_id: str,
     category_update: CategoryUpdate,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("categories", "update"))
 ):
     from bson import ObjectId
 
@@ -148,7 +149,7 @@ async def update_category(
     if category_update.name and category_update.name != category["name"]:
         existing = await db.categories.find_one({
             "name": category_update.name,
-            "owner_id": current_user["id"],
+            "owner_id": category.get("owner_id"),
             "_id": {"$ne": obj_id}
         })
         if existing:
@@ -158,6 +159,7 @@ async def update_category(
             )
 
     update_data = category_update.model_dump(exclude_unset=True)
+    update_data.pop("is_default", None)
     update_data["updated_at"] = datetime.utcnow()
 
     await db.categories.update_one({"_id": obj_id}, {"$set": update_data})
@@ -177,7 +179,7 @@ async def update_category(
 async def delete_category(
     category_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(require_permission("categories", "delete"))
 ):
     from bson import ObjectId
 

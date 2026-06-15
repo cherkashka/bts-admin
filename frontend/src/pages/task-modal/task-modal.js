@@ -89,7 +89,7 @@ export async function openTaskModal({ mode = 'add', id = null, onSaved = null } 
     const promises = [];
     if (id) promises.push(api.get(`/tasks/${id}`).then(r => task = r).catch(() => task = {}));
     if (mode !== 'status') {
-      promises.push(api.get('/users?active_only=true').then(r => users = r || []).catch(() => users = []));
+      promises.push(api.get('/users/options').then(r => users = r || []).catch(() => users = []));
       promises.push(api.get('/assets').then(r => assetsList = r || []).catch(() => assetsList = []));
     }
     await Promise.all(promises);
@@ -116,6 +116,10 @@ export async function openTaskModal({ mode = 'add', id = null, onSaved = null } 
     body,
     size:       'md',
     submitText: submitTexts[mode] || 'Сохранить',
+    onCancel: () => {
+      if (onSaved) return;
+      if (window.location.hash !== '#/tasks') window.location.hash = '/tasks';
+    },
     onSubmit: async (data, ctl) => {
       try {
         if (mode === 'status') {
@@ -151,6 +155,7 @@ export async function openTaskModal({ mode = 'add', id = null, onSaved = null } 
 
         ctl.close();
         if (onSaved) onSaved();
+        else if (window.location.hash !== '#/tasks') window.location.hash = '/tasks';
       } catch (err) {
         ctl.setError(err.message || 'Ошибка сохранения');
       }

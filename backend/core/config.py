@@ -1,6 +1,14 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
 
+def _pick_env_file() -> str:
+    env = os.getenv("ENVIRONMENT")
+    if env == "production":
+        return ".env.prod"
+    if env:
+        return ".env.local"
+    return ".env.local" if os.path.exists(".env.local") else ".env.prod"
+
 class Settings(BaseSettings):
     PROJECT_NAME: str = "IT Admin System"
     VERSION: str = "0.1.0"
@@ -28,7 +36,7 @@ class Settings(BaseSettings):
         return self.ENVIRONMENT == "production"
 
     model_config = SettingsConfigDict(
-        env_file=".env.local" if os.getenv("ENVIRONMENT") != "production" else ".env.prod",
+        env_file=_pick_env_file(),
         case_sensitive=True
     )
 

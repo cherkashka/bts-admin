@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Literal, Optional
 from datetime import datetime
 
@@ -52,20 +52,17 @@ class UserSelfUpdate(BaseModel):
     phone:            Optional[str] = None
     password:         Optional[str] = Field(None, min_length=8)
     password_confirm: Optional[str] = None
+    current_password: Optional[str] = None
     theme:            Optional[Literal["light", "dark"]] = None
 
-    @field_validator("password_confirm")
-    @classmethod
-    def passwords_match(cls, v, info):
-        password = info.data.get("password")
-        if password is None:
-
-            return v
-        if v is None:
-            raise ValueError("Требуется подтверждение пароля")
-        if v != password:
-            raise ValueError("Пароли не совпадают")
-        return v
+    @model_validator(mode="after")
+    def passwords_match(self):
+        if self.password is not None:
+            if self.password_confirm is None:
+                raise ValueError("Требуется подтверждение пароля")
+            if self.password_confirm != self.password:
+                raise ValueError("Пароли не совпадают")
+        return self
 
 class UserResponse(BaseModel):
     id:                       str

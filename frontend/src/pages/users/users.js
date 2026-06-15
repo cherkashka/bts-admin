@@ -34,6 +34,7 @@ function initial(name) {
 Alpine.data('usersPage', () => ({
   users: [],
   total: 0,
+  stats: { total: 0, active: 0, admins: 0 },
 
   page: 1,
   pageSize: PAGE_SIZE,
@@ -51,26 +52,25 @@ Alpine.data('usersPage', () => ({
   get pages() {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   },
-  get visibleUsers() {
-    const q = this.search.trim().toLowerCase();
-    const r = this.roleFilter;
-    const st = this.statusFilter;
-    return this.users.filter(u => {
-      if (r && u.role !== r) return false;
-      if (st === 'active' && !u.is_active) return false;
-      if (st === 'inactive' && u.is_active) return false;
-      if (q) {
-        const blob = [u.username, u.full_name, u.email].filter(Boolean).join(' ').toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
-      return true;
-    });
-  },
-  get activeCount() { return this.users.filter(u => u.is_active).length; },
-  get adminCount()  { return this.users.filter(u => u.role === 'admin').length; },
+  get visibleUsers() { return this.users; },
+  get totalAll()    { return this.stats.total; },
+  get activeCount() { return this.stats.active; },
+  get adminCount()  { return this.stats.admins; },
 
   async init() {
+    for (const f of ['roleFilter', 'statusFilter']) {
+      this.$watch(f, () => this.applyFilters());
+    }
+    this.$watch('search', () => {
+      clearTimeout(this._searchTimer);
+      this._searchTimer = setTimeout(() => this.applyFilters(), 350);
+    });
     await this.load();
+  },
+
+  applyFilters() {
+    this.page = 1;
+    this.load();
   },
 
   async load() {
@@ -78,11 +78,20 @@ Alpine.data('usersPage', () => ({
     const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
-      const url = `/users?skip=${skip}&limit=${this.pageSize}`
+      let url = `/users?skip=${skip}&limit=${this.pageSize}`
         + `&sort_by=${this.sortBy}&sort_order=${this.sortOrder}`;
-      const { items, total } = await api.getPaginated(url);
+      if (this.search.trim()) url += `&search=${encodeURIComponent(this.search.trim())}`;
+      if (this.roleFilter)    url += `&role=${this.roleFilter}`;
+      if (this.statusFilter === 'active')   url += '&active_only=true';
+      if (this.statusFilter === 'inactive') url += '&active_only=false';
+
+      const [{ items, total }, stats] = await Promise.all([
+        api.getPaginated(url),
+        api.get('/users/stats').catch(() => this.stats),
+      ]);
       this.users = items;
       this.total = total;
+      this.stats = stats;
     } catch (e) {
       console.error('Ошибка загрузки пользователей:', e);
       this.users = [];

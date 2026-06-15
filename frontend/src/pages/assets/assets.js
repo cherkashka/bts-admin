@@ -43,6 +43,7 @@ function fmtDate(value) {
 Alpine.data('assetsPage', () => ({
   assets: [],
   total: 0,
+  stats: { total: 0, in_use: 0, repair: 0, retired: 0 },
 
   page: 1,
   pageSize: PAGE_SIZE,
@@ -63,30 +64,29 @@ Alpine.data('assetsPage', () => ({
   get assetTypeList() {
     return Object.entries(ASSET_TYPE_LABELS).map(([value, label]) => ({ value, label }));
   },
-  get visibleAssets() {
-    const q = this.search.trim().toLowerCase();
-    const st = this.statusFilter;
-    const tp = this.typeFilter;
-    return this.assets.filter(a => {
-      if (st && a.status !== st) return false;
-      if (tp && a.asset_type !== tp) return false;
-      if (q) {
-        const blob = [a.name, a.inventory_number, a.serial_number, a.asset_type, a.mol_name]
-          .filter(Boolean).join(' ').toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
-      return true;
-    });
-  },
-  get inUseCount()   { return this.assets.filter(a => a.status === 'in_use').length; },
-  get repairCount()  { return this.assets.filter(a => a.status === 'repair').length; },
-  get retiredCount() { return this.assets.filter(a => a.status === 'retired').length; },
+  get visibleAssets() { return this.assets; },
+  get totalAll()     { return this.stats.total; },
+  get inUseCount()   { return this.stats.in_use; },
+  get repairCount()  { return this.stats.repair; },
+  get retiredCount() { return this.stats.retired; },
   get canCreate() { return state.can('assets', 'create'); },
   get canEdit()   { return state.can('assets', 'update'); },
   get canDelete() { return state.can('assets', 'delete'); },
 
   async init() {
+    for (const f of ['statusFilter', 'typeFilter']) {
+      this.$watch(f, () => this.applyFilters());
+    }
+    this.$watch('search', () => {
+      clearTimeout(this._searchTimer);
+      this._searchTimer = setTimeout(() => this.applyFilters(), 350);
+    });
     await this.load();
+  },
+
+  applyFilters() {
+    this.page = 1;
+    this.load();
   },
 
   async load() {
@@ -94,11 +94,19 @@ Alpine.data('assetsPage', () => ({
     const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
-      const url = `/assets?skip=${skip}&limit=${this.pageSize}`
+      let url = `/assets?skip=${skip}&limit=${this.pageSize}`
         + `&sort_by=${this.sortBy}&sort_order=${this.sortOrder}`;
-      const { items, total } = await api.getPaginated(url);
+      if (this.search.trim()) url += `&search=${encodeURIComponent(this.search.trim())}`;
+      if (this.statusFilter)  url += `&status=${this.statusFilter}`;
+      if (this.typeFilter)    url += `&asset_type=${this.typeFilter}`;
+
+      const [{ items, total }, stats] = await Promise.all([
+        api.getPaginated(url),
+        api.get('/assets/stats').catch(() => this.stats),
+      ]);
       this.assets = items;
       this.total = total;
+      this.stats = stats;
     } catch (e) {
       console.error('Ошибка загрузки активов:', e);
       this.assets = [];

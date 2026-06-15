@@ -4,6 +4,14 @@ import { openModal, validateRequired, applyValidationErrors } from '../../compon
 import { toast } from '../../components/Toast/Toast.js';
 import formTpl from './note-modal.html?raw';
 
+function isoToInputDateTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function appendOption(sel, value, label, selected = false, attrs = {}) {
   const opt = document.createElement('option');
   opt.value = value;
@@ -19,9 +27,9 @@ function buildBody({ noteData, categoriesList, assetsList, usersList, currentUse
   const isEdit = !!noteData;
   const isSingleEvent = noteData ? noteData.event_start === noteData.event_end : true;
   const initialStart = noteData
-    ? noteData.event_start.slice(0, 16)
+    ? isoToInputDateTime(noteData.event_start)
     : (presetDate ? `${presetDate}T09:00` : '');
-  const initialEnd = noteData && !isSingleEvent ? noteData.event_end.slice(0, 16) : '';
+  const initialEnd = noteData && !isSingleEvent ? isoToInputDateTime(noteData.event_end) : '';
 
   const root = document.createElement('div');
   root.innerHTML = formTpl;
@@ -36,6 +44,7 @@ function buildBody({ noteData, categoriesList, assetsList, usersList, currentUse
   if (isSingleEvent && endGroup) endGroup.classList.add('is-hidden');
 
   const catSel = root.querySelector('select[name="category_id"]');
+  appendOption(catSel, '', '— Без категории —', !noteData?.category_id);
   for (const c of categoriesList) {
     appendOption(catSel, c.id, c.name, noteData?.category_id === c.id, { color: c.color });
   }
@@ -56,6 +65,7 @@ function buildBody({ noteData, categoriesList, assetsList, usersList, currentUse
   }
   for (const u of usersList) {
     const uid = u._id || u.id;
+    if (uid === currentUserId) continue;
     appendOption(userSel, uid, u.full_name || u.username,
                  noteData?.related_user_id === uid);
   }
@@ -82,11 +92,11 @@ export async function openNoteModal({ id = null, presetDate = null, onSaved = nu
   // просто пустой список в соответствующем дропдауне, модалка не падает.
   const [a, u, c] = await Promise.all([
     assets.getAll().catch(() => []),
-    users.getAll().catch(() => []),
+    users.options().catch(() => []),
     categories.getAll(true).catch(() => []),
   ]);
   assetsList = a || [];
-  usersList = (u || []).filter(x => x.is_active !== false);
+  usersList = u || [];
   categoriesList = (c || []).sort((x, y) => {
     if (x.is_default && !y.is_default) return -1;
     if (!x.is_default && y.is_default) return 1;
@@ -138,8 +148,14 @@ export async function openNoteModal({ id = null, presetDate = null, onSaved = nu
       });
     },
     onSubmit: async (data, ctl) => {
-      const errors = validateRequired(data, ['title', 'event_start', 'category_id']);
+      const errors = validateRequired(data, ['title', 'event_start']);
       if (data.title && data.title.length < 2) errors.title = 'Минимум 2 символа';
+
+      const isSingleChecked = data.is_single === 'on';
+      if (!isSingleChecked && data.event_end && data.event_start
+          && new Date(data.event_end) < new Date(data.event_start)) {
+        errors.event_end = 'Окончание не может быть раньше начала';
+      }
 
       if (Object.keys(errors).length > 0) {
         applyValidationErrors(ctl, errors);

@@ -189,7 +189,7 @@ export async function openAssetModal({ mode = 'add', id = null, onSaved = null }
   }
 
   let usersList = [];
-  try { usersList = await api.get('/users'); }
+  try { usersList = await api.get('/users/options'); }
   catch (e) { console.error('users load', e); }
 
   const body = buildBody(asset, usersList);

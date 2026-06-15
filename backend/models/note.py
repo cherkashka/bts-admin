@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 from datetime import datetime
 
@@ -20,6 +20,12 @@ class NoteCreate(BaseModel):
     category_id: Optional[str] = Field(None, description="ID категории (опционально, по умолчанию — системная)")
     related_asset_id: Optional[str] = Field(None, description="ID связанного актива (опционально)")
     related_user_id: Optional[str] = Field(None, description="ID связанного пользователя (опционально)")
+
+    @model_validator(mode="after")
+    def end_not_before_start(self):
+        if self.event_end < self.event_start:
+            raise ValueError("Окончание события не может быть раньше начала")
+        return self
 
 class NoteUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=200)

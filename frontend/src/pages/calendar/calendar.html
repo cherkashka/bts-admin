@@ -1,5 +1,5 @@
 
-<div x-data="calendarPage" x-init="init()">
+<div x-data="calendarPage">
 
   <div class="content-header" style="justify-content: flex-end;">
     <button class="btn"
@@ -184,7 +184,7 @@
         <div class="cal-selected-info">
           <span class="cal-selected-label" x-text="selectedDateLabel"></span>
           <button type="button" class="cal-selected-clear" @click="clearSelectedDate()">
-            <span x-html="Icons.x(14)"></span>
+            <span x-html="Icons.close(14)"></span>
             <span>все события</span>
           </button>
         </div>

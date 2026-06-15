@@ -57,6 +57,8 @@ async function request(endpoint, options = {}, isRetry = false) {
             throw new Error(message);
         }
 
+        if (options.raw) return response;
+
         if (response.status === 204) return null;
         const data = await response.json();
 
@@ -83,7 +85,6 @@ export const api = {
 
 export const auth = {
     login:    (data) => api.post('/auth/login', data),
-    register: (data) => api.post('/auth/register', data),
     logout:   ()     => api.post('/auth/logout'),
     refresh:  ()     => api.post('/auth/refresh'),
     me:       ()     => api.get('/auth/me'),
@@ -93,13 +94,13 @@ export const assets = {
     getAll:          ()          => api.get('/assets'),
     getById:         (id)        => api.get(`/assets/${id}`),
     create:          (data)      => api.post('/assets', data),
-    update:          (id, data)  => api.put(`/assets/${id}`, data),
     patch:           (id, data)  => api.patch(`/assets/${id}`, data),
     delete:          (id)        => api.delete(`/assets/${id}`),
 };
 
 export const users = {
     getAll:          ()          => api.get('/users'),
+    options:         ()          => api.get('/users/options'),
     getById:         (id)        => api.get(`/users/${id}`),
     create:          (data)      => api.post('/users', data),
     update:          (id, data)  => api.put(`/users/${id}`, data),

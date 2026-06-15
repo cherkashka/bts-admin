@@ -33,6 +33,7 @@ Alpine.data('notesPage', () => ({
 
   notes: [],
   total: 0,
+  stats: { total: 0, with_asset: 0, with_user: 0 },
   categoriesById: {},
 
   page: 1,
@@ -56,34 +57,26 @@ Alpine.data('notesPage', () => ({
         return a.name.localeCompare(b.name);
       });
   },
-  get visibleNotes() {
-    const q = this.search.trim().toLowerCase();
-    const cat = this.categoryFilter;
-    return this.notes.filter(n => {
-      if (q) {
-        const blob = [n.title, n.content].filter(Boolean).join(' ').toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
-      if (cat === '__none__') {
-        if (n.category_id) return false;
-      } else if (cat) {
-        if (n.category_id !== cat) return false;
-      }
-      return true;
-    });
-  },
-  get withAssetCount() {
-    return this.notes.filter(n => n.related_asset_id).length;
-  },
-  get withUserCount() {
-    return this.notes.filter(n => n.related_user_id).length;
-  },
+  get visibleNotes() { return this.notes; },
+  get totalAll()       { return this.stats.total; },
+  get withAssetCount() { return this.stats.with_asset; },
+  get withUserCount()  { return this.stats.with_user; },
   get canCreate() {
     return state.can('notes', 'create');
   },
 
   async init() {
+    this.$watch('categoryFilter', () => this.applyFilters());
+    this.$watch('search', () => {
+      clearTimeout(this._searchTimer);
+      this._searchTimer = setTimeout(() => this.applyFilters(), 350);
+    });
     await Promise.all([this.loadCategories(), this.load()]);
+  },
+
+  applyFilters() {
+    this.page = 1;
+    this.load();
   },
 
   async loadCategories() {
@@ -102,11 +95,18 @@ Alpine.data('notesPage', () => ({
     const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
-      const url = `/notes/?skip=${skip}&limit=${this.pageSize}`
+      let url = `/notes/?skip=${skip}&limit=${this.pageSize}`
         + `&sort_by=${this.sortBy}&sort_order=${this.sortOrder}`;
-      const { items, total } = await api.getPaginated(url);
+      if (this.search.trim())   url += `&search=${encodeURIComponent(this.search.trim())}`;
+      if (this.categoryFilter)  url += `&category=${encodeURIComponent(this.categoryFilter)}`;
+
+      const [{ items, total }, stats] = await Promise.all([
+        api.getPaginated(url),
+        api.get('/notes/stats').catch(() => this.stats),
+      ]);
       this.notes = items;
       this.total = total;
+      this.stats = stats;
     } catch (e) {
       console.error('Ошибка загрузки заметок:', e);
       this.notes = [];
@@ -155,10 +155,12 @@ Alpine.data('notesPage', () => ({
   },
 
   canEdit(note) {
-    return state.isAdmin || String(note.created_by) === String(state.user.id);
+    if (state.isAdmin) return true;
+    return String(note.created_by) === String(state.user.id) && state.can('notes', 'update');
   },
   canDelete(note) {
-    return this.canEdit(note);
+    if (state.isAdmin) return true;
+    return String(note.created_by) === String(state.user.id) && state.can('notes', 'delete');
   },
 
   openCreate() {

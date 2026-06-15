@@ -58,6 +58,7 @@ function isOverdue(task) {
 Alpine.data('tasksPage', () => ({
   tasks: [],
   total: 0,
+  stats: { total: 0, in_progress: 0, completed: 0, critical: 0 },
 
   page: 1,
   pageSize: PAGE_SIZE,
@@ -76,32 +77,11 @@ Alpine.data('tasksPage', () => ({
   get pages() {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   },
-  get visibleTasks() {
-    const q = this.search.trim().toLowerCase();
-    const st = this.statusFilter;
-    const pr = this.priorityFilter;
-    const mine = this.onlyMine;
-    const overdueOnly = this.onlyOverdue;
-    const myId = state.user.id;
-    return this.tasks.filter(t => {
-      if (st && t.status !== st) return false;
-      if (pr && t.priority !== pr) return false;
-      if (mine && t.assigned_to !== myId) return false;
-      if (overdueOnly && !isOverdue(t)) return false;
-      if (q) {
-        const blob = [t.title, t.description, t.assigned_to_name]
-          .filter(Boolean).join(' ').toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
-      return true;
-    });
-  },
-  get inProgressCount() { return this.tasks.filter(t => t.status === 'in_progress').length; },
-  get completedCount()  { return this.tasks.filter(t => t.status === 'completed').length; },
-  get criticalCount() {
-    return this.tasks.filter(t => t.priority === 'critical'
-      && t.status !== 'completed' && t.status !== 'cancelled').length;
-  },
+  get visibleTasks() { return this.tasks; },
+  get totalAll()        { return this.stats.total; },
+  get inProgressCount() { return this.stats.in_progress; },
+  get completedCount()  { return this.stats.completed; },
+  get criticalCount()   { return this.stats.critical; },
   get canCreate() { return state.isAdmin || state.can('tasks', 'create'); },
 
   async init() {
@@ -115,7 +95,21 @@ Alpine.data('tasksPage', () => ({
         if (preset.priority) this.priorityFilter = preset.priority;
       }
     } catch {  }
+
+    for (const f of ['statusFilter', 'priorityFilter', 'onlyMine', 'onlyOverdue']) {
+      this.$watch(f, () => this.applyFilters());
+    }
+    this.$watch('search', () => {
+      clearTimeout(this._searchTimer);
+      this._searchTimer = setTimeout(() => this.applyFilters(), 350);
+    });
+
     await this.load();
+  },
+
+  applyFilters() {
+    this.page = 1;
+    this.load();
   },
 
   async load() {
@@ -123,11 +117,21 @@ Alpine.data('tasksPage', () => ({
     const _minLoad = new Promise(r => setTimeout(r, 400));
     try {
       const skip = (this.page - 1) * this.pageSize;
-      const url = `/tasks?skip=${skip}&limit=${this.pageSize}`
+      let url = `/tasks?skip=${skip}&limit=${this.pageSize}`
         + `&sort_by=${this.sortBy}&sort_order=${this.sortOrder}`;
-      const { items, total } = await api.getPaginated(url);
+      if (this.search.trim())   url += `&search=${encodeURIComponent(this.search.trim())}`;
+      if (this.statusFilter)    url += `&status=${this.statusFilter}`;
+      if (this.priorityFilter)  url += `&priority=${this.priorityFilter}`;
+      if (this.onlyMine)        url += `&assigned_to=${state.user.id}`;
+      if (this.onlyOverdue)     url += `&overdue=true`;
+
+      const [{ items, total }, stats] = await Promise.all([
+        api.getPaginated(url),
+        api.get('/tasks/stats').catch(() => this.stats),
+      ]);
       this.tasks = items;
       this.total = total;
+      this.stats = stats;
     } catch (e) {
       console.error('Ошибка загрузки задач:', e);
       this.tasks = [];

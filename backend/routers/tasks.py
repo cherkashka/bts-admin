@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+import re
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from backend.core.database import get_db
 from backend.models.task import TaskCreate, TaskUpdate, TaskResponse
 from backend.core.security import get_current_user
-from backend.core.permissions import require_admin, is_admin, require_permission
+from backend.core.permissions import require_admin, is_admin, require_permission, has_permission
 from backend.core.audit import log_action, snapshot, diff_changes
 from bson import ObjectId
 from datetime import datetime, timezone
@@ -40,7 +41,7 @@ def convert_doc(doc: Dict[str, Any]) -> TaskResponse:
 @router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 async def create_task(
     task: TaskCreate,
-    current_user: dict = Depends(require_admin),
+    current_user: dict = Depends(require_permission("tasks", "create")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
 
@@ -111,6 +112,10 @@ async def get_tasks(
     assigned_to: Optional[str] = None,
     start_date_gte: Optional[datetime] = None,
     due_date_lte: Optional[datetime] = None,
+    search: Optional[str] = None,
+    task_status: Optional[str] = Query(None, alias="status"),
+    priority: Optional[str] = None,
+    overdue: bool = False,
     skip: int = 0,
     limit: int = 0,
     sort_by: str = "start_date",
@@ -132,6 +137,21 @@ async def get_tasks(
     if due_date_lte:
         query.setdefault("due_date", {})["$lte"] = due_date_lte
 
+    if task_status:
+        query["status"] = task_status
+
+    if priority:
+        query["priority"] = priority
+
+    if overdue:
+        query.setdefault("due_date", {})["$lt"] = datetime.now(timezone.utc)
+        if not task_status:
+            query["status"] = {"$nin": ["completed", "cancelled"]}
+
+    if search and search.strip():
+        rx = {"$regex": re.escape(search.strip()), "$options": "i"}
+        query["$or"] = [{"title": rx}, {"description": rx}, {"assigned_to_name": rx}]
+
     total = await db.tasks.count_documents(query)
     response.headers["X-Total-Count"] = str(total)
 
@@ -146,10 +166,25 @@ async def get_tasks(
 
     return [convert_doc(doc) async for doc in cursor if doc]
 
+@router.get("/stats")
+async def get_task_stats(
+    current_user: dict = Depends(require_permission("tasks", "read")),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    return {
+        "total":       await db.tasks.count_documents({}),
+        "in_progress": await db.tasks.count_documents({"status": "in_progress"}),
+        "completed":   await db.tasks.count_documents({"status": "completed"}),
+        "critical":    await db.tasks.count_documents({
+            "priority": "critical",
+            "status": {"$nin": ["completed", "cancelled"]},
+        }),
+    }
+
 @router.get("/{task_id}", response_model=TaskResponse)
 async def get_task(
     task_id: str,
-    current_user: dict = Depends(require_permission("tasks", "read")),
+    current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(task_id):
@@ -158,6 +193,14 @@ async def get_task(
     task = await db.tasks.find_one({"_id": ObjectId(task_id)})
     if not task:
         raise HTTPException(404, "Задача не найдена")
+
+    if not await has_permission(db, current_user, "tasks", "read"):
+        assigned_to = task.get("assigned_to")
+        if not assigned_to or str(assigned_to) != current_user["id"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Нет прав: read для tasks",
+            )
 
     return convert_doc(task)
 
@@ -177,7 +220,7 @@ async def update_task(
 
     update_dict = update_data.model_dump(exclude_unset=True)
 
-    if not is_admin(current_user):
+    if not await has_permission(db, current_user, "tasks", "update"):
         assigned_to = existing_task.get("assigned_to")
         if not assigned_to or str(assigned_to) != current_user["id"]:
             raise HTTPException(
@@ -246,7 +289,7 @@ async def update_task(
 @router.delete("/{task_id}", status_code=204)
 async def delete_task(
     task_id: str,
-    current_user: dict = Depends(require_admin),
+    current_user: dict = Depends(require_permission("tasks", "delete")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(task_id):

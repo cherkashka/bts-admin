@@ -258,17 +258,24 @@ Alpine.data('dashboardPage', () => ({
         }));
     }
 
-    return this.tasks
+    const all = this.tasks
       .filter(t => t.start_date && !isNaN(new Date(t.start_date).getTime()))
-      .map(t => ({ t, d: new Date(t.start_date) }))
-      .filter(x => x.d >= today || (x.t.status !== 'completed' && x.t.status !== 'cancelled'))
-      .sort((a, b) => a.d - b.d)
+      .map(t => ({ t, d: new Date(t.start_date) }));
+    const upcoming = all
+      .filter(x => x.d >= today)
+      .sort((a, b) => a.d - b.d);
+    const overdue = all
+      .filter(x => x.d < today && x.t.status !== 'completed' && x.t.status !== 'cancelled')
+      .sort((a, b) => b.d - a.d);
+
+    return [...upcoming, ...overdue]
       .slice(0, 5)
       .map(({ t, d }) => ({
         id: t.id,
         color: PRIORITY_COLOR[t.priority] || PRIORITY_COLOR.medium,
         title: t.title || 'Без названия',
-        time: d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }),
+        time: d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+          + (d < today ? ' · просрочена' : ''),
       }));
   },
   goCalendar() { window.location.hash = '/calendar'; },

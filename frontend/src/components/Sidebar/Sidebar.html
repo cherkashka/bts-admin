@@ -1,5 +1,5 @@
 
-<div class="side-wrap" x-data="appSidebar" x-init="init()">
+<div class="side-wrap" x-data="appSidebar">
   <div class="side-overlay" x-show="$store.ui.sidebarOpen" @click="$store.ui.closeSidebar()"></div>
   <aside class="side" :class="$store.ui.sidebarOpen ? 'side-open' : ''">
   <div class="side-brand">

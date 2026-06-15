@@ -111,8 +111,9 @@ Alpine.data('calendarPage', () => ({
     const end = `${y}-${pad2(m + 1)}-${lastDay}`;
 
     try {
+      const tzOffset = -new Date().getTimezoneOffset();
       const onlyMineParam = this.onlyMine ? '&only_mine=true' : '';
-      this.allEvents = await api.get(`/calendar/events?start=${start}&end=${end}${onlyMineParam}`);
+      this.allEvents = await api.get(`/calendar/events?start=${start}&end=${end}&tz_offset=${tzOffset}${onlyMineParam}`);
     } catch {
       this.allEvents = [];
     } finally {
@@ -153,12 +154,16 @@ Alpine.data('calendarPage', () => ({
     if (ev.type === 'note') {
       if (ev.category_id) return !!this.filters[`category-${ev.category_id}`];
 
-      for (const k of Object.keys(this.filters)) {
-        if (k.startsWith('category-') && this.filters[k]) return true;
-      }
-      return false;
+      const catKeys = Object.keys(this.filters).filter(k => k.startsWith('category-'));
+      if (catKeys.length === 0) return true;
+      return catKeys.some(k => this.filters[k]);
     }
     return !!this.filters[ev.type];
+  },
+
+  eventCoversDay(ev, dateStr) {
+    if (ev.end_date) return ev.date <= dateStr && dateStr <= ev.end_date;
+    return ev.date === dateStr;
   },
 
   enrich(ev, idx) {
@@ -189,7 +194,7 @@ Alpine.data('calendarPage', () => ({
     const m = this.currentDate.getMonth();
     const daysInMonth = new Date(y, m + 1, 0).getDate();
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = `${today.getFullYear()}-${pad2(today.getMonth() + 1)}-${pad2(today.getDate())}`;
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     const days = [];
@@ -198,7 +203,7 @@ Alpine.data('calendarPage', () => ({
       const cellDate = new Date(y, m, d);
       const dayEvents = this.allEvents
         .filter(e => this.shouldShowEvent(e))
-        .filter(e => e.date === dateStr)
+        .filter(e => this.eventCoversDay(e, dateStr))
         .map((e, i) => this.enrich(e, i));
       days.push({
         dateStr,
@@ -292,7 +297,7 @@ Alpine.data('calendarPage', () => ({
   },
   get displayedEvents() {
     if (!this.selectedDate) return this.visibleEvents;
-    return this.visibleEvents.filter(ev => ev.date === this.selectedDate);
+    return this.visibleEvents.filter(ev => this.eventCoversDay(ev, this.selectedDate));
   },
 
   onDotClick(e, ev) {

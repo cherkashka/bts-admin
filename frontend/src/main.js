@@ -113,6 +113,7 @@ class Router {
       } else {
         window.location.hash = '/dashboard';
       }
+      return;
     }
 
     this.handleRoute();
@@ -121,12 +122,15 @@ class Router {
   async handleRoute() {
     closeModal();
 
-    const hash = window.location.hash.substring(1);
+    const rawHash = window.location.hash.substring(1);
 
-    if (!hash) {
+    if (!rawHash) {
       window.location.hash = this.isLoggedIn ? '/dashboard' : '/login';
       return;
     }
+
+    const [hash, queryString] = rawHash.split('?');
+    const hashParams = new URLSearchParams(queryString || '');
 
     const parts = hash.split('/').filter(Boolean);
     const lvl1 = '/' + (parts[0] || '');
@@ -170,7 +174,7 @@ class Router {
         (lvl2 === '/notes/add'  && state.can('notes', 'create')) ||
         (lvl2 === '/tasks/add'  && (state.isAdmin || state.can('tasks', 'create')));
       if (!allowed) { window.location.hash = '/dashboard'; return; }
-      const presetDate = new URLSearchParams(window.location.search).get('date');
+      const presetDate = hashParams.get('date');
       await this.loadPage(cfg.parent.slice(1));
       await cfg.open({ presetDate });
       return;
@@ -222,13 +226,6 @@ class Router {
 
     if (this.currentPage === pageName) return;
 
-    appElement.innerHTML = appLayoutTpl;
-    appElement.querySelector('.app-shell-sidebar').innerHTML = renderSidebar();
-    appElement.querySelector('.app-shell-header').innerHTML  = renderHeader();
-
-    const contentContainer = document.getElementById('main-content');
-    if (!contentContainer) return;
-
     let html = '';
     if (pageName === 'dashboard')       html = await renderDashboardPage(params);
     else if (pageName === 'assets')     html = await renderAssetsPage(params);
@@ -239,7 +236,15 @@ class Router {
     else if (pageName === 'categories') html = await renderCategoriesPage(params);
     else if (pageName === 'export')     html = await renderExportPage(params);
     else if (pageName === 'audit')      html = await renderAuditPage(params);
+
+    const host = document.createElement('div');
+    host.innerHTML = appLayoutTpl;
+    host.querySelector('.app-shell-sidebar').innerHTML = renderSidebar();
+    host.querySelector('.app-shell-header').innerHTML  = renderHeader();
+    const contentContainer = host.querySelector('#main-content');
+    if (!contentContainer) return;
     contentContainer.innerHTML = html;
+    appElement.replaceChildren(...host.children);
 
     if (pageName === 'dashboard'  && typeof initDashboardEvents  === 'function') initDashboardEvents();
     if (pageName === 'assets'     && typeof initAssetsEvents     === 'function') initAssetsEvents();

@@ -32,9 +32,14 @@
   background-color: var(--bg);
   box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
   border: 1px solid var(--border-soft);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(4.5rem, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "top   top"
+    "value spark";
+  column-gap: 0;
+  align-items: center;
   overflow: hidden;
   transition: all 0.2s var(--ease);
 }
@@ -42,16 +47,33 @@
   box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
 }
 
+@media (min-width: 640px) {
+  .metric-card {
+    grid-template-areas:
+      "top   spark"
+      "value spark";
+    column-gap: 1.25rem;
+  }
+  .metric-card .metric-body { align-self: end; }
+  .metric-card .metric-spark {
+    justify-self: stretch;
+    max-width: none;
+    height: 4rem;
+  }
+}
+
 .metric-top {
+  grid-area: top;
+  align-self: start;
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  position: relative;
-  z-index: 1;
 }
 .metric-icon {
   width: 2.5rem;
   height: 2.5rem;
+  flex: 0 0 2.5rem;
+  aspect-ratio: 1 / 1;
   border-radius: 0.75rem;
   display: inline-flex;
   align-items: center;
@@ -67,7 +89,7 @@
   margin-top: 0.5rem;
 }
 
-.metric-body { position: relative; z-index: 1; }
+.metric-body { grid-area: value; }
 .metric-value {
   font-size: 1.5rem;
   font-weight: 700;
@@ -88,12 +110,12 @@
 .metric-delta.warn { color: var(--warning); }
 
 .metric-spark {
-  position: absolute;
-  right: 0;
-  top: 1rem;
-  width: 6rem;
-  height: 4rem;
-  opacity: 0.4;
+  grid-area: spark;
+  justify-self: center;
+  width: 100%;
+  max-width: 11rem;
+  height: 3.25rem;
+  opacity: 0.45;
   pointer-events: none;
 }
 .metric-spark svg { width: 100%; height: 100%; display: block; }

@@ -1,8 +1,9 @@
 import logging
+import re
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
@@ -37,7 +38,7 @@ def convert_doc(doc: Dict[str, Any]) -> AssetResponse:
 @router.post("", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
 async def create_asset(
     asset: AssetCreate,
-    current_user: dict = Depends(require_admin),
+    current_user: dict = Depends(require_permission("assets", "create")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     asset_dict = asset.model_dump(exclude_none=True)
@@ -87,6 +88,9 @@ _ALLOWED_SORT_FIELDS = {
 @router.get("", response_model=List[AssetResponse])
 async def get_assets(
     response: Response,
+    search: Optional[str] = None,
+    asset_status: Optional[str] = Query(None, alias="status"),
+    asset_type: Optional[str] = None,
     skip: int = 0,
     limit: int = 0,
     sort_by: str = "created_at",
@@ -94,18 +98,42 @@ async def get_assets(
     current_user: dict = Depends(require_permission("assets", "read")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
-    total = await db.assets.count_documents({})
+    query = {}
+    if asset_status:
+        query["status"] = asset_status
+    if asset_type:
+        query["asset_type"] = asset_type
+    if search and search.strip():
+        rx = {"$regex": re.escape(search.strip()), "$options": "i"}
+        query["$or"] = [
+            {"name": rx}, {"inventory_number": rx}, {"serial_number": rx},
+            {"mol_name": rx}, {"location": rx},
+        ]
+
+    total = await db.assets.count_documents(query)
     response.headers["X-Total-Count"] = str(total)
 
     sort_field = sort_by if sort_by in _ALLOWED_SORT_FIELDS else "created_at"
     direction = -1 if sort_order == "desc" else 1
 
-    cursor = db.assets.find().sort(sort_field, direction)
+    cursor = db.assets.find(query).sort(sort_field, direction)
     if skip > 0:
         cursor = cursor.skip(skip)
     if limit > 0:
         cursor = cursor.limit(limit)
     return [convert_doc(doc) async for doc in cursor]
+
+@router.get("/stats")
+async def get_asset_stats(
+    current_user: dict = Depends(require_permission("assets", "read")),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    return {
+        "total":   await db.assets.count_documents({}),
+        "in_use":  await db.assets.count_documents({"status": "in_use"}),
+        "repair":  await db.assets.count_documents({"status": "repair"}),
+        "retired": await db.assets.count_documents({"status": "retired"}),
+    }
 
 @router.get("/{asset_id}", response_model=AssetResponse)
 async def get_asset(
@@ -125,7 +153,7 @@ async def get_asset(
 async def update_asset(
     asset_id: str,
     update_data: AssetUpdate,
-    current_user: dict = Depends(require_admin),
+    current_user: dict = Depends(require_permission("assets", "update")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(asset_id):
@@ -179,7 +207,7 @@ async def update_asset(
 @router.delete("/{asset_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_asset(
     asset_id: str,
-    current_user: dict = Depends(require_admin),
+    current_user: dict = Depends(require_permission("assets", "delete")),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     if not ObjectId.is_valid(asset_id):
