@@ -58,6 +58,21 @@ function fillPermMatrix(rootEl, permissions = {}) {
     }
     body.appendChild(tr);
   }
+
+  for (const res of RESOURCES) {
+    const read = rootEl.querySelector(`[name="perm_${res}_read"]`);
+    if (!read) continue;
+    const others = ['create', 'update', 'delete']
+      .map(a => rootEl.querySelector(`[name="perm_${res}_${a}"]`))
+      .filter(Boolean);
+    if (others.some(c => c.checked)) read.checked = true;
+    read.addEventListener('change', () => {
+      if (!read.checked) others.forEach(c => { c.checked = false; });
+    });
+    for (const c of others) {
+      c.addEventListener('change', () => { if (c.checked) read.checked = true; });
+    }
+  }
 }
 
 function collectPermissions(formEl) {
