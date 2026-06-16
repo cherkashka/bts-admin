@@ -25,8 +25,8 @@ Alpine.data('firstLoginPage', () => ({
     { key: 'categories', label: 'Категории' },
   ],
   actions: [
-    { key: 'create', label: 'Создание' },
     { key: 'read',   label: 'Просмотр' },
+    { key: 'create', label: 'Создание' },
     { key: 'update', label: 'Изменение' },
     { key: 'delete', label: 'Удаление' },
   ],

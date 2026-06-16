@@ -6,7 +6,7 @@ import { Icons } from '../../components/icons.js';
 import tplHtml from './user-modal.html?raw';
 
 const RESOURCES = ['assets', 'tasks', 'notes', 'categories'];
-const ACTIONS   = ['create', 'read', 'update', 'delete'];
+const ACTIONS   = ['read', 'create', 'update', 'delete'];
 const RES_LABEL = { assets: 'Активы', tasks: 'Задачи', notes: 'Заметки', categories: 'Категории' };
 const ACT_LABEL = { create: 'Создание', read: 'Просмотр', update: 'Изменение', delete: 'Удаление' };
 
