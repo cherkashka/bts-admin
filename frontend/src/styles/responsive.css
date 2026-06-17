@@ -41,6 +41,17 @@
   .topbar-search { order: 5; flex: 1 1 100%; width: auto; }
   .topbar-bell, .topbar-avatar { order: 4; }
 
+  /* колокольчик не у края экрана — панель закрепляем по краям вьюпорта, а не по кнопке */
+  .notif-panel {
+    position: fixed;
+    top: 3.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    max-width: none;
+    max-height: 60vh;
+  }
+
   .main-content { padding: 1rem; }
 
   .container-form-page { padding: 1rem; }

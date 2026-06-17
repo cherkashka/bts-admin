@@ -34,10 +34,11 @@ function fmtRange(start, end) {
 
 const DAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
-function bucketByDay(items, getDate, days, now) {
+function bucketByDay(items, getDate, days, now, future = false) {
   const buckets = new Array(days).fill(0);
   const start = dayStart(now);
-  start.setDate(start.getDate() - (days - 1));
+  // прошлое: окно [now-29 … now]; будущее (запланированное): [now … now+29]
+  if (!future) start.setDate(start.getDate() - (days - 1));
   for (const it of items) {
     const raw = getDate(it);
     if (!raw) continue;
@@ -152,15 +153,17 @@ Alpine.data('dashboardPage', () => ({
     const planned  = t.filter(x => x.status === 'pending' && x.start_date && new Date(x.start_date) > now);
     const critical = t.filter(x => x.priority === 'critical' && x.status !== 'completed' && x.status !== 'cancelled');
 
-    const mk = (arr) => {
-      const line = smoothPath(buildPoints(bucketByDay(arr, getDate, 30, now), 100, 50, 4));
+    const mk = (arr, future = false) => {
+      const buckets = bucketByDay(arr, getDate, 30, now, future);
+      if (!buckets.some(v => v > 0)) return { sparkPath: '', sparkArea: '' };
+      const line = smoothPath(buildPoints(buckets, 100, 50, 4));
       return { sparkPath: line, sparkArea: line ? `${line} L100,50 L0,50 Z` : '' };
     };
 
     return [
       { title: 'Активные задачи',        value: active.length,   iconHtml: Icons.clock(18),       gradId: 'm1', route: '/tasks', preset: { status: 'in_progress' }, ...mk(active) },
       { title: 'Закрытые задачи',        value: closed.length,   iconHtml: Icons.checkCircle(18), gradId: 'm2', route: '/tasks', preset: { status: 'completed' },   ...mk(closed) },
-      { title: 'Запланированные работы', value: planned.length,  iconHtml: Icons.calendar(18),    gradId: 'm3', route: '/tasks', preset: { status: 'pending' },     ...mk(planned) },
+      { title: 'Запланированные работы', value: planned.length,  iconHtml: Icons.calendar(18),    gradId: 'm3', route: '/tasks', preset: { status: 'pending' },     ...mk(planned, true) },
       { title: 'Критические задачи',     value: critical.length, iconHtml: Icons.alert(18),       gradId: 'm4', route: '/tasks', preset: { priority: 'critical' },  ...mk(critical) },
     ];
   },
