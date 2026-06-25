@@ -37,7 +37,6 @@ const DAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 function bucketByDay(items, getDate, days, now, future = false) {
   const buckets = new Array(days).fill(0);
   const start = dayStart(now);
-  // прошлое: окно [now-29 … now]; будущее (запланированное): [now … now+29]
   if (!future) start.setDate(start.getDate() - (days - 1));
   for (const it of items) {
     const raw = getDate(it);

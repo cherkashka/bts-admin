@@ -78,22 +78,22 @@
       <thead>
         <tr>
           <th class="th-sortable" @click="setSort('title')">
-            Название <span class="sort-arrow" x-text="sortArrow('title')"></span>
+            Название <span class="sort-arrow" x-html="sortArrow('title')"></span>
           </th>
           <th class="th-sortable" @click="setSort('assigned_to_name')">
-            Исполнитель <span class="sort-arrow" x-text="sortArrow('assigned_to_name')"></span>
+            Исполнитель <span class="sort-arrow" x-html="sortArrow('assigned_to_name')"></span>
           </th>
           <th class="th-sortable" @click="setSort('priority')">
-            Приоритет <span class="sort-arrow" x-text="sortArrow('priority')"></span>
+            Приоритет <span class="sort-arrow" x-html="sortArrow('priority')"></span>
           </th>
           <th class="th-sortable" @click="setSort('status')">
-            Статус <span class="sort-arrow" x-text="sortArrow('status')"></span>
+            Статус <span class="sort-arrow" x-html="sortArrow('status')"></span>
           </th>
           <th class="th-sortable" @click="setSort('start_date')">
-            Начало <span class="sort-arrow" x-text="sortArrow('start_date')"></span>
+            Начало <span class="sort-arrow" x-html="sortArrow('start_date')"></span>
           </th>
           <th class="th-sortable" @click="setSort('due_date')">
-            Дедлайн <span class="sort-arrow" x-text="sortArrow('due_date')"></span>
+            Дедлайн <span class="sort-arrow" x-html="sortArrow('due_date')"></span>
           </th>
           <th class="th-actions">Действия</th>
         </tr>

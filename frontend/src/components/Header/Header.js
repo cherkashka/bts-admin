@@ -77,6 +77,9 @@ Alpine.data('appHeader', () => ({
   get userTitle() {
     return state.user.fullName || state.user.username || 'Выйти';
   },
+  get login() {
+    return state.user.username || '';
+  },
 
   init() {
     this.pageLabel = currentPageLabel();

@@ -29,6 +29,7 @@ export const Icons = {
   chevronDown: (s = 14) => svg(s, '<polyline points="6 9 12 15 18 9"/>'),
   arrowUp:     (s = 12) => svg(s, '<polyline points="18 15 12 9 6 15"/>', 3),
   arrowDown:   (s = 12) => svg(s, '<polyline points="6 9 12 15 18 9"/>', 3),
+  sort:        (s = 12) => svg(s, '<polyline points="7 10 12 5 17 10"/><polyline points="7 14 12 19 17 14"/>', 2.5),
   expand:      (s = 16) => svg(s, '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>'),
   more:        (s = 16) => svg(s, '<circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>'),
   check:       (s = 8)  => svg(s, '<polyline points="20 6 9 17 4 12"/>', 3),

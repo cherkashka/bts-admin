@@ -60,19 +60,19 @@
       <thead>
         <tr>
           <th class="th-sortable" @click="setSort('username')">
-            Логин <span class="sort-arrow" x-text="sortArrow('username')"></span>
+            Логин <span class="sort-arrow" x-html="sortArrow('username')"></span>
           </th>
           <th class="th-sortable" @click="setSort('full_name')">
-            ФИО <span class="sort-arrow" x-text="sortArrow('full_name')"></span>
+            ФИО <span class="sort-arrow" x-html="sortArrow('full_name')"></span>
           </th>
           <th class="th-sortable" @click="setSort('email')">
-            Email <span class="sort-arrow" x-text="sortArrow('email')"></span>
+            Email <span class="sort-arrow" x-html="sortArrow('email')"></span>
           </th>
           <th class="th-sortable" @click="setSort('role')">
-            Роль <span class="sort-arrow" x-text="sortArrow('role')"></span>
+            Роль <span class="sort-arrow" x-html="sortArrow('role')"></span>
           </th>
           <th class="th-sortable" @click="setSort('is_active')">
-            Статус <span class="sort-arrow" x-text="sortArrow('is_active')"></span>
+            Статус <span class="sort-arrow" x-html="sortArrow('is_active')"></span>
           </th>
           <th class="th-actions">Действия</th>
         </tr>

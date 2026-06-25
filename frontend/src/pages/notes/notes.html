@@ -58,15 +58,15 @@
       <thead>
         <tr>
           <th class="th-sortable" @click="setSort('title')">
-            Заголовок <span class="sort-arrow" x-text="sortArrow('title')"></span>
+            Заголовок <span class="sort-arrow" x-html="sortArrow('title')"></span>
           </th>
           <th class="th-sortable" @click="setSort('event_start')">
-            Дата события <span class="sort-arrow" x-text="sortArrow('event_start')"></span>
+            Дата события <span class="sort-arrow" x-html="sortArrow('event_start')"></span>
           </th>
           <th>Категория</th>
           <th>Описание</th>
           <th class="th-sortable" @click="setSort('created_at')">
-            Создано <span class="sort-arrow" x-text="sortArrow('created_at')"></span>
+            Создано <span class="sort-arrow" x-html="sortArrow('created_at')"></span>
           </th>
           <th class="th-actions">Действия</th>
         </tr>

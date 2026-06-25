@@ -124,6 +124,28 @@ function buildSuccessBody({ username, password, emailSent }) {
   return root;
 }
 
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    return;
+  }
+  fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  } catch (e) {}
+}
+
 export function openUserCredentialsModal({ username, password, emailSent, title = 'Данные для входа' } = {}) {
   const ctl = openModal({
     title,
@@ -135,7 +157,7 @@ export function openUserCredentialsModal({ username, password, emailSent, title 
 
   const copyBtn = ctl.bodyEl.querySelector('.um-copy-btn');
   copyBtn?.addEventListener('click', () => {
-    navigator.clipboard.writeText(`Логин: ${username}\nПароль: ${password}`).catch(() => {});
+    copyText(`Логин: ${username}\nПароль: ${password}`);
     copyBtn.textContent = 'Скопировано';
   });
   return ctl;
@@ -191,7 +213,7 @@ export async function openUserModal({ mode = 'add', id = null, onSaved = null } 
         const copyBtn = ctl.bodyEl.querySelector('.um-copy-btn');
         copyBtn?.addEventListener('click', () => {
           const text = `Логин: ${credentials.username}\nПароль: ${credentials.password}`;
-          navigator.clipboard.writeText(text).catch(() => {});
+          copyText(text);
           copyBtn.textContent = 'Скопировано';
         });
 

@@ -331,6 +331,13 @@
 
 [x-cloak] { display: none !important; }
 
+.topbar-username {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  white-space: nowrap;
+}
+
 .topbar-avatar {
   width: 2.5rem;
   height: 2.5rem;

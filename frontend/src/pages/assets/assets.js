@@ -1,6 +1,7 @@
 
 import Alpine from 'alpinejs';
 import tpl from './assets.html?raw';
+import { Icons } from '../../components/icons.js';
 
 import { api, assets as assetsApi } from '../../api/client.js';
 import { toast } from '../../components/Toast/Toast.js';
@@ -128,8 +129,8 @@ Alpine.data('assetsPage', () => ({
     this.load();
   },
   sortArrow(field) {
-    if (this.sortBy !== field) return '↕';
-    return this.sortOrder === 'asc' ? '↑' : '↓';
+    if (this.sortBy !== field) return Icons.sort();
+    return this.sortOrder === 'asc' ? Icons.arrowUp() : Icons.arrowDown();
   },
 
   prevPage() {

@@ -68,19 +68,19 @@
       <thead>
         <tr>
           <th class="th-sortable" @click="setSort('name')">
-            Название <span class="sort-arrow" x-text="sortArrow('name')"></span>
+            Название <span class="sort-arrow" x-html="sortArrow('name')"></span>
           </th>
           <th class="th-sortable" @click="setSort('inventory_number')">
-            Инвентарный № <span class="sort-arrow" x-text="sortArrow('inventory_number')"></span>
+            Инвентарный № <span class="sort-arrow" x-html="sortArrow('inventory_number')"></span>
           </th>
           <th class="th-sortable" @click="setSort('asset_type')">
-            Тип <span class="sort-arrow" x-text="sortArrow('asset_type')"></span>
+            Тип <span class="sort-arrow" x-html="sortArrow('asset_type')"></span>
           </th>
           <th class="th-sortable" @click="setSort('mol_name')">
-            МОЛ <span class="sort-arrow" x-text="sortArrow('mol_name')"></span>
+            МОЛ <span class="sort-arrow" x-html="sortArrow('mol_name')"></span>
           </th>
           <th class="th-sortable" @click="setSort('status')">
-            Статус <span class="sort-arrow" x-text="sortArrow('status')"></span>
+            Статус <span class="sort-arrow" x-html="sortArrow('status')"></span>
           </th>
           <th class="th-actions">Действия</th>
         </tr>

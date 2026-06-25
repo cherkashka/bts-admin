@@ -235,9 +235,9 @@ select[name="category_id"] {
 }
 .table .th-sortable:hover { color: var(--accent, #008080); }
 .table .sort-arrow {
-  display: inline-block;
+  display: inline-flex;
+  vertical-align: middle;
   margin-left: 0.25rem;
-  font-size: 0.85em;
   opacity: 0.6;
 }
 
